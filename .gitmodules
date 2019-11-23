@@ -1,0 +1,3 @@
+[submodule "base-station-2019-frontend"]
+	path = base-station-2019-frontend
+	url = https://github.com/Hyp-ed/base-station-2019-frontend

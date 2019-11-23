@@ -1,0 +1,3 @@
+rootProject.name = 'base-station-2020'
+
+include 'base-station-2019-frontend'
