@@ -81,21 +81,33 @@ public class Server implements Runnable {
     }
 
     private class MessageSender implements Runnable {
+
         private String command;
 
         public MessageSender(JSONObject msg) {
+            //TODO: check for null from json? / throw exception if this fails??
             command = msg.getString("command");
         }
 
         @Override
         public void run() {
-            // TODO: implement sending data
-            // try {
-            //     System.out.println("Sent \"" + command + "\" to client");
-            // }
-            // catch (IOException e) {
-            //     System.out.println("Error sending message to client");
-            // }
+            try {
+                OutputStream os = client.getOutputStream();
+                OutputStreamWriter osw = new OutputStreamWriter(os);
+                BufferedWriter bw = new BufferedWriter(osw);
+                StringBuilder str = new StringBuilder();
+                str.append(command.length());
+                while (str.toString().getBytes().length < 8) {
+                    str.append(' ');
+                }
+                bw.write(str.toString());
+                bw.write(command);
+                bw.flush();
+                System.out.println("Sent \"" + command + "\" to client");
+            }
+            catch (IOException e) {
+                System.out.println("Error sending message to client");
+            }
         }
     }
 
@@ -208,7 +220,7 @@ public class Server implements Runnable {
             buffer.put(teamID);
             buffer.put(status);  // PUT INTO FAULT STATE
             buffer.putInt(0);  // acceleration
-            buffer.putInt(0);  // distance
+            buffer.putInt(0);  // position
             buffer.putInt(0);  // velocity
             buffer.putInt(0);  // battery voltage (optional, set to 0)
             buffer.putInt(0);  // battery current (optional, set to 0)
