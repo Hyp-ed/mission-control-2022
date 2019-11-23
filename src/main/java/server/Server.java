@@ -1,6 +1,6 @@
 package server;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
 import org.springframework.stereotype.Service;
@@ -103,15 +103,18 @@ public class Server implements Runnable {
 
         @Override
         public void run() {
+            System.out.println("Started reading");
             while (true) {
-                // TODO: implement receiving data
-                // try {
-                    
-                // }
-                // catch (IOException e) {
-                //     System.out.println("IO Exception: " + e);
-                //     throw new RuntimeException("Failed getting input stream");
-                // }
+                try {
+                    InputStream is = client.getInputStream();
+                    InputStreamReader isr = new InputStreamReader(is);
+                    BufferedReader br = new BufferedReader(isr);
+                    msgFromClient = new JSONObject(br.readLine());
+                }
+                catch (IOException e) {
+                    System.out.println("IO Exception: " + e);
+                    throw new RuntimeException("Failed getting input stream");
+                }
             }
         }
     }
