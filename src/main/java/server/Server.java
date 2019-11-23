@@ -3,17 +3,8 @@ package server;
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
-import telemetrydata.TelemetryData.*;
 import org.springframework.stereotype.Service;
 import org.json.*;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class Server implements Runnable {
@@ -26,7 +17,7 @@ public class Server implements Runnable {
     private DatagramSocket spaceXSocket; // UDP socket to SpaceX
     private InetAddress spaceXAddress;
 
-    private ClientToServer msgFromClient;
+    private JSONObject msgFromClient;
     private boolean connected;
 
     public Server() {
@@ -90,23 +81,21 @@ public class Server implements Runnable {
     }
 
     private class MessageSender implements Runnable {
-        private ServerToClient.Builder msgBuilder;
+        private String command;
 
         public MessageSender(JSONObject msg) {
-            // TODO: check for null from json? / throw exception if this fails??
-            msgBuilder = ServerToClient.newBuilder().setCommand(ServerToClient.Command.valueOf(msg.getString("command").toUpperCase()));
+            command = msg.getString("command");
         }
 
         @Override
         public void run() {
-            try {
-                ServerToClient msg = msgBuilder.build();
-                msg.writeDelimitedTo(Server.this.client.getOutputStream());
-                System.out.println("Sent \"" + msg.getCommand() + "\" to client");
-            }
-            catch (IOException e) {
-                System.out.println("Error sending message to client");
-            }
+            // TODO: implement sending data
+            // try {
+            //     System.out.println("Sent \"" + command + "\" to client");
+            // }
+            // catch (IOException e) {
+            //     System.out.println("Error sending message to client");
+            // }
         }
     }
 
@@ -114,47 +103,15 @@ public class Server implements Runnable {
 
         @Override
         public void run() {
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-
             while (true) {
-                Future<ClientToServer> futureMsg = executor.submit(new Callable() {
-                    @Override
-                    public ClientToServer call() throws Exception {
-                        try {
-                            return ClientToServer.parseDelimitedFrom(Server.this.client.getInputStream());
-                        }
-                        catch (IOException e) {
-                            System.out.println("IO Exception: " + e);
-                            throw new RuntimeException("Failed getting input stream");
-                        }
-                    }
-                });
-
-                try {
-                    Server.this.msgFromClient = futureMsg.get(3000, TimeUnit.MILLISECONDS);
-
-                    if (Server.this.msgFromClient == null) {
-                        throw new NullPointerException();
-                    }
-                }
-                catch (TimeoutException e) {
-                    futureMsg.cancel(true);
-                    System.out.println("Client did not send message back in time, may be disconnected");
-                    connected = false;
-                    break;
-                }
-                catch (InterruptedException | ExecutionException e) {
-                    System.out.println("Execution of futureMsg was interrupted");
-                    connected = false;
-                    break;
-                }
-                catch (NullPointerException e) {
-                    System.out.println("Client probably disconnected");
-                    connected = false;
-                    break;
-                }
-
-                // executor.shutdownNow();
+                // TODO: implement receiving data
+                // try {
+                    
+                // }
+                // catch (IOException e) {
+                //     System.out.println("IO Exception: " + e);
+                //     throw new RuntimeException("Failed getting input stream");
+                // }
             }
         }
     }
@@ -163,7 +120,7 @@ public class Server implements Runnable {
         private ByteBuffer buffer;
         private byte status;
         private int acceleration;
-        private int position;
+        private int distance;
         private int velocity;
 
         public SpaceXSender() {
@@ -174,44 +131,44 @@ public class Server implements Runnable {
         public void run() {
             while (connected) {
                 if (msgFromClient != null) {  // receiving messages from pod
-                    switch (msgFromClient.getStateMachine().getCurrentState()) {
-                        case INVALID:
+                    switch (msgFromClient.getJSONObject("stateMachine").getString("currentState")) {
+                        case "INVALID":
                             System.out.println("Shouldn't receive this state");
                             break;
-                        case EMERGENCY_BRAKING:
-                        case FAILURE_STOPPED:
+                        case "EMERGENCY_BRAKING":
+                        case "FAILURE_STOPPED":
                             status = 0; // Fault
                             break;
-                        case IDLE:
-                        case CALIBRATING:
-                        case RUN_COMPLETE:
-                        case FINISHED:
+                        case "IDLE":
+                        case "CALIBRATING":
+                        case "RUN_COMPLETE":
+                        case "FINISHED":
                             status = 1; // Safe to approach
                             break;
-                        case READY:
+                        case "READY":
                             status = 2; // Ready to launch
                             break;
-                        case ACCELERATING:
+                        case "ACCELERATING":
                             status = 3; // Launching
                             break;
-                        case NOMINAL_BRAKING:
+                        case "NOMINAL_BRAKING":
                             status = 5; // Braking
                             break;
-                        case EXITING:
+                        case "EXITING":
                             status = 6; // Crawling
                             break;
                         default:
                             status = 0; // Default to fault
                     }
 
-                    acceleration = Math.round(msgFromClient.getNavigation().getAcceleration() * 100);  // times 100 for m/s^2 to cm/s^2
-                    position = Math.round(msgFromClient.getNavigation().getDistance() * 100);  // times 100 for m to cm
-                    velocity = Math.round(msgFromClient.getNavigation().getVelocity() * 100);  // times 100 for m/s to cm/s
+                    acceleration = Math.round(msgFromClient.getJSONObject("navigation").getFloat("acceleration") * 100);  // times 100 for m/s^2 to cm/s^2
+                    distance = Math.round(msgFromClient.getJSONObject("navigation").getFloat("distance") * 100);  // times 100 for m to cm
+                    velocity = Math.round(msgFromClient.getJSONObject("navigation").getFloat("velocity") * 100);  // times 100 for m/s to cm/s
 
                     buffer.put(teamID);
                     buffer.put(status);
                     buffer.putInt(acceleration);  // acceleration
-                    buffer.putInt(position);  // position
+                    buffer.putInt(distance);  // distance
                     buffer.putInt(velocity);  // velocity
                     buffer.putInt(0);  // battery voltage (optional, set to 0)
                     buffer.putInt(0);  // battery current (optional, set to 0)
@@ -248,7 +205,7 @@ public class Server implements Runnable {
             buffer.put(teamID);
             buffer.put(status);  // PUT INTO FAULT STATE
             buffer.putInt(0);  // acceleration
-            buffer.putInt(0);  // position
+            buffer.putInt(0);  // distance
             buffer.putInt(0);  // velocity
             buffer.putInt(0);  // battery voltage (optional, set to 0)
             buffer.putInt(0);  // battery current (optional, set to 0)
@@ -304,7 +261,7 @@ public class Server implements Runnable {
         }
     }
 
-    public ClientToServer getProtoMessage() {
+    public JSONObject getMessage() {
         return msgFromClient;
     }
 

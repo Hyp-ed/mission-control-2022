@@ -8,9 +8,6 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
-import telemetrydata.TelemetryData.*;
-import com.google.protobuf.util.JsonFormat;
-import com.google.protobuf.InvalidProtocolBufferException;
 import org.json.*;
 
 @RestController
@@ -92,22 +89,8 @@ public class Controller {
     }
 
     public void pingData() {
-        ClientToServer msg = server.getProtoMessage();
-
-        try {
-            forwardToFrontend(msg);
+        if (server.getMessage() != null) {
+            template.convertAndSend("/topic/podData", server.getMessage().toString());
         }
-        catch (InvalidProtocolBufferException e) {
-            System.out.println("InvalidProtocolBufferException (Handled): " + e);
-            template.convertAndSend("/topic/errors", "server received invalid protobuf message");
-        }
-        catch (NullPointerException e) {
-            System.out.println("Error (Handled): " + e);
-        }
-    }
-
-    public void forwardToFrontend(ClientToServer msg) throws InvalidProtocolBufferException {
-        JsonFormat.Printer protoJsonPrinter = JsonFormat.printer();
-        template.convertAndSend("/topic/podData", protoJsonPrinter.print(msg));
     }
 }
