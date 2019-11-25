@@ -127,6 +127,11 @@ public class Server implements Runnable {
                     System.out.println("IO Exception: " + e);
                     throw new RuntimeException("Failed getting input stream");
                 }
+                catch (NullPointerException e) {
+                    System.out.println("Client probably disconnected");
+                    connected = false;
+                    break;
+                }
             }
         }
     }
