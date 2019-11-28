@@ -16,8 +16,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.protobuf:protobuf-java:3.6.1'
-    implementation 'com.google.protobuf:protobuf-java-util:3.6.1'
     implementation 'org.json:json:20180813'
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
@@ -27,6 +25,3 @@ dependencies {
 springBoot {
     mainClassName = 'server.Application'
 }
-
-// for Java
-// protoc -I=src/main/proto_types/ --java_out=src/main/java/server/ message.proto
