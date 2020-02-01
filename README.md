@@ -1,6 +1,17 @@
 # Base-Station 2020
 
-This is the backend for the HYPED base-station, and is responsible for communicating with the hyperloop pod and sending relevant commands and information back and forth. Written in Java with the Spring Boot framework, it communicates to the pod using JSON messages sent over a TCP socket, and displays information on the React [frontend](https://github.com/Hyp-ed/base-station-2019-frontend). The web interface is also included in here as a submodule.
+This is the backend for the HYPED base-station, and is responsible for communicating with the hyperloop pod and sending relevant commands and information back and forth. Written in Java with the Spring Boot framework, it communicates to the pod using JSON messages sent over a TCP socket, and displays information on the React [frontend](https://github.com/Hyp-ed/mission-control-2020-frontend). The web interface is also included in here as a submodule.
+
+### How to clone together with frontend submodule
+
+To correctly clone this repo together with [frontend](https://github.com/Hyp-ed/mission-control-2020-frontend) submodule, run:
+```
+git clone --recurse-submodules https://github.com/Hyp-ed/base-station-2020.git
+```
+or
+```
+git clone --recurse-submodules git@github.com:Hyp-ed/base-station-2020.git
+```
 
 ### How to run
 Download the latest release from Github, and run:

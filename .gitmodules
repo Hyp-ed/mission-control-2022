@@ -1,6 +1,4 @@
-[submodule "base-station-2019-frontend"]
-	path = base-station-2019-frontend
-	url = https://github.com/Hyp-ed/base-station-2019-frontend
 [submodule "mission-control-2020-frontend"]
 	path = mission-control-2020-frontend
 	url = https://github.com/Hyp-ed/mission-control-2020-frontend
+	branch = develop
