@@ -25,11 +25,10 @@ public class Controller {
       Thread serverThread = new Thread(server);
       serverThread.start();
       System.out.println("Server started");
+      startPingingData();
     }
   }
 
-  @MessageMapping("/pullData")
-  @SendTo("/topic/isPodConnected")
   public void startPingingData() {
     Thread checkToScheduleThread = new Thread(
       new Runnable() {
