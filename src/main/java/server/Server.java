@@ -12,8 +12,13 @@ public class Server implements Runnable {
 
   private Socket client; // TCP socket to pod
 
-  private JSONObject msgFromClient;
-  private boolean connected = false;
+  // Telemetry
+  private JSONObject telemetryData;
+  private boolean telemetryConnected = false;
+
+  // Debug
+  private String terminalOutput;
+  private boolean debugConnected = false;
 
   // SpaceX
   private static final byte teamID = 11; // given to us by SpaceX
@@ -30,7 +35,7 @@ public class Server implements Runnable {
     while (true) {
         System.out.println("Waiting to connect to client...");
         client = getClientServerFromListener(listener);
-        connected = true;
+        telemetryConnected = true;
         System.out.println("Connected to client");
     
         // Thread spaceXWorker = new Thread(new SpaceXSender());
@@ -52,9 +57,9 @@ public class Server implements Runnable {
     }
   }
 
-  public void sendMessage(String message) {
+  public void sendTelemetryCommand(String command) {
     try {
-      Thread sendWorker = new Thread(new MessageSender(message));
+      Thread sendWorker = new Thread(new MessageSender(command));
       sendWorker.start();
       sendWorker.join();
     } catch (InterruptedException e) {
@@ -67,11 +72,11 @@ public class Server implements Runnable {
   private class MessageSender implements Runnable {
     private String command;
 
-    public MessageSender(String msg) {
-      if (msg == null) {
+    public MessageSender(String command) {
+      if (command == null) {
         throw new NullPointerException();
       }
-      command = msg;
+      this.command = command;
     }
 
     @Override
@@ -105,13 +110,13 @@ public class Server implements Runnable {
           InputStream is = client.getInputStream();
           InputStreamReader isr = new InputStreamReader(is);
           BufferedReader br = new BufferedReader(isr);
-          msgFromClient = new JSONObject(br.readLine());
+          telemetryData = new JSONObject(br.readLine());
         } catch (IOException e) {
           System.out.println("IO Exception: " + e);
           throw new RuntimeException("Failed getting input stream");
         } catch (NullPointerException e) {
           System.out.println("Client probably disconnected");
-          connected = false;
+          telemetryConnected = false;
           break;
         }
       }
@@ -136,9 +141,9 @@ public class Server implements Runnable {
 
     @Override
     public void run() {
-      while (connected) {
-        if (msgFromClient != null) {
-          String state = null; // TODO: get state from msgFromClient
+      while (telemetryConnected) {
+        if (telemetryData != null) {
+          String state = null; // TODO: get state from telemetryData
           Byte status = 0;
           switch (state) {
             case "INVALID":
@@ -170,16 +175,16 @@ public class Server implements Runnable {
               status = 0; // Default to fault
           }
 
-          // TODO: extract data from msgFromClient
+          // TODO: extract data from telemetryData
           // int acceleration = Math.round(
-          //   msgFromClient.getJSONObject("navigation").getFloat("acceleration") *
+          //   telemetryData.getJSONObject("navigation").getFloat("acceleration") *
           //   100
           // ); // times 100 for m/s^2 to cm/s^2
           // int distance = Math.round(
-          //   msgFromClient.getJSONObject("navigation").getFloat("distance") * 100
+          //   telemetryData.getJSONObject("navigation").getFloat("distance") * 100
           // ); // times 100 for m to cm
           // int velocity = Math.round(
-          //   msgFromClient.getJSONObject("navigation").getFloat("velocity") * 100
+          //   telemetryData.getJSONObject("navigation").getFloat("velocity") * 100
           // ); // times 100 for m/s to cm/s
           int acceleration = 0;
           int distance = 0;
@@ -287,11 +292,19 @@ public class Server implements Runnable {
     }
   }
 
-  public JSONObject getMessage() {
-    return msgFromClient;
+  public JSONObject getTelemetryData() {
+    return telemetryData;
   }
 
-  public boolean isConnected() {
-    return connected;
+  public boolean isTelemetryConnected() {
+    return telemetryConnected;
+  }
+
+  public String getTerminalOutput() {
+    return terminalOutput;
+  }
+
+  public boolean isDebugConnected() {
+    return debugConnected;
   }
 }
