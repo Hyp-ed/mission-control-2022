@@ -56,8 +56,8 @@ public class Controller {
     checkToScheduleThread.start();
   }
 
-  @MessageMapping("/sendMessage")
-  @SendTo("/topic/sendMessageStatus")
+  @MessageMapping("/send/telemetry/command")
+  @SendTo("/topic/send/telemetry/command/status")
   public String sendMessage(String msg) {
     try {
       if (server != null && server.isConnected()) {
@@ -73,15 +73,15 @@ public class Controller {
 
   public void pingPodConnectionStatus() {
     if (!server.isConnected()) {
-      template.convertAndSend("/topic/isPodConnected", "DISCONNECTED");
+      template.convertAndSend("/topic/telemetry/connection", "DISCONNECTED");
     } else {
-      template.convertAndSend("/topic/isPodConnected", "CONNECTED");
+      template.convertAndSend("/topic/telemetry/connection", "CONNECTED");
     }
   }
 
   public void pingData() {
     if (server.getMessage() != null) {
-      template.convertAndSend("/topic/podData", server.getMessage().toString());
+      template.convertAndSend("/topic/telemetry/data", server.getMessage().toString());
     }
   }
 }
