@@ -67,7 +67,7 @@ public class Controller {
     public String sendMessage(String msg) {
         try {
             if (server != null && server.isConnected()) {
-                server.sendMessage(new JSONObject(msg));
+                server.sendMessage(msg);
                 return "{\"status\":\"sent msg\", \"message\":" + msg + "}";
             }
         }

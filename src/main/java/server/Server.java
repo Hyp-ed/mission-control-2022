@@ -46,14 +46,14 @@ public class Server implements Runnable {
             System.out.println("Connected to client");
 
             Thread readWorker = new Thread(new MessageReader());
-            Thread udpWorker = new Thread(new SpaceXSender());
+            // Thread udpWorker = new Thread(new SpaceXSender());
 
             readWorker.start();
-            udpWorker.start();
+            // udpWorker.start();
 
             try {
                 readWorker.join();
-                udpWorker.join();
+                // udpWorker.join();
             }
             catch (InterruptedException e) {
                 System.out.println("Problem joining readWorker/udpWorker threads");
@@ -66,7 +66,7 @@ public class Server implements Runnable {
         }
     }
 
-    public void sendMessage(JSONObject message) {
+    public void sendMessage(String message) {
         try {
             Thread sendWorker = new Thread(new MessageSender(message));
             sendWorker.start();
@@ -84,9 +84,8 @@ public class Server implements Runnable {
 
         private String command;
 
-        public MessageSender(JSONObject msg) {
-            //TODO: check for null from json? / throw exception if this fails??
-            command = msg.getString("command");
+        public MessageSender(String msg) {
+            command = msg;
         }
 
         @Override
