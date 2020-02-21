@@ -26,31 +26,29 @@ public class Server implements Runnable {
   public void run() {
     ServerSocket listener = getServerSocket(PORT);
     System.out.println("Server now listening on port " + PORT);
-    System.out.println("Waiting to connect to client...");
 
-    try {
-      client = getClientServerFromListener(listener);
-      connected = true;
-      System.out.println("Connected to client");
-
-      // Thread spaceXWorker = new Thread(new SpaceXSender());
-      Thread messageReaderWorker = new Thread(new MessageReader());
-
-      // spaceXWorker.start();
-      messageReaderWorker.start();
-
-      try {
-        // spaceXWorker.join();
-        messageReaderWorker.join();
-      } catch (InterruptedException e) {
-        System.out.println(
-          "Problem joining spaceXWorker/messageReaderWorker threads"
-        );
-      }
-
-      closeClient(client);
-    } finally {
-      closeServer(listener);
+    while (true) {
+        System.out.println("Waiting to connect to client...");
+        client = getClientServerFromListener(listener);
+        connected = true;
+        System.out.println("Connected to client");
+    
+        // Thread spaceXWorker = new Thread(new SpaceXSender());
+        Thread messageReaderWorker = new Thread(new MessageReader());
+    
+        // spaceXWorker.start();
+        messageReaderWorker.start();
+    
+        try {
+            // spaceXWorker.join();
+            messageReaderWorker.join();
+        } catch (InterruptedException e) {
+            System.out.println(
+            "Problem joining spaceXWorker/messageReaderWorker threads"
+            );
+        }
+    
+        closeClient(client);
     }
   }
 
@@ -225,6 +223,7 @@ public class Server implements Runnable {
       }
 
       // we've disconnected, send one final frame to SpaceX
+      // TODO: catch first disconnection
       buffer.clear();
 
       Byte status = 0;
