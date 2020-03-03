@@ -155,15 +155,27 @@ public class Server implements Runnable {
   }
 
   public void debugRun(JSONArray flags) {
-    while ((debugStatus != DEBUG_STATUS.kCompiled) && (debugStatus != DEBUG_STATUS.kConnected)) {
+    while (debugStatus == DEBUG_STATUS.kCompiling) {
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
     }
+    if (debugStatus != DEBUG_STATUS.kCompiled && debugStatus != DEBUG_STATUS.kConnected) {
+      return;
+    }
     debugSend(RUN_COMMAND, flags);
     debugStatus = DEBUG_STATUS.kRunning;
+  }
+
+  public void debugReset() {
+    if (debugConnected) {
+      debugStatus = DEBUG_STATUS.kConnected;
+    }
+    else {
+      debugStatus = DEBUG_STATUS.kDisconnected;
+    }
   }
 
   public void debugKill() {
@@ -269,7 +281,6 @@ public class Server implements Runnable {
 
           switch (debugStatus) {
             case kCompiling:
-            System.out.println(data.get("success").toString());
               if (
                 (message.equals(MESSAGE_TERMINATED)) &&
                 (data.get("task").toString().equals(COMPILE_COMMAND)) &&
@@ -282,13 +293,7 @@ public class Server implements Runnable {
                 (data.get("success").toString().equals("false"))
               ) {
                 debugStatus = DEBUG_STATUS.kCompilingFailed;
-              }
-              break;
-            case kCompilingFailed:
-              if (message.equals(MESSAGE_ERROR) && (data.get("type").toString().equals(ERROR_COMPILE))) {
-                System.out.println("compile error");
                 debugError = data.get("payload").toString();
-                System.out.println(debugError);
               }
               break;
             case kRunning:
@@ -298,19 +303,10 @@ public class Server implements Runnable {
               else if (message.equals(MESSAGE_TERMINATED) && (data.get("task").toString().equals(RUN_COMMAND))) {
                 debugStatus = DEBUG_STATUS.kConnected;
               }
-              else if (message.equals(MESSAGE_ERROR) && (data.get("type").toString().equals(ERROR_EXECUTION))) {
-                // TODO
-              }
               break;
             case kKilling:
-              if (
-                (message.equals(MESSAGE_COMPLETED)) &&
-                (data.get("task").toString().equals(KILL_COMMAND))
-              ) {
+              if (message.equals(MESSAGE_TERMINATED) && (data.get("task").toString().equals(RUN_COMMAND))) {
                 debugStatus = DEBUG_STATUS.kConnected;
-              } else if (message.equals(MESSAGE_ERROR)) {
-                debugStatus = DEBUG_STATUS.kKillingFailed;
-                debugError = data.get("payload").toString();
               }
               break;
             default:
@@ -525,9 +521,14 @@ public class Server implements Runnable {
   }
 
   private void appendTerminalOutput(JSONArray sourceArray) {
-    for (int i = 0; i < sourceArray.length(); i++) {
-      terminalOutput.put(sourceArray.getJSONObject(i));
+    JSONArray newTerminalOutput = new JSONArray();
+    for (int i = Math.max(0, terminalOutput.length() - (1000 - sourceArray.length())); i < terminalOutput.length(); i++) {
+      newTerminalOutput.put(terminalOutput.getJSONObject(i));
     }
+    for (int i = 0; i < sourceArray.length(); i++) {
+      newTerminalOutput.put(sourceArray.getJSONObject(i));
+    }
+    terminalOutput = newTerminalOutput;
   }
 
   public String getTelemetryData() {

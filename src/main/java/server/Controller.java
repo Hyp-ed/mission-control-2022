@@ -74,6 +74,11 @@ public class Controller {
     server.debugRun(flags);
   }
 
+  @MessageMapping("/send/debug/reset")
+  public void debugReset() {
+    server.debugReset();
+  }
+
   @MessageMapping("/send/debug/kill")
   public void debugKill() {
     server.debugKill();
