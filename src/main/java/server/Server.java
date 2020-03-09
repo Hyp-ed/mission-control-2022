@@ -27,9 +27,7 @@ public class Server implements Runnable {
     kCompiling("COMPILING"),
     kCompilingFailed("COMPILING_FAILED"),
     kCompiled("COMPILED"),
-    kRunning("RUNNING"),
-    kKilling("KILLING"),
-    kKillingFailed("KILLING_FAILED");
+    kRunning("RUNNING");
 
     private final String text;
 
@@ -162,9 +160,13 @@ public class Server implements Runnable {
         e.printStackTrace();
       }
     }
-    if (debugStatus != DEBUG_STATUS.kCompiled && debugStatus != DEBUG_STATUS.kConnected) {
+    if (
+      debugStatus != DEBUG_STATUS.kCompiled &&
+      debugStatus != DEBUG_STATUS.kConnected
+    ) {
       return;
     }
+    terminalOutput = new JSONArray();
     debugSend(RUN_COMMAND, flags);
     debugStatus = DEBUG_STATUS.kRunning;
   }
@@ -172,8 +174,7 @@ public class Server implements Runnable {
   public void debugReset() {
     if (debugConnected) {
       debugStatus = DEBUG_STATUS.kConnected;
-    }
-    else {
+    } else {
       debugStatus = DEBUG_STATUS.kDisconnected;
     }
   }
@@ -187,7 +188,7 @@ public class Server implements Runnable {
       }
     }
     debugSend(KILL_COMMAND);
-    debugStatus = DEBUG_STATUS.kKilling;
+    debugStatus = DEBUG_STATUS.kConnected;
   }
 
   private void debugSend(String command) {
@@ -248,11 +249,17 @@ public class Server implements Runnable {
     @Override
     public void run() {
       System.out.println("Started reading telemetry");
+      InputStream is;
+      try {
+        is = telemetryClient.getInputStream();
+      } catch (IOException e) {
+        System.out.println("IO Exception: " + e);
+        throw new RuntimeException("Failed getting input stream");
+      }
+      InputStreamReader isr = new InputStreamReader(is);
+      BufferedReader br = new BufferedReader(isr);
       while (true) {
         try {
-          InputStream is = telemetryClient.getInputStream();
-          InputStreamReader isr = new InputStreamReader(is);
-          BufferedReader br = new BufferedReader(isr);
           telemetryData = new JSONObject(br.readLine());
         } catch (IOException e) {
           System.out.println("IO Exception: " + e);
@@ -271,12 +278,20 @@ public class Server implements Runnable {
     @Override
     public void run() {
       System.out.println("Started reading debug");
+      InputStream is;
+      try {
+        is = debugClient.getInputStream();
+      } catch (IOException e) {
+        System.out.println("IO Exception: " + e);
+        throw new RuntimeException("Failed getting input stream");
+      }
+      InputStreamReader isr = new InputStreamReader(is);
+      BufferedReader br = new BufferedReader(isr);
       while (true) {
+        String r = "";
         try {
-          InputStream is = debugClient.getInputStream();
-          InputStreamReader isr = new InputStreamReader(is);
-          BufferedReader br = new BufferedReader(isr);
-          JSONObject data = new JSONObject(br.readLine());
+          r = br.readLine();
+          JSONObject data = new JSONObject(r);
           String message = data.get("msg").toString();
 
           switch (debugStatus) {
@@ -298,14 +313,13 @@ public class Server implements Runnable {
               break;
             case kRunning:
               if (message.equals(MESSAGE_CONSOLE_DATA)) {
-                appendTerminalOutput(new JSONArray(data.get("payload").toString()));
-              }
-              else if (message.equals(MESSAGE_TERMINATED) && (data.get("task").toString().equals(RUN_COMMAND))) {
-                debugStatus = DEBUG_STATUS.kConnected;
-              }
-              break;
-            case kKilling:
-              if (message.equals(MESSAGE_TERMINATED) && (data.get("task").toString().equals(RUN_COMMAND))) {
+                appendTerminalOutput(
+                  new JSONArray(data.get("payload").toString())
+                );
+              } else if (
+                message.equals(MESSAGE_TERMINATED) &&
+                (data.get("task").toString().equals(RUN_COMMAND))
+              ) {
                 debugStatus = DEBUG_STATUS.kConnected;
               }
               break;
@@ -314,8 +328,7 @@ public class Server implements Runnable {
               break;
           }
         } catch (JSONException e) {
-          System.out.println("JSONException: " + e);
-          throw new RuntimeException("Failed parsing JSON");
+          System.out.println("Failed parsing JSON :" + r);
         } catch (IOException e) {
           System.out.println("IO Exception: " + e);
           throw new RuntimeException("Failed getting input stream");
@@ -522,7 +535,14 @@ public class Server implements Runnable {
 
   private void appendTerminalOutput(JSONArray sourceArray) {
     JSONArray newTerminalOutput = new JSONArray();
-    for (int i = Math.max(0, terminalOutput.length() - (1000 - sourceArray.length())); i < terminalOutput.length(); i++) {
+    for (
+      int i = Math.max(
+        0,
+        terminalOutput.length() - (100 - sourceArray.length())
+      );
+      i < terminalOutput.length();
+      i++
+    ) {
       newTerminalOutput.put(terminalOutput.getJSONObject(i));
     }
     for (int i = 0; i < sourceArray.length(); i++) {
