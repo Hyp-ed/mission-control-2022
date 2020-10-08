@@ -1,0 +1,40 @@
+.terminal-root {
+    color: white;
+    border-top: 1%;
+    height: 98%;
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
+}
+
+.terminal-content {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 90%;
+    width: 100%;
+    display: block;
+    background-color: black;
+    color: rgb(0, 255, 0);
+    border: 2px solid #1E1E1E;
+    text-align: left;
+}
+
+.terminal-content > .simplebar-track.simplebar-vertical .simplebar-scrollbar:before {
+    background-color: #343434;
+}
+
+.bottom-buttons {
+    margin: 1%;
+    width: 35%;
+    height: 8%;
+    display: flex;
+    justify-content: space-between;
+}
+
+pre {
+    display: block;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+  }

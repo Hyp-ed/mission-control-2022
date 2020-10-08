@@ -1,0 +1,12 @@
+.graphs-container {
+  width: 95%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  overflow: scroll;
+}
+
+.graphs-container:nth-child(2n) {
+  break-after: always;
+  flex-basis: 100%;
+}

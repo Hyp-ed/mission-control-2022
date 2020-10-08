@@ -1,0 +1,139 @@
+.data-row-container {
+  display: flex;
+  position: relative;
+  height: 25px;
+  border-left: 0.5px solid #707070;
+}
+
+.data-row-container:last-child {
+  border-color: transparent;
+}
+
+.data-row {
+  display: grid;
+  grid-auto-rows: 25px;
+  grid-auto-columns: calc(100% / 10);
+  height: 25px;
+  width: 100%;
+  background: rgb(75,75,75);
+  background: linear-gradient(96deg, rgba(75,75,75,1) 10%, rgba(100,100,100,1) 100%);
+  align-items: center;
+  border-style: solid;
+  border-color: black;
+  border-width: 0.5px 0;
+}
+
+.data-row.next {
+  margin-left: 5px;
+  border-left-width: 0.5px;
+  border-left: 0.5px solid #707070;
+}
+
+.data-row-line {
+  display: inline-block;
+  position: relative;
+  left: -0.5px;
+  width: 10px;
+  height: 50%;
+  border-style: solid;
+  border-color: #707070;
+  border-width: 0 0 0.5px 0.5px;
+  z-index: 1;
+}
+
+.data-row > div {
+  display: flex;
+  align-items: center;
+  color: white;
+}
+
+.data-row > .data-row-name {
+  grid-row: 1 / 2;
+  grid-column: 1 / 5;
+  margin-left: 15px;
+  white-space: nowrap;
+  margin-right: 10px;
+}
+
+.data-row > .data-row-bar {
+  grid-row: 1 / 2;
+  grid-column: 5 / 9;
+  height: 70%;
+  background-color: #464646;
+  border: 1px solid #000000;
+  display: grid;
+  grid-template: 1fr / 1fr;
+}
+
+.data-row-bar > * {
+  grid-column: 1 / 1;
+  grid-row: 1 / 1;
+}
+
+.data-row > .data-row-value {
+  grid-row: 1 / 2;
+  grid-column: 9 / 11;
+  justify-content: center;
+  margin-left: 10px;
+}
+
+.data-row > .data-row-value.data-row-value-string {
+  grid-column: 5 / 11;
+  justify-content: flex-end;
+  margin-right: 10px;
+}
+
+.data-row-bar > .progress-bar {
+  height: 100%;
+  transition: width 500ms;
+}
+
+.data-row-bar > .range {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.data-row-bar > .range > .range-border {
+  position: absolute;
+  left: 10%;
+  width: 80%;
+  height: 20%;
+  z-index: 10;
+  border-color: #AF111B;
+  border-width: 0 1px;
+  border-style: solid;
+}
+
+.data-row-bar.alert > .range > .range-border {
+  border-color: white;
+}
+
+.data-row-bar > .range > .range-border.range-border-bottom {
+  top: 80%;
+}
+
+.data-row-bar > .range > .range-value {
+  position: absolute;
+  -webkit-text-stroke: 0.1px white;
+  -webkit-text-fill-color: #AF111B;
+  top: 20%;
+  height: 60%;
+  width: auto;
+  font-size: 8px;
+  z-index: 20;
+}
+
+.data-row-bar.alert > .range > .range-value {
+  -webkit-text-fill-color: white;
+}
+
+.data-row-bar > .range > .range-min {
+  left: 10%;
+  transform: translate(-50%, 0%);
+}
+
+.data-row-bar > .range > .range-max {
+  right: 10%;
+  transform: translate(50%, 0%);
+}

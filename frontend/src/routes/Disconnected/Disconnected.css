@@ -1,0 +1,20 @@
+.disconnected-wrapper {
+  width: 50%;
+  padding: 20px 0;
+  text-align: center;
+}
+
+.disconnected-wrapper-content {
+  width: 100%;
+  text-align: center;
+  color: white;
+  vertical-align: middle;
+  font-size: 1.2vw;
+  margin-bottom: 20px;
+}
+
+.disconnected-wrapper-content .icon {
+  color: yellow;
+  font-size: 1.8vw;
+  margin-right: 20px;
+}

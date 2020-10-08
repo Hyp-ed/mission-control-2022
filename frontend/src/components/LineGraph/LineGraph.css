@@ -1,0 +1,53 @@
+#graph-container {
+  margin: auto;
+  height: 45%;
+  width: 48%;
+  display: flex;
+  align-self: center;
+  align-items: center;
+}
+
+#graph-container:only-child {
+  margin: 0.5em;
+  height: 90%;
+  width: 100%;
+}
+
+#graph-container:nth-child(1):nth-last-child(2),
+#graph-container:nth-child(2):last-child {
+  height: 95%;
+}
+
+#button-container > * {
+  display: flex;
+  color: #8f8f8f;
+  margin-top: 1em;
+  padding: 0.3em;
+}
+
+#button-container > *:hover {
+  cursor: pointer;
+  background-color: #8f8f8f;
+  color: #343434;
+}
+
+#graph-close-button {
+  border-radius: 50%;
+  height: 1em;
+  width: 1em;
+}
+
+#select-button {
+  transform: rotate(-180deg);
+  writing-mode: vertical-rl;
+  font-size: 0.8em;
+  outline-width: 1px;
+  outline-style: solid;
+  outline-color: #8f8f8f;
+}
+
+#graph-wrapper {
+  position: relative;
+  height: 100%;
+  width: 95%;
+}

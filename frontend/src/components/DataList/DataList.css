@@ -1,0 +1,50 @@
+.data-list-header {
+  position: relative;
+  height: 30px;
+  color: white;
+  display: flex;
+  z-index: 2;
+  background: rgb(27,27,27);
+  background: linear-gradient(96deg, rgba(27,27,27,1) 10%, rgba(52,52,52,1) 100%);
+  padding-right: 20px;
+}
+
+.data-list-header:hover {
+  cursor: pointer;
+  background: rgb(27,27,27);
+}
+
+.data-list.next {
+  border-left: 0.5px solid #707070;
+}
+
+.data-list:last-child {
+  border-color: transparent;
+}
+
+.data-list-header > .data-list-header-line {
+  position: relative;
+  left: -0.5px;
+  width: 10px;
+  height: 50%;
+  border-style: solid;
+  border-color: #707070;
+  border-width: 0 0 0.5px 0.5px;
+  z-index: 1;
+}
+
+.data-list-header > .data-list-header-content {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.data-list-header > .data-list-header-content > .data-list-header-content-title {
+  padding-left: 5px;
+}
+
+.data-list-body-collapse {
+  transition: height 500ms;
+  padding-left: 16px;
+}

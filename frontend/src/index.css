@@ -1,0 +1,45 @@
+body {
+  overflow: hidden;
+  margin: 0;
+  background-color: black;
+}
+
+body,
+button,
+input {
+  font-family: "Roboto Mono", monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 2vh;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+button {
+  display: inline-block;
+  border: none;
+  margin: 0;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 150ms ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+button:active:not(.disabled) {
+  transform: scale(0.99);
+}
+
+button:focus {
+  outline: 0;
+}
+
+.centered {
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%);
+}

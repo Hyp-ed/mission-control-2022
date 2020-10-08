@@ -21,7 +21,7 @@ repositories {
 dependencies {
     implementation 'org.json:json:20180813'
     implementation("org.springframework.boot:spring-boot-starter-websocket")
-    runtimeOnly project(':mission-control-2020-frontend')
+    runtimeOnly project(':frontend')
 }
 
 springBoot {

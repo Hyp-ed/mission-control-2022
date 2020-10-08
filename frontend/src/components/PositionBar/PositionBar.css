@@ -1,0 +1,17 @@
+.position-bar-root {
+    width: 40%;
+    height: 50%;
+    display: flex;
+    align-items: center;
+}
+
+.position-bar-background {
+    background-color: white;
+    height: 100%;
+    flex-grow: 1;
+}
+
+.position-value {
+    font-size: 1.1em;
+    margin-left: 5%;
+}

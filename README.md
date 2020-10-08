@@ -1,36 +1,31 @@
-# Base-Station 2020
+# Mission Control 2021
 
-This is the backend for the HYPED base-station, and is responsible for communicating with the hyperloop pod and sending relevant commands and information back and forth. Written in Java with the Spring Boot framework, it communicates to the pod using JSON messages sent over a TCP socket, and displays information on the React [frontend](https://github.com/Hyp-ed/mission-control-2020-frontend). The web interface is also included in here as a submodule.
+This is the repository for the HYPED Mission Control, which is responsible for communicating with the hyperloop pod, sending relevant commands to it and displaying received information in the GUI. Backend is written in Java with the Spring Boot framework, it communicates to the pod using JSON messages sent over a TCP socket, and displays information on the React frontend.
 
 ### How to run
-Download the latest release from Github, and run:
+First of all, make sure that your Java version is 8 or up.
+
+Then download the latest release from Github, and run:
 ```
-$ java -jar base-station-2020.jar
+$ java -jar mission-control-2021.jar
 ```
 
 Go to `localhost:8080` for the gui.
 
 Then run `./hyped` (from the hyped-2020 repo) to start the pod, and you should see the pod connecting on the gui.
 
-### How to clone together with frontend submodule
+### How to build the project:
+This project uses gradle as its build system. Only manually build the project instead of using the released jar file as explained above if you actually intend to work on the mission control. The gradle wrapper is already checked into this repo, so no need to explicitly download gradle (unless you want to).
 
-To correctly clone this repo together with [frontend](https://github.com/Hyp-ed/mission-control-2020-frontend) submodule, run:
-```
-git clone --recurse-submodules https://github.com/Hyp-ed/base-station-2020.git
-```
-or
-```
-git clone --recurse-submodules git@github.com:Hyp-ed/base-station-2020.git
-```
+1. Download and install nodeJS from [nodejs.org](https://nodejs.org/en/) \
+   You can check whether it was successfully installed by typing `node -v && npm -v` in the terminal.
 
-### Build project:
-This project uses gradle as its build system. Only manually build the project instead of using the released jar file as explained above if you actually intend to work on the base-station. The gradle wrapper is already checked into this repo, so no need to explicitly download gradle (unless you want to).
+2. Install yarn: `sudo npm install yarn -g`
 
-Run:
-```
-$ ./gradlew build
-```
+3. Clone this repo
 
-(If on windows use `gradlew.bat` instead of `./gradlew`)
+4. Run to build: `./gradlew build`. This will create a jar file in `build/libs/` that contains both the backend and the static frontend that it serves.
 
-This will create a jar file in `build/libs/` that contains both the backend and the static frontend that it serves.
+5. Launch Mission Control: `java -jar build/libs/mission-control-2021.jar`
+
+6. Go to `localhost:8080` for the gui.

@@ -1,0 +1,38 @@
+.indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40%;
+    height: 20%;
+    border: 2px solid #343434;
+}
+
+.indicator.brake {
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    height: 70%;
+    border: 2px solid #343434;
+}
+
+.indicator.indicator-enabled {
+    background-color: white;
+}
+
+.indicator.indicator-disabled {
+    background-color: red;
+}
+
+.caption {
+    text-align: center;
+    font-size: 1em;
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+.caption.brake {
+    text-align: center;
+    font-size: 0.9em;
+    margin-left: 0;
+    margin-right: 0;
+}

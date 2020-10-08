@@ -1,0 +1,23 @@
+#sidebar-container {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-icon {
+  display: flex;
+  justify-content: center;
+  border-radius: 50%;
+  color: #8f8f8f;
+  font-size: 1.3em;
+  width: 1em;
+  height: 1em;
+  padding: 0.5em;
+  margin: 1em 0.5em 1em 0.5em;
+}
+
+.sidebar-icon:hover {
+  cursor: pointer;
+  background-color: #8f8f8f;
+  color: #343434;
+}
