@@ -16,7 +16,7 @@
 }
 
 .indicator.indicator-enabled {
-    background-color: white;
+    background-color: green;
 }
 
 .indicator.indicator-disabled {
@@ -24,15 +24,15 @@
 }
 
 .indicator.indicator-start {
-    background-color: red;
+    background-color: green;
 }
 
 .indicator.indicator-ready {
-    background-color: red;
+    background-color: greenyellow;
 }
 
 .indicator.indicator-init {
-    background-color: red;
+    background-color: yellow;
 }
 
 .indicator.indicator-fail {
