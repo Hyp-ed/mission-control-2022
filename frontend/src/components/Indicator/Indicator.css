@@ -23,6 +23,22 @@
     background-color: red;
 }
 
+.indicator.indicator-start {
+    background-color: red;
+}
+
+.indicator.indicator-ready {
+    background-color: red;
+}
+
+.indicator.indicator-init {
+    background-color: red;
+}
+
+.indicator.indicator-fail {
+    background-color: red;
+}
+
 .caption {
     text-align: center;
     font-size: 1em;
