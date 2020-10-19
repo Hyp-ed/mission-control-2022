@@ -84,6 +84,12 @@ public class Controller {
     server.debugKill();
   }
 
+  @MessageMapping("/send/telemetry/search")
+  public void updateSearchPrase(String jsonStr) {
+    JSONObject search = new JSONObject(jsonStr);
+    server.updateSearchPhrase(search.getString("searchPhrase"));
+  } 
+
   @MessageMapping("/send/telemetry/command")
   @SendTo("/topic/send/telemetry/command/status")
   public String sendTelemetryCommand(String command) {

@@ -48,12 +48,23 @@ export default function Terminal(props) {
     props.stompClient.send("/app/send/debug/kill", {}, {});
   }
 
+  const handleSearch = (event) => {
+    var myObj = {"searchPhrase": event.target.value};
+    props.stompClient.send("/app/send/telemetry/search", {}, JSON.stringify(myObj));
+  }
+
   return (
     <div className="terminal-root">
       <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
         <pre id="terminal_pre">{getTerminalOutput()}</pre>
       </SimpleBar>
       <div className="bottom-buttons">
+        <input 
+          type="text"
+          placeholder="Search.." 
+          name="search"
+          onChange={handleSearch}
+        ></input>
         <Button
           caption="KILL"
           backgroundColor="#FFFFFF"
