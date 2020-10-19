@@ -47,7 +47,6 @@ export default function Header(props) {
   }
 
   if (props.telemetryData !== null) {
-    console.log('entering here bro ')
     return (
       <header className="header-root">
         <img src={logo} className="hyped-logo" alt="logo" />

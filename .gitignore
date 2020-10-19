@@ -11,4 +11,4 @@ frontend/build
 frontend/build_packageYarnApp
 frontend/.gradle
 
-.DS_Store
+**/.DS_Store

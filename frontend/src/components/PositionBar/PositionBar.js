@@ -11,7 +11,6 @@ export default function PositionBar(props) {
             </div>
             
             <div className="position-value">{(props.telemetryData.crucial_data[0].value).toFixed(0)}{props.telemetryData.crucial_data[0].unit}</div>
-        
         </div>
     )
 }
