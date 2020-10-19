@@ -49,7 +49,7 @@ export default function Header(props) {
   return (
     <header className="header-root">
       <img src={logo} className="hyped-logo" alt="logo" />
-      <PositionBar distance={distance} />
+      <PositionBar telemetryData={props.telemetryData} />
       <p className="timer">{formatTime(time)}</p>
       <div className="pod-status">
         <div className={telemetryConnectionStyle}>
