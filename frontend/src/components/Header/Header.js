@@ -46,20 +46,42 @@ export default function Header(props) {
     distance = Math.round((distance + Number.EPSILON) * 100) / 100
   }
 
-  return (
-    <header className="header-root">
-      <img src={logo} className="hyped-logo" alt="logo" />
-      <PositionBar telemetryData={props.telemetryData} />
-      <p className="timer">{formatTime(time)}</p>
-      <div className="pod-status">
-        <div className={telemetryConnectionStyle}>
-          {props.telemetryConnection ? "CONNECTED" : "DISCONNECTED"}
+  if (props.telemetryData !== null) {
+    console.log('entering here bro ')
+    return (
+      <header className="header-root">
+        <img src={logo} className="hyped-logo" alt="logo" />
+        
+        <PositionBar telemetryData={props.telemetryData} />
+        <p className="timer">{formatTime(time)}</p>
+        <div className="pod-status">
+          <div className={telemetryConnectionStyle}>
+            {props.telemetryConnection ? "CONNECTED" : "DISCONNECTED"}
+          </div>
+          <div className="pod-state">{props.state}</div>
+          <div className="backend-connection">
+            {props.baseStationConnection ? "" : "NOT CONNECTED TO BACKEND"}
+          </div>
         </div>
-        <div className="pod-state">{props.state}</div>
-        <div className="backend-connection">
-          {props.baseStationConnection ? "" : "NOT CONNECTED TO BACKEND"}
+      </header>
+    );
+  }  else {
+    return (
+      <header className="header-root">
+        <img src={logo} className="hyped-logo" alt="logo" />
+        
+        <p className="timer">{formatTime(time)}</p>
+        <div className="pod-status">
+          <div className={telemetryConnectionStyle}>
+            {props.telemetryConnection ? "CONNECTED" : "DISCONNECTED"}
+          </div>
+          <div className="pod-state">{props.state}</div>
+          <div className="backend-connection">
+            {props.baseStationConnection ? "" : "NOT CONNECTED TO BACKEND"}
+          </div>
         </div>
-      </div>
-    </header>
-  );
+      </header>
+    );
+  }
+
 }
