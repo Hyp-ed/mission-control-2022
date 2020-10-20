@@ -17,6 +17,7 @@ public class Server implements Runnable {
   // Telemetry
   private JSONObject telemetryData;
   private boolean telemetryConnected = false;
+  private String searchPhrase;
 
   // Debug
   public static enum DEBUG_STATUS {
@@ -211,6 +212,10 @@ public class Server implements Runnable {
     } catch (IOException e) {
       System.out.println("Error sending " + command + " to DebugClient");
     }
+  }
+
+  public void updateSearchPhrase(String searchPhrase) {
+    this.searchPhrase = searchPhrase;
   }
 
   private class TelemetryMessageSender implements Runnable {
@@ -566,7 +571,20 @@ public class Server implements Runnable {
     if (terminalOutput.isEmpty()) {
       return null;
     }
-    return terminalOutput.toString();
+
+    if (searchPhrase == null) {
+      return terminalOutput.toString();
+    }
+    
+    JSONArray newTerminalOutput = new JSONArray();
+    for (int i = 0; i < terminalOutput.length(); i++) {
+      String cur_line = terminalOutput.getJSONObject(i).toString();
+      if (cur_line.toLowerCase().contains(searchPhrase.toLowerCase())) {
+        newTerminalOutput.put(terminalOutput.getJSONObject(i));
+      }
+    }
+
+    return newTerminalOutput.toString();
   }
 
   public boolean isDebugConnected() {

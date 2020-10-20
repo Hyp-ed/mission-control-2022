@@ -84,6 +84,25 @@ public class Controller {
     server.debugKill();
   }
 
+  @MessageMapping("/send/telemetry/search")
+  public void updateSearchPrase(String jsonStr) {
+    String searchPhrase = null;
+    if (jsonStr != null) {
+      try {
+        JSONObject search = new JSONObject(jsonStr);
+        
+        try {
+          searchPhrase = search.getString("searchPhrase");
+        } catch (Exception e) {
+          System.out.println("Key \"searchPhrase\" does not exist");
+        }
+      } catch (Exception e) {
+        System.out.println("Failed parsing jsonStr into JSONObject");
+      }
+    }
+    server.updateSearchPhrase(searchPhrase);
+  } 
+
   @MessageMapping("/send/telemetry/command")
   @SendTo("/topic/send/telemetry/command/status")
   public String sendTelemetryCommand(String command) {
