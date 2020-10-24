@@ -50,7 +50,7 @@ export default function Terminal(props) {
 
   const handleSearch = (event) => {
     var myObj = {"searchPhrase": event.target.value};
-    props.stompClient.send("/app/send/telemetry/search", {}, JSON.stringify(myObj));
+    props.stompClient.send("/app/send/debug/search", {}, JSON.stringify(myObj));
   }
 
   return (
