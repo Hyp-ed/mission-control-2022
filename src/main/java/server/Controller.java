@@ -84,8 +84,8 @@ public class Controller {
     server.debugKill();
   }
 
-  @MessageMapping("/send/telemetry/search")
-  public void updateSearchPrase(String jsonStr) {
+  @MessageMapping("/send/debug/search")
+  public void debugUpdateSearchPhrase(String jsonStr) {
     String searchPhrase = null;
     if (jsonStr != null) {
       try {
@@ -100,7 +100,7 @@ public class Controller {
         System.out.println("Failed parsing jsonStr into JSONObject");
       }
     }
-    server.updateSearchPhrase(searchPhrase);
+    server.debugUpdateSearchPhrase(searchPhrase);
   } 
 
   @MessageMapping("/send/telemetry/command")
