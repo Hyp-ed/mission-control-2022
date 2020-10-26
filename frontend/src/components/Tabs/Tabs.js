@@ -118,6 +118,8 @@ export default function Tabs(props) {
           <Terminal
             isInactive={!activeTabs[0]}
             terminalOutput={props.terminalOutput}
+            logTypes={props.logTypes}
+            submoduleTypes={props.submoduleTypes}
             stompClient={props.stompClient}
           />
           {/* <Status isInactive={!activeTabs[2]} /> */}

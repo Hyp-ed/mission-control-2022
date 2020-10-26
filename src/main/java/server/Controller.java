@@ -103,6 +103,44 @@ public class Controller {
     server.updateSearchPhrase(searchPhrase);
   } 
 
+  @MessageMapping("/send/telemetry/logType")
+  public void updateLogType(String jsonStr) {
+    String logType = null;
+    if (jsonStr != null) {
+      try {
+        JSONObject obj = new JSONObject(jsonStr);
+        
+        try {
+          logType = obj.getString("logType");
+        } catch (Exception e) {
+          System.out.println("Key \"logType\" does not exist");
+        }
+      } catch (Exception e) {
+        System.out.println("Failed parsing jsonStr into JSONObject");
+      }
+    }
+    server.updateLogTypeFilter(logType);
+  }
+
+  @MessageMapping("/send/telemetry/submodule")
+  public void updateSubmodule(String jsonStr) {
+    String submodule = null;
+    if (jsonStr != null) {
+      try {
+        JSONObject obj = new JSONObject(jsonStr);
+        
+        try {
+          submodule = obj.getString("submodule");
+        } catch (Exception e) {
+          System.out.println("Key \"submodule\" does not exist");
+        }
+      } catch (Exception e) {
+        System.out.println("Failed parsing jsonStr into JSONObject");
+      }
+    }
+    server.updateSubmoduleFilter(submodule);
+  }
+
   @MessageMapping("/send/telemetry/command")
   @SendTo("/topic/send/telemetry/command/status")
   public String sendTelemetryCommand(String command) {

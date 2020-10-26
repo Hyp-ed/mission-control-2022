@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.nio.*;
 import org.json.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +20,10 @@ public class Server implements Runnable {
   private JSONObject telemetryData;
   private boolean telemetryConnected = false;
   private String searchPhrase;
+  private String logTypeFilter;
+  private String submoduleFilter;
+  private List<String> logTypes = new ArrayList<>(List.of(""));
+  private List<String> submoduleTypes = new ArrayList<>(List.of(""));
 
   // Debug
   public static enum DEBUG_STATUS {
@@ -215,7 +221,15 @@ public class Server implements Runnable {
   }
 
   public void updateSearchPhrase(String searchPhrase) {
-    this.searchPhrase = searchPhrase;
+    this.searchPhrase = searchPhrase.toLowerCase();
+  }
+
+  public void updateLogTypeFilter(String logTypeFilter) {
+    this.logTypeFilter = logTypeFilter;
+  }
+
+  public void updateSubmoduleFilter(String submoduleFilter) {
+    this.submoduleFilter = submoduleFilter;
   }
 
   private class TelemetryMessageSender implements Runnable {
@@ -571,20 +585,60 @@ public class Server implements Runnable {
     if (terminalOutput.isEmpty()) {
       return null;
     }
-
-    if (searchPhrase == null) {
-      return terminalOutput.toString();
-    }
     
     JSONArray newTerminalOutput = new JSONArray();
     for (int i = 0; i < terminalOutput.length(); i++) {
-      String cur_line = terminalOutput.getJSONObject(i).toString();
-      if (cur_line.toLowerCase().contains(searchPhrase.toLowerCase())) {
+      JSONObject lineJson = terminalOutput.getJSONObject(i);
+      String cur_line = lineJson.toString();
+      
+      String log_type, submodule, debug_output;
+      boolean check1 = true, check2 = true, check3 = true;
+
+      try {
+        log_type = lineJson.getString("log_type");
+        
+        if (!logTypes.contains(log_type)) {
+          logTypes.add(log_type);
+        }
+
+        check1 = (logTypeFilter == null || log_type.contains(logTypeFilter));
+      } catch (Exception e) {
+        // Don't want to flood stderr
+        // System.err.println("log_type field not found in terminal output line");
+      }
+      try {
+        submodule = lineJson.getString("submodule");
+        
+        if (!submoduleTypes.contains(submodule)) {
+          submoduleTypes.add(submodule);
+        }
+
+        check2 = (submoduleFilter == null || submodule.contains(submoduleFilter));
+      } catch (Exception e) {
+        // System.err.println("submodule field not found in terminal output line");
+      }
+      try {
+        debug_output = lineJson.getString("line").split("]: ")[1].toLowerCase();
+        check3 = (searchPhrase == null || debug_output.contains(searchPhrase));
+      } catch (Exception e) {
+        // System.err.println("debug_output field not found in terminal output line");
+      }
+
+      if (check1 && check2 && check3) {
         newTerminalOutput.put(terminalOutput.getJSONObject(i));
       }
     }
 
-    return newTerminalOutput.toString();
+    JSONObject ret = new JSONObject();
+    if (newTerminalOutput.isEmpty()) {
+      ret.put("terminalOutput", JSONObject.NULL);  
+    } else {
+      ret.put("terminalOutput", newTerminalOutput.toString());
+    }
+    ret.put("logTypes", logTypes);
+    ret.put("submoduleTypes", submoduleTypes);
+
+    return ret.toString();
   }
 
   public boolean isDebugConnected() {

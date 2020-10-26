@@ -28,6 +28,8 @@ export default function Main(props) {
       <Tabs
         telemetryData={props.telemetryData}
         terminalOutput={props.terminalOutput}
+        logTypes={props.logTypes}
+        submoduleTypes={props.submoduleTypes}
         stompClient={props.stompClient}
       />
     </div>
