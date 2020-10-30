@@ -53,7 +53,7 @@ export default function LineGraph(props) {
     setPathData(oldPathData => {
       props.paths.forEach(path => {
         const dataPoint = {
-          x: Date.now(),
+          x: props.telemetryData.time,
           y: getDataPointValue(props.telemetryData, path)
         };
         if (oldPathData.hasOwnProperty(path)) {
