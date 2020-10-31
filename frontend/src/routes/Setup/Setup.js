@@ -11,10 +11,11 @@ import {
   faCheck,
   faRedo
 } from "@fortawesome/free-solid-svg-icons";
+import path from "path"
 
 export default function Setup(props) {
   const history = useHistory();
-  const [ipAddress, setIpAddress] = useState("localhost");
+  const [fileAddress, setFileAddress] = useState("../../../../hyped-pod_code");
   const [flags, setFlags] = useState([]);
 
   const fakeSystems = [
@@ -34,31 +35,31 @@ export default function Setup(props) {
 
   const additional = [];
 
-  const connectButtons = {
-    connect: {
-      caption: "CONNECT",
-      backgroundColor: "bg-white-gradient",
-      icon: faWifi
-    },
-    connecting: {
-      caption: "CONNECTING",
-      backgroundColor: "bg-white-gradient",
-      icon: faSpinner,
-      disabled: true,
-      spin: true
-    },
-    connected: {
-      caption: "CONNECTED",
-      backgroundColor: "bg-green-gradient",
-      icon: faCheck,
-      disabled: true
-    },
-    failed: {
-      caption: "RETRY",
-      backgroundColor: "bg-red-gradient",
-      icon: faRedo
-    }
-  };
+  // const connectButtons = {
+  //   connect: {
+  //     caption: "CONNECT",
+  //     backgroundColor: "bg-white-gradient",
+  //     icon: faWifi
+  //   },
+  //   connecting: {
+  //     caption: "CONNECTING",
+  //     backgroundColor: "bg-white-gradient",
+  //     icon: faSpinner,
+  //     disabled: true,
+  //     spin: true
+  //   },
+  //   connected: {
+  //     caption: "CONNECTED",
+  //     backgroundColor: "bg-green-gradient",
+  //     icon: faCheck,
+  //     disabled: true
+  //   },
+  //   failed: {
+  //     caption: "RETRY",
+  //     backgroundColor: "bg-red-gradient",
+  //     icon: faRedo
+  //   }
+  // };
 
   const getChoiceList = choices => {
     return choices.map(choice => (
@@ -74,56 +75,41 @@ export default function Setup(props) {
     ));
   };
 
-  const getConnectButton = () => {
-    var button;
-    if (props.debugConnection) {
-      button = connectButtons.connected;
-    } else {
-      switch (props.debugStatus) {
-        case "DISCONNECTED":
-          button = connectButtons.connect;
-          break;
-        case "CONNECTING":
-          button = connectButtons.connecting;
-          break;
-        case "CONNECTING_FAILED":
-          button = connectButtons.failed;
-          break;
-        default:
-          button = connectButtons.failed;
-          break;
-      }
-    }
+  // const getConnectButton = () => {
+  //   return (
+  //     <Button
+  //       caption={button.caption}
+  //       handleClick={handleConnectClick}
+  //       backgroundColor={button.backgroundColor}
+  //       icon={button.icon}
+  //       spin={button.spin}
+  //       disabled={button.disabled || ipAddress == ""}
+  //     ></Button>
+  //   );
+  // };
 
-    return (
-      <Button
-        caption={button.caption}
-        handleClick={handleConnectClick}
-        backgroundColor={button.backgroundColor}
-        icon={button.icon}
-        spin={button.spin}
-        disabled={button.disabled || ipAddress == ""}
-      ></Button>
-    );
-  };
-
-  const handleConnectClick = () => {
-    if (
-      (props.debugStatus != "DISCONNECTED" &&
-        props.debugStatus != "CONNECTING_FAILED") ||
-      ipAddress == ""
-    ) {
-      return;
-    }
-    props.stompClient.send("/app/send/debug/connect", {}, ipAddress);
-    console.log("Sent connection command to debug server");
-  };
+  // const handleConnectClick = () => {
+  //   if (
+  //     (props.debugStatus != "DISCONNECTED" &&
+  //       props.debugStatus != "CONNECTING_FAILED") ||
+  //     ipAddress == ""
+  //   ) {
+  //     return;
+  //   }
+  //   props.stompClient.send("/app/send/debug/connect", {}, fileAddress);
+  //   console.log("Sent connection command to debug server");
+  // };
 
   const handleRunClick = () => {
-    if (!props.debugConnection) {
-      return;
+    // if (!props.debugConnection) {
+    //   return;
+    // }
+    const data = {
+      fileAddress,
+      flags
     }
-    props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(flags));
+    console.log(data)
+    props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
     history.push("/main");
   };
 
@@ -139,8 +125,9 @@ export default function Setup(props) {
     history.push("/loading");
   };
 
-  const handleIpAddressChange = e => {
-    setIpAddress(e.target.value);
+  const handleFileAddressChange = e => {
+    const HYPED_PATH = path.join(__dirname, e.target.value);
+    setFileAddress(HYPED_PATH);
   };
 
   const handleFlagChange = e => {
@@ -158,13 +145,13 @@ export default function Setup(props) {
     <div className="setup-wrapper centered">
       <SetupLogo></SetupLogo>
       <div className="input-group">
-        <label>IP address</label>
+        <label>File address</label>
         <div className="input-group-button">
           <input
-            onChange={handleIpAddressChange}
-            defaultValue={"localhost"}
+            onChange={handleFileAddressChange}
+            defaultValue={"../../../../hyped-pod_code"}
           ></input>
-          {getConnectButton()}
+          { /* getConnectButton() */}
         </div>
       </div>
       <div className="input-group">
@@ -181,7 +168,6 @@ export default function Setup(props) {
           handleClick={handleRunClick}
           backgroundColor="bg-white-gradient"
           icon={faPlay}
-          disabled={!props.debugConnection}
         ></Button>
         <Button
           caption="COMPILE & RUN"
