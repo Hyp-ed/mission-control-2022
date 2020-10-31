@@ -63,7 +63,7 @@ public class Server implements Runnable {
 
   private String debugError;
   private JSONArray terminalOutput = new JSONArray();
-  private DEBUG_STATUS debugStatus = DEBUG_STATUS.kDisconnected;
+  private boolean debugStatus = false;
   private boolean debugConnected = false;
 
   @Override
@@ -121,19 +121,20 @@ public class Server implements Runnable {
   //   closeClient(debugClient);
   // }
 
-  public void debugCompile() {
-    while (debugStatus != DEBUG_STATUS.kConnected) {
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
-    debugSend(COMPILE_COMMAND);
-    debugStatus = DEBUG_STATUS.kCompiling;
-  }
+  // public void debugCompile() {
+  //   while (debugStatus != DEBUG_STATUS.kConnected) {
+  //     try {
+  //       Thread.sleep(100);
+  //     } catch (InterruptedException e) {
+  //       e.printStackTrace();
+  //     }
+  //   }
+  //   debugSend(COMPILE_COMMAND);
+  //   debugStatus = DEBUG_STATUS.kCompiling;
+  // }
 
   public void debugRun(JSONArray flags) {
+    debugStatus = true;
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length()-1) + "hyped-pod_code";
 
@@ -153,13 +154,19 @@ public class Server implements Runnable {
                           .start();
       //process.waitFor();              
       BufferedReader reader = new BufferedReader(new InputStreamReader(        
-          process.getInputStream()));   
+          process.getInputStream())); 
+          
+      BufferedReader errReader = new BufferedReader(new InputStreamReader(        
+          process.getErrorStream())); 
   
-      String stdout;  
-      System.out.println(reader.readLine());
-      while ((stdout = reader.readLine()) != null) {                              
-          System.out.println(stdout); 
-          terminalOutput.put(stdout);                        
+      String stdout = null;  
+      String stderr = null;
+      while (debugStatus) {
+          stdout = reader.readLine();      
+          stderr = errReader.readLine();   
+                             
+          if (stdout != null) terminalOutput.put(stdout);                        
+          if (stderr != null) terminalOutput.put(stderr);                   
       }  
     } catch (Throwable t) {
       t.printStackTrace();
@@ -175,15 +182,7 @@ public class Server implements Runnable {
   // }
 
   public void debugKill() {
-    while (debugStatus != DEBUG_STATUS.kRunning) {
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
-    debugSend(KILL_COMMAND);
-    debugStatus = DEBUG_STATUS.kConnected;
+    debugStatus = false;
   }
 
   private void debugSend(String command) {
@@ -259,73 +258,73 @@ public class Server implements Runnable {
     }
   }
 
-  private class DebugMessageReader implements Runnable {
-    @Override
-    public void run() {
-      System.out.println("Started reading debug");
-      InputStream is;
-      try {
-        is = debugClient.getInputStream();
-      } catch (IOException e) {
-        System.out.println("IO Exception: " + e);
-        throw new RuntimeException("Failed getting input stream");
-      }
-      InputStreamReader isr = new InputStreamReader(is);
-      BufferedReader br = new BufferedReader(isr);
-      while (true) {
-        String r = "";
-        try {
-          r = br.readLine();
-          JSONObject data = new JSONObject(r);
-          String message = data.get("msg").toString();
+  // private class DebugMessageReader implements Runnable {
+  //   @Override
+  //   public void run() {
+  //     System.out.println("Started reading debug");
+  //     InputStream is;
+  //     try {
+  //       is = debugClient.getInputStream();
+  //     } catch (IOException e) {
+  //       System.out.println("IO Exception: " + e);
+  //       throw new RuntimeException("Failed getting input stream");
+  //     }
+  //     InputStreamReader isr = new InputStreamReader(is);
+  //     BufferedReader br = new BufferedReader(isr);
+  //     while (true) {
+  //       String r = "";
+  //       try {
+  //         r = br.readLine();
+  //         JSONObject data = new JSONObject(r);
+  //         String message = data.get("msg").toString();
 
-          switch (debugStatus) {
-            case kCompiling:
-              if (
-                (message.equals(MESSAGE_TERMINATED)) &&
-                (data.get("task").toString().equals(COMPILE_COMMAND)) &&
-                (data.get("success").toString().equals("true"))
-              ) {
-                debugStatus = DEBUG_STATUS.kCompiled;
-              } else if (
-                (message.equals(MESSAGE_TERMINATED)) &&
-                (data.get("task").toString().equals(COMPILE_COMMAND)) &&
-                (data.get("success").toString().equals("false"))
-              ) {
-                debugStatus = DEBUG_STATUS.kCompilingFailed;
-                debugError = data.get("payload").toString();
-              }
-              break;
-            case kRunning:
-              if (message.equals(MESSAGE_CONSOLE_DATA)) {
-                appendTerminalOutput(
-                  new JSONArray(data.get("payload").toString())
-                );
-              } else if (
-                message.equals(MESSAGE_TERMINATED) &&
-                (data.get("task").toString().equals(RUN_COMMAND))
-              ) {
-                debugStatus = DEBUG_STATUS.kConnected;
-              }
-              break;
-            default:
-              // ignore the message
-              break;
-          }
-        } catch (JSONException e) {
-          System.out.println("Failed parsing JSON :" + r);
-        } catch (IOException e) {
-          System.out.println("IO Exception: " + e);
-          throw new RuntimeException("Failed getting input stream");
-        } catch (NullPointerException e) {
-          System.out.println("DebugClient probably disconnected");
-          debugConnected = false;
-          debugStatus = DEBUG_STATUS.kDisconnected;
-          break;
-        }
-      }
-    }
-  }
+  //         switch (debugStatus) {
+  //           case kCompiling:
+  //             if (
+  //               (message.equals(MESSAGE_TERMINATED)) &&
+  //               (data.get("task").toString().equals(COMPILE_COMMAND)) &&
+  //               (data.get("success").toString().equals("true"))
+  //             ) {
+  //               debugStatus = DEBUG_STATUS.kCompiled;
+  //             } else if (
+  //               (message.equals(MESSAGE_TERMINATED)) &&
+  //               (data.get("task").toString().equals(COMPILE_COMMAND)) &&
+  //               (data.get("success").toString().equals("false"))
+  //             ) {
+  //               debugStatus = DEBUG_STATUS.kCompilingFailed;
+  //               debugError = data.get("payload").toString();
+  //             }
+  //             break;
+  //           case kRunning:
+  //             if (message.equals(MESSAGE_CONSOLE_DATA)) {
+  //               appendTerminalOutput(
+  //                 new JSONArray(data.get("payload").toString())
+  //               );
+  //             } else if (
+  //               message.equals(MESSAGE_TERMINATED) &&
+  //               (data.get("task").toString().equals(RUN_COMMAND))
+  //             ) {
+  //               debugStatus = DEBUG_STATUS.kConnected;
+  //             }
+  //             break;
+  //           default:
+  //             // ignore the message
+  //             break;
+  //         }
+  //       } catch (JSONException e) {
+  //         System.out.println("Failed parsing JSON :" + r);
+  //       } catch (IOException e) {
+  //         System.out.println("IO Exception: " + e);
+  //         throw new RuntimeException("Failed getting input stream");
+  //       } catch (NullPointerException e) {
+  //         System.out.println("DebugClient probably disconnected");
+  //         debugConnected = false;
+  //         debugStatus = DEBUG_STATUS.kDisconnected;
+  //         break;
+  //       }
+  //     }
+  //   }
+  // }
 
   private static ServerSocket getServerSocket(int portNum) {
     try {
@@ -438,7 +437,7 @@ public class Server implements Runnable {
     return debugError;
   }
 
-  public String getDebugStatus() {
-    return debugStatus.toString();
+  public boolean getDebugStatus() {
+    return debugStatus;
   }
 }

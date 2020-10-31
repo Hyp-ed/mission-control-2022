@@ -61,12 +61,12 @@ public class Controller {
   //   server.debugConnect(serverName);
   // }
 
-  @MessageMapping("/send/debug/compileRun")
-  public void debugCompile(String flagsString) {
-    JSONArray flags = new JSONArray(flagsString);
-    server.debugCompile();
-    server.debugRun(flags);
-  }
+  // @MessageMapping("/send/debug/compileRun")
+  // public void debugCompile(String flagsString) {
+  //   JSONArray flags = new JSONArray(flagsString);
+  //   server.debugCompile();
+  //   server.debugRun(flags);
+  // }
 
   @MessageMapping("/send/debug/run")
   public void debugRun(String flagsString) {
@@ -153,7 +153,7 @@ public class Controller {
   }
 
   public void pingDebugStatus() {
-    if (server.getDebugStatus() != null) {
+    if (server.getDebugStatus() != false) {
       template.convertAndSend(
         "/topic/debug/status",
         server.getDebugStatus()

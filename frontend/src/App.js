@@ -14,7 +14,7 @@ export default function App() {
   const [telemetryConnection, setTelemetryConnection] = useState(false);
   const [telemetryData, setTelemetryData] = useState(null); // change to testData for testing
   const [debugConnection, setDebugConnection] = useState(false);
-  const [debugStatus, setDebugStatus] = useState("DISCONNECTED");
+  const [debugStatus, setDebugStatus] = useState(false);
   const [debugError, setDebugError] = useState(null);
   const [terminalOutput, setTerminalOutput] = useState("");
 
