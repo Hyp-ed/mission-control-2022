@@ -53,13 +53,13 @@ public class Controller {
     checkToScheduleThread.start();
   }
 
-  @MessageMapping("/send/debug/connect")
-  public void debugConnect(String serverName) {
-    if (serverName == null) {
-      return;
-    }
-    server.debugConnect(serverName);
-  }
+  // @MessageMapping("/send/debug/connect")
+  // public void debugConnect(String serverName) {
+  //   if (serverName == null) {
+  //     return;
+  //   }
+  //   server.debugConnect(serverName);
+  // }
 
   @MessageMapping("/send/debug/compileRun")
   public void debugCompile(String flagsString) {
@@ -70,14 +70,14 @@ public class Controller {
 
   @MessageMapping("/send/debug/run")
   public void debugRun(String flagsString) {
-    JSONArray flags = new JSONArray(flagsString);
-    server.debugRun(flags);
+    JSONArray data = new JSONArray(flagsString);
+    server.debugRun(data);
   }
 
-  @MessageMapping("/send/debug/reset")
-  public void debugReset() {
-    server.debugReset();
-  }
+  // @MessageMapping("/send/debug/reset")
+  // public void debugReset() {
+  //   server.debugReset();
+  // }
 
   @MessageMapping("/send/debug/kill")
   public void debugKill() {

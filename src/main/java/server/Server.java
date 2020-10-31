@@ -3,6 +3,9 @@ package server;
 import java.io.*;
 import java.net.*;
 import java.nio.*;
+import java.nio.file.FileSystems;
+import java.util.ArrayList;
+
 import org.json.*;
 import org.springframework.stereotype.Service;
 
@@ -91,32 +94,32 @@ public class Server implements Runnable {
     // closeServer(telemetryServer);
   }
 
-  public void debugConnect(String serverName) {
-    System.out.println("Starting to connect to debug server...");
-    debugStatus = DEBUG_STATUS.kConnecting;
-    debugClient = getDebugClient(serverName, DEBUG_PORT);
+  // public void debugConnect(String serverName) {
+  //   System.out.println("Starting to connect to debug server...");
+  //   debugStatus = DEBUG_STATUS.kConnecting;
+  //   debugClient = getDebugClient(serverName, DEBUG_PORT);
 
-    if (debugClient == null) {
-      System.out.println("Connecting to debug server failed.");
-      debugStatus = DEBUG_STATUS.kConnectingFailed;
-      return;
-    }
+  //   if (debugClient == null) {
+  //     System.out.println("Connecting to debug server failed.");
+  //     debugStatus = DEBUG_STATUS.kConnectingFailed;
+  //     return;
+  //   }
 
-    debugConnected = true;
-    debugStatus = DEBUG_STATUS.kConnected;
-    System.out.println("Connected to debug server");
+  //   debugConnected = true;
+  //   debugStatus = DEBUG_STATUS.kConnected;
+  //   System.out.println("Connected to debug server");
 
-    Thread debugMessageReaderThread = new Thread(new DebugMessageReader());
-    debugMessageReaderThread.start();
+  //   Thread debugMessageReaderThread = new Thread(new DebugMessageReader());
+  //   debugMessageReaderThread.start();
 
-    try {
-      debugMessageReaderThread.join();
-    } catch (InterruptedException e) {
-      System.out.println("Problem joining debugMessageReaderThread thread");
-    }
+  //   try {
+  //     debugMessageReaderThread.join();
+  //   } catch (InterruptedException e) {
+  //     System.out.println("Problem joining debugMessageReaderThread thread");
+  //   }
 
-    closeClient(debugClient);
-  }
+  //   closeClient(debugClient);
+  // }
 
   public void debugCompile() {
     while (debugStatus != DEBUG_STATUS.kConnected) {
@@ -131,31 +134,45 @@ public class Server implements Runnable {
   }
 
   public void debugRun(JSONArray flags) {
-    while (debugStatus == DEBUG_STATUS.kCompiling) {
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+    String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
+    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length()-1) + "hyped-pod_code";
+
+    ArrayList<String> command = new ArrayList<String>();
+    command.add("./hyped");
+    for (int i = 0, size = flags.length(); i < size; i++) {
+      String flag = flags.getString(i);
+      command.add(flag);
     }
-    if (
-      debugStatus != DEBUG_STATUS.kCompiled &&
-      debugStatus != DEBUG_STATUS.kConnected
-    ) {
-      return;
+    command.add("-v");
+    command.add("-d");
+
+    try {
+      System.out.println("Reading from: " + HYPED_PATH);
+      Process process = new ProcessBuilder(command)
+                          .directory(new File(HYPED_PATH))
+                          .start();
+      //process.waitFor();              
+      BufferedReader reader = new BufferedReader(new InputStreamReader(        
+          process.getInputStream()));   
+  
+      String stdout;  
+      System.out.println(reader.readLine());
+      while ((stdout = reader.readLine()) != null) {                              
+          System.out.println(stdout); 
+          terminalOutput.put(stdout);                        
+      }  
+    } catch (Throwable t) {
+      t.printStackTrace();
     }
-    terminalOutput = new JSONArray();
-    debugSend(RUN_COMMAND, flags);
-    debugStatus = DEBUG_STATUS.kRunning;
   }
 
-  public void debugReset() {
-    if (debugConnected) {
-      debugStatus = DEBUG_STATUS.kConnected;
-    } else {
-      debugStatus = DEBUG_STATUS.kDisconnected;
-    }
-  }
+  // public void debugReset() {
+  //   if (debugConnected) {
+  //     debugStatus = DEBUG_STATUS.kConnected;
+  //   } else {
+  //     debugStatus = DEBUG_STATUS.kDisconnected;
+  //   }
+  // }
 
   public void debugKill() {
     while (debugStatus != DEBUG_STATUS.kRunning) {
@@ -404,9 +421,9 @@ public class Server implements Runnable {
     
     JSONArray newTerminalOutput = new JSONArray();
     for (int i = 0; i < terminalOutput.length(); i++) {
-      String cur_line = terminalOutput.getJSONObject(i).toString();
+      String cur_line = terminalOutput.get(i).toString();
       if (cur_line.toLowerCase().contains(searchPhrase.toLowerCase())) {
-        newTerminalOutput.put(terminalOutput.getJSONObject(i));
+        newTerminalOutput.put(terminalOutput.get(i));
       }
     }
 

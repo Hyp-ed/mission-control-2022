@@ -41,7 +41,7 @@ export default function Terminal(props) {
     if (props.terminalOutput == null || !props.terminalOutput) {
         return;
     }
-    return props.terminalOutput.map(log => (log.line + "\n"));
+    return props.terminalOutput.map(log => (log + "\n"));
   };
 
   const handleKillClick = () => {
