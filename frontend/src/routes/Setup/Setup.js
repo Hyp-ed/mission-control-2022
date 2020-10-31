@@ -15,7 +15,6 @@ import path from "path"
 
 export default function Setup(props) {
   const history = useHistory();
-  const [fileAddress, setFileAddress] = useState("../../../../hyped-pod_code");
   const [flags, setFlags] = useState([]);
 
   const fakeSystems = [
@@ -34,33 +33,6 @@ export default function Setup(props) {
   ];
 
   const additional = [];
-
-  // const connectButtons = {
-  //   connect: {
-  //     caption: "CONNECT",
-  //     backgroundColor: "bg-white-gradient",
-  //     icon: faWifi
-  //   },
-  //   connecting: {
-  //     caption: "CONNECTING",
-  //     backgroundColor: "bg-white-gradient",
-  //     icon: faSpinner,
-  //     disabled: true,
-  //     spin: true
-  //   },
-  //   connected: {
-  //     caption: "CONNECTED",
-  //     backgroundColor: "bg-green-gradient",
-  //     icon: faCheck,
-  //     disabled: true
-  //   },
-  //   failed: {
-  //     caption: "RETRY",
-  //     backgroundColor: "bg-red-gradient",
-  //     icon: faRedo
-  //   }
-  // };
-
   const getChoiceList = choices => {
     return choices.map(choice => (
       <div className="input-group-switch">
@@ -75,39 +47,8 @@ export default function Setup(props) {
     ));
   };
 
-  // const getConnectButton = () => {
-  //   return (
-  //     <Button
-  //       caption={button.caption}
-  //       handleClick={handleConnectClick}
-  //       backgroundColor={button.backgroundColor}
-  //       icon={button.icon}
-  //       spin={button.spin}
-  //       disabled={button.disabled || ipAddress == ""}
-  //     ></Button>
-  //   );
-  // };
-
-  // const handleConnectClick = () => {
-  //   if (
-  //     (props.debugStatus != "DISCONNECTED" &&
-  //       props.debugStatus != "CONNECTING_FAILED") ||
-  //     ipAddress == ""
-  //   ) {
-  //     return;
-  //   }
-  //   props.stompClient.send("/app/send/debug/connect", {}, fileAddress);
-  //   console.log("Sent connection command to debug server");
-  // };
-
   const handleRunClick = () => {
-    // if (!props.debugConnection) {
-    //   return;
-    // }
-    const data = {
-      fileAddress,
-      flags
-    }
+    const data = flags;
     console.log(data)
     props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
     history.push("/main");
@@ -125,11 +66,6 @@ export default function Setup(props) {
     history.push("/loading");
   };
 
-  const handleFileAddressChange = e => {
-    const HYPED_PATH = path.join(__dirname, e.target.value);
-    setFileAddress(HYPED_PATH);
-  };
-
   const handleFlagChange = e => {
     var newFlags = flags;
     if (e.target.checked) {
@@ -144,16 +80,6 @@ export default function Setup(props) {
   return (
     <div className="setup-wrapper centered">
       <SetupLogo></SetupLogo>
-      <div className="input-group">
-        <label>File address</label>
-        <div className="input-group-button">
-          <input
-            onChange={handleFileAddressChange}
-            defaultValue={"../../../../hyped-pod_code"}
-          ></input>
-          { /* getConnectButton() */}
-        </div>
-      </div>
       <div className="input-group">
         <label>Fake systems</label>
         <div className="input-group-multiple">{getChoiceList(fakeSystems)}</div>
