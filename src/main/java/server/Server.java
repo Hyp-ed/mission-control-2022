@@ -24,13 +24,8 @@ public class Server implements Runnable {
 
   // Debug
   public static enum DEBUG_STATUS {
-    kDisconnected("DISCONNECTED"),
-    kConnecting("CONNECTING"),
-    kConnectingFailed("CONNECTING_FAILED"),
-    kConnected("CONNECTED"),
-    kCompiling("COMPILING"),
-    kCompilingFailed("COMPILING_FAILED"),
-    kCompiled("COMPILED"),
+    kDisconnected("DISCONNECTED"), kConnecting("CONNECTING"), kConnectingFailed("CONNECTING_FAILED"),
+    kConnected("CONNECTED"), kCompiling("COMPILING"), kCompilingFailed("COMPILING_FAILED"), kCompiled("COMPILED"),
     kRunning("RUNNING");
 
     private final String text;
@@ -77,17 +72,13 @@ public class Server implements Runnable {
       telemetryConnected = true;
       System.out.println("Connected to telemetry client");
 
-      Thread telemetryMessageReaderWorker = new Thread(
-        new TelemetryMessageReader()
-      );
+      Thread telemetryMessageReaderWorker = new Thread(new TelemetryMessageReader());
 
       telemetryMessageReaderWorker.start();
       try {
         telemetryMessageReaderWorker.join();
       } catch (InterruptedException e) {
-        System.out.println(
-          "Problem joining telemetryMessageReaderWorker threads"
-        );
+        System.out.println("Problem joining telemetryMessageReaderWorker threads");
       }
       closeClient(telemetryClient);
     }
@@ -95,48 +86,73 @@ public class Server implements Runnable {
   }
 
   // public void debugConnect(String serverName) {
-  //   System.out.println("Starting to connect to debug server...");
-  //   debugStatus = DEBUG_STATUS.kConnecting;
-  //   debugClient = getDebugClient(serverName, DEBUG_PORT);
+  // System.out.println("Starting to connect to debug server...");
+  // debugStatus = DEBUG_STATUS.kConnecting;
+  // debugClient = getDebugClient(serverName, DEBUG_PORT);
 
-  //   if (debugClient == null) {
-  //     System.out.println("Connecting to debug server failed.");
-  //     debugStatus = DEBUG_STATUS.kConnectingFailed;
-  //     return;
-  //   }
+  // if (debugClient == null) {
+  // System.out.println("Connecting to debug server failed.");
+  // debugStatus = DEBUG_STATUS.kConnectingFailed;
+  // return;
+  // }
 
-  //   debugConnected = true;
-  //   debugStatus = DEBUG_STATUS.kConnected;
-  //   System.out.println("Connected to debug server");
+  // debugConnected = true;
+  // debugStatus = DEBUG_STATUS.kConnected;
+  // System.out.println("Connected to debug server");
 
-  //   Thread debugMessageReaderThread = new Thread(new DebugMessageReader());
-  //   debugMessageReaderThread.start();
+  // Thread debugMessageReaderThread = new Thread(new DebugMessageReader());
+  // debugMessageReaderThread.start();
 
-  //   try {
-  //     debugMessageReaderThread.join();
-  //   } catch (InterruptedException e) {
-  //     System.out.println("Problem joining debugMessageReaderThread thread");
-  //   }
+  // try {
+  // debugMessageReaderThread.join();
+  // } catch (InterruptedException e) {
+  // System.out.println("Problem joining debugMessageReaderThread thread");
+  // }
 
-  //   closeClient(debugClient);
+  // closeClient(debugClient);
   // }
 
   // public void debugCompile() {
-  //   while (debugStatus != DEBUG_STATUS.kConnected) {
-  //     try {
-  //       Thread.sleep(100);
-  //     } catch (InterruptedException e) {
-  //       e.printStackTrace();
-  //     }
-  //   }
-  //   debugSend(COMPILE_COMMAND);
-  //   debugStatus = DEBUG_STATUS.kCompiling;
+  // while (debugStatus != DEBUG_STATUS.kConnected) {
+  // try {
+  // Thread.sleep(100);
+  // } catch (InterruptedException e) {
+  // e.printStackTrace();
   // }
+  // }
+  // debugSend(COMPILE_COMMAND);
+  // debugStatus = DEBUG_STATUS.kCompiling;
+  // }
+  private class StreamGobbler extends Thread {
+    InputStream is;
+    String type;
+
+    private StreamGobbler(InputStream is, String type) {
+        this.is = is;
+        this.type = type;
+    }
+
+    @Override
+    public void run() {
+        try {
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String line = null;
+            while (debugStatus && (line = br.readLine()) != null){
+              System.out.println(type + "> " + line);
+              terminalOutput.put(line);
+            }
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+  }
 
   public void debugRun(JSONArray flags) {
     debugStatus = true;
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
-    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length()-1) + "hyped-pod_code";
+    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
 
     ArrayList<String> command = new ArrayList<String>();
     command.add("./hyped");
@@ -149,25 +165,27 @@ public class Server implements Runnable {
 
     try {
       System.out.println("Reading from: " + HYPED_PATH);
-      Process process = new ProcessBuilder(command)
-                          .directory(new File(HYPED_PATH))
-                          .start();
-      //process.waitFor();              
-      BufferedReader reader = new BufferedReader(new InputStreamReader(        
-          process.getInputStream())); 
+      Process process = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
+      // process.waitFor();
+      BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+      BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+      StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
+      StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), "OUTPUT");
           
-      BufferedReader errReader = new BufferedReader(new InputStreamReader(        
-          process.getErrorStream())); 
-  
-      String stdout = null;  
-      String stderr = null;
-      while (debugStatus) {
-          stdout = reader.readLine();      
-          stderr = errReader.readLine();   
-                             
-          if (stdout != null) terminalOutput.put(stdout);                        
-          if (stderr != null) terminalOutput.put(stderr);                   
-      }  
+      // start gobblers
+      outputGobbler.start();
+      errorGobbler.start();
+
+    //   String stdout = null;  
+    //   String stderr = null;
+    //   while (debugStatus) {
+    //       stdout = reader.readLine();      
+    //       stderr = errReader.readLine();   
+
+    //       if (stdout != null) terminalOutput.put(stdout);                        
+    //       if (stderr != null) terminalOutput.put(stderr);                   
+    //   }  
     } catch (Throwable t) {
       t.printStackTrace();
     }
