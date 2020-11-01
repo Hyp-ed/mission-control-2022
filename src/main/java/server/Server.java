@@ -139,7 +139,7 @@ public class Server implements Runnable {
             BufferedReader br = new BufferedReader(isr);
             String line = null;
             while (debugStatus && (line = br.readLine()) != null){
-              System.out.println(type + "> " + line);
+              //System.out.println(type + "> " + line);
               terminalOutput.put(line);
             }
         }
@@ -166,9 +166,6 @@ public class Server implements Runnable {
     try {
       System.out.println("Reading from: " + HYPED_PATH);
       Process process = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
-      // process.waitFor();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-      BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
       StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
       StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), "OUTPUT");
@@ -177,15 +174,6 @@ public class Server implements Runnable {
       outputGobbler.start();
       errorGobbler.start();
 
-    //   String stdout = null;  
-    //   String stderr = null;
-    //   while (debugStatus) {
-    //       stdout = reader.readLine();      
-    //       stderr = errReader.readLine();   
-
-    //       if (stdout != null) terminalOutput.put(stdout);                        
-    //       if (stderr != null) terminalOutput.put(stderr);                   
-    //   }  
     } catch (Throwable t) {
       t.printStackTrace();
     }
