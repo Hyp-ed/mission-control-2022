@@ -137,6 +137,8 @@ public class Server implements Runnable {
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
 
     ArrayList<String> command = new ArrayList<String>();
+    command.add("stdbuf");
+    command.add("-oL");
     command.add("./hyped");
     for (int i = 0, size = flags.length(); i < size; i++) {
       String flag = flags.getString(i);
