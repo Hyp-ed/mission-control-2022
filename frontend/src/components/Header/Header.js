@@ -18,7 +18,7 @@ export default function Header(props) {
     if (props.startTime == 0) {
       return;
     }
-    return () => clearInterval(setTime(props.telemetryData.time - props.startTime));
+    return () => setTime(props.telemetryData.time - props.startTime);
   }, [props.startTime, props.endTime,props.telemetryData]); //sets interval once when timer state changes
 
   const formatTime = duration => {
