@@ -98,13 +98,11 @@ export default function App() {
       setEndTime(0);
     } else if (state == "ACCELERATING" && startTime == 0) {
       setStartTime(telemetryData.time);
-      
     } else if (
       (state == "RUN_COMPLETE" || state == "FAILURE_STOPPED") &&
       endTime == 0
     ) {
       setEndTime(telemetryData.time);
-
     }
   }, [state]);
 
