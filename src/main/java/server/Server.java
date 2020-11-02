@@ -5,6 +5,8 @@ import java.net.*;
 import java.nio.*;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.*;
 import org.springframework.stereotype.Service;
@@ -85,44 +87,6 @@ public class Server implements Runnable {
     // closeServer(telemetryServer);
   }
 
-  // public void debugConnect(String serverName) {
-  // System.out.println("Starting to connect to debug server...");
-  // debugStatus = DEBUG_STATUS.kConnecting;
-  // debugClient = getDebugClient(serverName, DEBUG_PORT);
-
-  // if (debugClient == null) {
-  // System.out.println("Connecting to debug server failed.");
-  // debugStatus = DEBUG_STATUS.kConnectingFailed;
-  // return;
-  // }
-
-  // debugConnected = true;
-  // debugStatus = DEBUG_STATUS.kConnected;
-  // System.out.println("Connected to debug server");
-
-  // Thread debugMessageReaderThread = new Thread(new DebugMessageReader());
-  // debugMessageReaderThread.start();
-
-  // try {
-  // debugMessageReaderThread.join();
-  // } catch (InterruptedException e) {
-  // System.out.println("Problem joining debugMessageReaderThread thread");
-  // }
-
-  // closeClient(debugClient);
-  // }
-
-  // public void debugCompile() {
-  // while (debugStatus != DEBUG_STATUS.kConnected) {
-  // try {
-  // Thread.sleep(100);
-  // } catch (InterruptedException e) {
-  // e.printStackTrace();
-  // }
-  // }
-  // debugSend(COMPILE_COMMAND);
-  // debugStatus = DEBUG_STATUS.kCompiling;
-  // }
   private class StreamGobbler extends Thread {
     InputStream is;
     String type;
@@ -140,13 +104,31 @@ public class Server implements Runnable {
             String line = null;
             while (debugStatus && (line = br.readLine()) != null){
               //System.out.println(type + "> " + line);
-              terminalOutput.put(line);
+              JSONObject output = parseDebugOutput(line);
+              terminalOutput.put(output);
             }
         }
         catch (IOException ioe) {
             ioe.printStackTrace();
         }
     }
+  }
+
+  public JSONObject parseDebugOutput(String line){
+    JSONObject obj = new JSONObject();
+    //                                     h       m     s        ms     dbg    [submodule]   log
+    Pattern pattern = Pattern.compile("(\\d{2}:\\d{2}:\\d{2}\\.\\d{3}) (\\w*)\\[([\\w-]*)\\]: (.*)");
+    Matcher matcher = pattern.matcher(line);
+
+    if (matcher.find()) {
+      obj.put("time", matcher.group(1));
+      obj.put("log_type", matcher.group(2));
+      obj.put("submodule", matcher.group(3));
+      obj.put("log", matcher.group(4));
+    }
+    
+    obj.put("line", line);
+    return obj;
   }
 
   public void debugRun(JSONArray flags) {
@@ -179,16 +161,10 @@ public class Server implements Runnable {
     }
   }
 
-  // public void debugReset() {
-  //   if (debugConnected) {
-  //     debugStatus = DEBUG_STATUS.kConnected;
-  //   } else {
-  //     debugStatus = DEBUG_STATUS.kDisconnected;
-  //   }
-  // }
-
   public void debugKill() {
     debugStatus = false;
+    telemetryConnected = false;
+    closeClient(telemetryClient);
   }
 
   private void debugSend(String command) {
@@ -263,74 +239,6 @@ public class Server implements Runnable {
       }
     }
   }
-
-  // private class DebugMessageReader implements Runnable {
-  //   @Override
-  //   public void run() {
-  //     System.out.println("Started reading debug");
-  //     InputStream is;
-  //     try {
-  //       is = debugClient.getInputStream();
-  //     } catch (IOException e) {
-  //       System.out.println("IO Exception: " + e);
-  //       throw new RuntimeException("Failed getting input stream");
-  //     }
-  //     InputStreamReader isr = new InputStreamReader(is);
-  //     BufferedReader br = new BufferedReader(isr);
-  //     while (true) {
-  //       String r = "";
-  //       try {
-  //         r = br.readLine();
-  //         JSONObject data = new JSONObject(r);
-  //         String message = data.get("msg").toString();
-
-  //         switch (debugStatus) {
-  //           case kCompiling:
-  //             if (
-  //               (message.equals(MESSAGE_TERMINATED)) &&
-  //               (data.get("task").toString().equals(COMPILE_COMMAND)) &&
-  //               (data.get("success").toString().equals("true"))
-  //             ) {
-  //               debugStatus = DEBUG_STATUS.kCompiled;
-  //             } else if (
-  //               (message.equals(MESSAGE_TERMINATED)) &&
-  //               (data.get("task").toString().equals(COMPILE_COMMAND)) &&
-  //               (data.get("success").toString().equals("false"))
-  //             ) {
-  //               debugStatus = DEBUG_STATUS.kCompilingFailed;
-  //               debugError = data.get("payload").toString();
-  //             }
-  //             break;
-  //           case kRunning:
-  //             if (message.equals(MESSAGE_CONSOLE_DATA)) {
-  //               appendTerminalOutput(
-  //                 new JSONArray(data.get("payload").toString())
-  //               );
-  //             } else if (
-  //               message.equals(MESSAGE_TERMINATED) &&
-  //               (data.get("task").toString().equals(RUN_COMMAND))
-  //             ) {
-  //               debugStatus = DEBUG_STATUS.kConnected;
-  //             }
-  //             break;
-  //           default:
-  //             // ignore the message
-  //             break;
-  //         }
-  //       } catch (JSONException e) {
-  //         System.out.println("Failed parsing JSON :" + r);
-  //       } catch (IOException e) {
-  //         System.out.println("IO Exception: " + e);
-  //         throw new RuntimeException("Failed getting input stream");
-  //       } catch (NullPointerException e) {
-  //         System.out.println("DebugClient probably disconnected");
-  //         debugConnected = false;
-  //         debugStatus = DEBUG_STATUS.kDisconnected;
-  //         break;
-  //       }
-  //     }
-  //   }
-  // }
 
   private static ServerSocket getServerSocket(int portNum) {
     try {
@@ -424,11 +332,11 @@ public class Server implements Runnable {
       return terminalOutput.toString();
     }
     
-    JSONArray newTerminalOutput = new JSONArray();
+JSONArray newTerminalOutput = new JSONArray();
     for (int i = 0; i < terminalOutput.length(); i++) {
-      String cur_line = terminalOutput.get(i).toString();
+      String cur_line = terminalOutput.getJSONObject(i).toString();
       if (cur_line.toLowerCase().contains(searchPhrase.toLowerCase())) {
-        newTerminalOutput.put(terminalOutput.get(i));
+        newTerminalOutput.put(terminalOutput.getJSONObject(i));
       }
     }
 
