@@ -17,7 +17,7 @@ public class Server implements Runnable {
   private static final int DEBUG_PORT = 7070;
 
   private Socket telemetryClient; // TCP socket to pod
-  private Socket debugClient; // TCP socket to debug server
+  private Process debugProcess;
 
   // Telemetry
   private JSONObject telemetryData;
@@ -60,7 +60,6 @@ public class Server implements Runnable {
 
   private String debugError;
   private JSONArray terminalOutput = new JSONArray();
-  private boolean debugStatus = false;
   private boolean debugConnected = false;
 
   @Override
@@ -89,27 +88,24 @@ public class Server implements Runnable {
 
   private class StreamGobbler extends Thread {
     InputStream is;
-    String type;
 
-    private StreamGobbler(InputStream is, String type) {
+    private StreamGobbler(InputStream is) {
         this.is = is;
-        this.type = type;
     }
 
     @Override
     public void run() {
         try {
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String line = null;
-            while (debugStatus && (line = br.readLine()) != null){
-              //System.out.println(type + "> " + line);
-              JSONObject output = parseDebugOutput(line);
-              terminalOutput.put(output);
-            }
+          InputStreamReader isr = new InputStreamReader(is);
+          BufferedReader br = new BufferedReader(isr);
+          String line = null;
+          while ((line = br.readLine()) != null) {
+            JSONObject output = parseDebugOutput(line);
+            terminalOutput.put(output);
+          }
         }
         catch (IOException ioe) {
-            ioe.printStackTrace();
+          System.out.println("StreamGobbler stream has closed");
         }
     }
   }
@@ -132,7 +128,6 @@ public class Server implements Runnable {
   }
 
   public void debugRun(JSONArray flags) {
-    debugStatus = true;
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
 
@@ -149,10 +144,10 @@ public class Server implements Runnable {
 
     try {
       System.out.println("Reading from: " + HYPED_PATH);
-      Process process = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
+      debugProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
 
-      StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
-      StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), "OUTPUT");
+      StreamGobbler errorGobbler = new StreamGobbler(debugProcess.getErrorStream());
+      StreamGobbler outputGobbler = new StreamGobbler(debugProcess.getInputStream());
           
       // start gobblers
       outputGobbler.start();
@@ -164,32 +159,33 @@ public class Server implements Runnable {
   }
 
   public void debugKill() {
-    debugStatus = false;
-    telemetryConnected = false;
-    closeClient(telemetryClient);
-  }
-
-  private void debugSend(String command) {
-    debugSend(command, null);
-  }
-
-  private void debugSend(String command, JSONArray flags) {
-    try {
-      OutputStream os = debugClient.getOutputStream();
-      OutputStreamWriter osw = new OutputStreamWriter(os);
-      BufferedWriter bw = new BufferedWriter(osw);
-      JSONObject message = new JSONObject();
-      message.put("msg", command);
-      if (flags != null) {
-        message.put("flags", flags);
-      }
-      bw.write(message.toString());
-      bw.flush();
-      System.out.println("Sent " + command + " to debug server");
-    } catch (IOException e) {
-      System.out.println("Error sending " + command + " to DebugClient");
+    if (debugProcess == null) {
+      return;
     }
+    debugProcess.destroy();
   }
+
+  // private void debugSend(String command) {
+  //   debugSend(command, null);
+  // }
+
+  // private void debugSend(String command, JSONArray flags) {
+  //   try {
+  //     OutputStream os = debugClient.getOutputStream();
+  //     OutputStreamWriter osw = new OutputStreamWriter(os);
+  //     BufferedWriter bw = new BufferedWriter(osw);
+  //     JSONObject message = new JSONObject();
+  //     message.put("msg", command);
+  //     if (flags != null) {
+  //       message.put("flags", flags);
+  //     }
+  //     bw.write(message.toString());
+  //     bw.flush();
+  //     System.out.println("Sent " + command + " to debug server");
+  //   } catch (IOException e) {
+  //     System.out.println("Error sending " + command + " to DebugClient");
+  //   }
+  // }
 
   public void debugUpdateSearchPhrase(String searchPhrase) {
     this.searchPhrase = searchPhrase;
@@ -354,6 +350,6 @@ JSONArray newTerminalOutput = new JSONArray();
   }
 
   public boolean getDebugStatus() {
-    return debugStatus;
+    return false;
   }
 }
