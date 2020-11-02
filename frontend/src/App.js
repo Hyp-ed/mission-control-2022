@@ -89,12 +89,12 @@ export default function App() {
       setStartTime(0);
       setEndTime(0);
     } else if (state == "ACCELERATING" && startTime == 0) {
-      setStartTime(Date.now());
+      setStartTime(telemetryData.time);
     } else if (
       (state == "RUN_COMPLETE" || state == "FAILURE_STOPPED") &&
       endTime == 0
     ) {
-      setEndTime(Date.now());
+      setEndTime(telemetryData.time);
     }
   }, [state]);
 
