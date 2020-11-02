@@ -48,73 +48,11 @@ export default function Setup(props) {
     ));
   };
 
-
-  const getConnectButton = () => {
-    var button;
-    if (props.debugConnection) {
-      button = connectButtons.connected;
-    } else {
-      switch (props.debugStatus) {
-        case "DISCONNECTED":
-          button = connectButtons.connect;
-          break;
-        case "CONNECTING":
-          button = connectButtons.connecting;
-          break;
-        case "CONNECTING_FAILED":
-          button = connectButtons.failed;
-          break;
-        default:
-          button = connectButtons.failed;
-          break;
-      }
-    }
-
-    return (
-      <Button
-        caption={button.caption}
-        handleClick={handleConnectClick}
-        backgroundColor={button.backgroundColor}
-        icon={button.icon}
-        spin={button.spin}
-        disabled={button.disabled || ipAddress == ""}
-      ></Button>
-    );
-  };
-
-  const handleConnectClick = () => {
-    if (
-      (props.debugStatus != "DISCONNECTED" &&
-        props.debugStatus != "CONNECTING_FAILED") ||
-      ipAddress == ""
-    ) {
-      return;
-    }
-    props.stompClient.send("/app/send/debug/connect", {}, ipAddress);
-    console.log("Sent connection command to debug server");
-  };
-
   const handleRunClick = () => {
     const data = flags;
     console.log(data)
     props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
     history.push("/main");
-  };
-
-  const handleCompileClick = () => {
-    if (!props.debugConnection) {
-      return;
-    }
-    props.stompClient.send(
-      "/app/send/debug/compileRun",
-      {},
-      JSON.stringify(flags)
-    );
-    history.push("/loading");
-  };
-
-  const handleIpAddressChange = e => {
-    setIpAddress(e.target.value);
   };
 
   const initiateFlags = () => {
