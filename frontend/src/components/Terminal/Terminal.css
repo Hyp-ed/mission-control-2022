@@ -28,7 +28,6 @@
     width: 35%;
     height: 8%;
     display: flex;
-    /* justify-content: space-between; */
 }
 
 pre {
@@ -48,8 +47,4 @@ pre {
 
 .footer select {
     min-width: 80px;
-}
-
-.margin div:last-child {
-    margin-left: auto;
 }
