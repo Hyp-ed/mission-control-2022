@@ -18,18 +18,18 @@ export default function Setup(props) {
   const [flags, setFlags] = useState([]);
 
   const fakeSystems = [
-    { name: "IMU", value: "--fake_imu" },
-    { name: "IMU FAIL", value: "--fake_imu_fail" },
-    { name: "Batteries", value: "--fake_batteries" },
-    { name: "Batteries FAIL", value: "--fake_batteries_fail" },
-    { name: "Keyence", value: "--fake_keyence" },
-    { name: "Keyence FAIL", value: "--fake_keyence_fail" },
-    { name: "Temperature", value: "--fake_temperature" },
-    { name: "Temperature FAIL", value: "--fake_temperature_fail" },
-    { name: "Embrakes", value: "--fake_embrakes" },
-    { name: "Motors", value: "--fake_motors" },
-    { name: "Battery test", value: "--battery_test" },
-    { name: "High power", value: "--fake_highpower" }
+    { name: "IMU", value: "--fake_imu", defaultChecked: true },
+    { name: "IMU FAIL", value: "--fake_imu_fail", defaultChecked: false },
+    { name: "Batteries", value: "--fake_batteries", defaultChecked: true },
+    { name: "Batteries FAIL", value: "--fake_batteries_fail", defaultChecked: false },
+    { name: "Keyence", value: "--fake_keyence", defaultChecked: true },
+    { name: "Keyence FAIL", value: "--fake_keyence_fail", defaultChecked: false },
+    { name: "Temperature", value: "--fake_temperature", defaultChecked: true },
+    { name: "Temperature FAIL", value: "--fake_temperature_fail", defaultChecked: false },
+    { name: "Embrakes", value: "--fake_embrakes", defaultChecked: true },
+    { name: "Motors", value: "--fake_motors", defaultChecked: true },
+    { name: "Battery test", value: "--battery_test", defaultChecked: false },
+    { name: "High power", value: "--fake_highpower", defaultChecked: true }
   ];
 
   const additional = [];
@@ -68,11 +68,13 @@ export default function Setup(props) {
           class="switch"
           value={choice.value}
           onChange={handleFlagChange}
+          defaultChecked={choice.defaultChecked}
         ></input>
         <label>{choice.name}</label>
       </div>
     ));
   };
+
 
   const getConnectButton = () => {
     var button;
@@ -143,6 +145,18 @@ export default function Setup(props) {
     setIpAddress(e.target.value);
   };
 
+  const initiateFlags = () => {
+    var newFlags = flags;
+
+    newFlags.push("--fake_imu");
+    newFlags.push("--fake_batteries");
+    newFlags.push("--fake_keyence");
+    newFlags.push("--fake_temperature");
+    newFlags.push("--fake_embrakes");
+    newFlags.push("--fake_motors");
+    newFlags.push("--fake_highpower");
+      };
+
   const handleFlagChange = e => {
     var newFlags = flags;
     if (e.target.checked) {
@@ -152,6 +166,16 @@ export default function Setup(props) {
     }
     setFlags(newFlags);
   };
+
+  // document.onkeypress = function (e) {
+  //   if (e.code == "Enter") {
+  //     handleConnectClick();
+  //   }
+  // };
+
+  useEffect(() => {
+    initiateFlags();
+  }, []); // Only run once
 
   // TODO: fittext
   return (
