@@ -5,6 +5,7 @@ import java.net.*;
 import java.nio.*;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,16 +61,17 @@ public class Server implements Runnable {
 
     @Override
     public void run() {
-      try {
+      try(Scanner scan = new Scanner(is);) {
         InputStreamReader isr = new InputStreamReader(is);
-        BufferedReader br = new BufferedReader(isr);
+        //BufferedReader br = new BufferedReader(isr);
+        
         String line = null;
-        while ((line = br.readLine()) != null) {
+        while ((line = scan.nextLine()) != null) {
           JSONObject output = parseDebugOutput(line);
           terminalOutput.put(output);
         }
       }
-      catch (IOException ioe) {
+      catch (Exception e) {
         System.out.println("StreamGobbler stream has closed");
       }
     }
@@ -95,10 +97,15 @@ public class Server implements Runnable {
   public void debugRun(JSONArray flags) {
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code"; // change this part for RELEASE
+    String os = System.getProperty("os.name").substring(0,3);
 
     ArrayList<String> command = new ArrayList<String>();
-    command.add("stdbuf");
-    command.add("-oL");
+
+    if(!os.equals("Mac")){
+      command.add("stdbuf");
+      command.add("-oL");
+    }
+
     command.add("./hyped");
     for (int i = 0, size = flags.length(); i < size; i++) {
       String flag = flags.getString(i);
