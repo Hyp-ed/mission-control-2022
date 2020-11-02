@@ -5,10 +5,12 @@ bin
 .project
 .settings
 .vscode
+.python-version
 
 frontend/node_modules
 frontend/build
 frontend/build_packageYarnApp
 frontend/.gradle
+hyped-pod_code
 
 **/.DS_Store

@@ -14,8 +14,7 @@ export default function App() {
   const [telemetryConnection, setTelemetryConnection] = useState(false);
   const [telemetryData, setTelemetryData] = useState(null); // change to testData for testing
   const [debugConnection, setDebugConnection] = useState(false);
-  const [debugStatus, setDebugStatus] = useState("DISCONNECTED");
-  const [debugError, setDebugError] = useState(null);
+  const [debugStatus, setDebugStatus] = useState(false);
   const [terminalOutput, setTerminalOutput] = useState("");
 
   useEffect(() => {
@@ -39,9 +38,6 @@ export default function App() {
         );
         sc.subscribe("/topic/debug/status", message =>
           debugStatusHandler(message)
-        );
-        sc.subscribe("/topic/debug/error", message =>
-          debugErrorHandler(message)
         );
         sc.subscribe("/topic/errors", message =>
           console.error(`ERROR FROM BACKEND: ${message}`)
@@ -69,10 +65,6 @@ export default function App() {
 
   const debugStatusHandler = message => {
     setDebugStatus(message.body);
-  };
-
-  const debugErrorHandler = message => {
-    setDebugError(message.body);
   };
 
   const disconnectHandler = error => {
@@ -131,7 +123,7 @@ export default function App() {
             <Loading
               stompClient={stompClient}
               debugStatus={debugStatus}
-              debugError={debugError}
+              terminalOutput={terminalOutput}
               debugConnection={debugConnection}
             />
           )}

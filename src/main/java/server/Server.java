@@ -3,6 +3,12 @@ package server;
 import java.io.*;
 import java.net.*;
 import java.nio.*;
+import java.nio.file.FileSystems;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.json.*;
 import org.springframework.stereotype.Service;
 
@@ -12,56 +18,15 @@ public class Server implements Runnable {
   private static final int DEBUG_PORT = 7070;
 
   private Socket telemetryClient; // TCP socket to pod
-  private Socket debugClient; // TCP socket to debug server
+  private Process debugProcess;
 
   // Telemetry
   private JSONObject telemetryData;
   private boolean telemetryConnected = false;
-  private String searchPhrase;
 
   // Debug
-  public static enum DEBUG_STATUS {
-    kDisconnected("DISCONNECTED"),
-    kConnecting("CONNECTING"),
-    kConnectingFailed("CONNECTING_FAILED"),
-    kConnected("CONNECTED"),
-    kCompiling("COMPILING"),
-    kCompilingFailed("COMPILING_FAILED"),
-    kCompiled("COMPILED"),
-    kRunning("RUNNING");
-
-    private final String text;
-
-    /**
-     * @param text
-     */
-    DEBUG_STATUS(final String text) {
-      this.text = text;
-    }
-
-    @Override
-    public String toString() {
-      return text;
-    }
-  }
-
-  public static final String COMPILE_COMMAND = "compile_bin";
-  public static final String RUN_COMMAND = "run_bin";
-  public static final String KILL_COMMAND = "kill_running_bin";
-
-  public static final String MESSAGE_COMPLETED = "completed";
-  public static final String MESSAGE_TERMINATED = "terminated";
-  public static final String MESSAGE_ERROR = "error";
-  public static final String MESSAGE_CONSOLE_DATA = "console_data";
-
-  public static final String ERROR_SERVER = "server_error";
-  public static final String ERROR_COMPILE = "compile_error";
-  public static final String ERROR_EXECUTION = "execution_error";
-
-  private String debugError;
+  private String searchPhrase;
   private JSONArray terminalOutput = new JSONArray();
-  private DEBUG_STATUS debugStatus = DEBUG_STATUS.kDisconnected;
-  private boolean debugConnected = false;
 
   @Override
   public void run() {
@@ -74,121 +39,103 @@ public class Server implements Runnable {
       telemetryConnected = true;
       System.out.println("Connected to telemetry client");
 
-      Thread telemetryMessageReaderWorker = new Thread(
-        new TelemetryMessageReader()
-      );
+      Thread telemetryMessageReaderWorker = new Thread(new TelemetryMessageReader());
 
       telemetryMessageReaderWorker.start();
       try {
         telemetryMessageReaderWorker.join();
       } catch (InterruptedException e) {
-        System.out.println(
-          "Problem joining telemetryMessageReaderWorker threads"
-        );
+        System.out.println("Problem joining telemetryMessageReaderWorker threads");
       }
       closeClient(telemetryClient);
     }
     // closeServer(telemetryServer);
   }
 
-  public void debugConnect(String serverName) {
-    System.out.println("Starting to connect to debug server...");
-    debugStatus = DEBUG_STATUS.kConnecting;
-    debugClient = getDebugClient(serverName, DEBUG_PORT);
+  private class StreamGobbler extends Thread {
+    InputStream is;
 
-    if (debugClient == null) {
-      System.out.println("Connecting to debug server failed.");
-      debugStatus = DEBUG_STATUS.kConnectingFailed;
-      return;
+    private StreamGobbler(InputStream is) {
+      this.is = is;
     }
 
-    debugConnected = true;
-    debugStatus = DEBUG_STATUS.kConnected;
-    System.out.println("Connected to debug server");
-
-    Thread debugMessageReaderThread = new Thread(new DebugMessageReader());
-    debugMessageReaderThread.start();
-
-    try {
-      debugMessageReaderThread.join();
-    } catch (InterruptedException e) {
-      System.out.println("Problem joining debugMessageReaderThread thread");
-    }
-
-    closeClient(debugClient);
-  }
-
-  public void debugCompile() {
-    while (debugStatus != DEBUG_STATUS.kConnected) {
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+    @Override
+    public void run() {
+      try(Scanner scan = new Scanner(is);) {
+        InputStreamReader isr = new InputStreamReader(is);
+        //BufferedReader br = new BufferedReader(isr);
+        
+        String line = null;
+        while ((line = scan.nextLine()) != null) {
+          JSONObject output = parseDebugOutput(line);
+          terminalOutput.put(output);
+        }
+      }
+      catch (Exception e) {
+        System.out.println("StreamGobbler stream has closed");
       }
     }
-    debugSend(COMPILE_COMMAND);
-    debugStatus = DEBUG_STATUS.kCompiling;
+  }
+
+  private JSONObject parseDebugOutput(String line) {
+    JSONObject obj = new JSONObject();
+    //                                     h       m     s        ms     dbg    [submodule]   log
+    Pattern pattern = Pattern.compile("(\\d{2}:\\d{2}:\\d{2}\\.\\d{3}) (\\w*)\\[([\\w-]*)\\]: (.*)");
+    Matcher matcher = pattern.matcher(line);
+
+    if (matcher.find()) {
+      obj.put("time", matcher.group(1));
+      obj.put("log_type", matcher.group(2));
+      obj.put("submodule", matcher.group(3));
+      obj.put("log", matcher.group(4));
+    }
+    
+    obj.put("line", line);
+    return obj;
   }
 
   public void debugRun(JSONArray flags) {
-    while (debugStatus == DEBUG_STATUS.kCompiling) {
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
-    if (
-      debugStatus != DEBUG_STATUS.kCompiled &&
-      debugStatus != DEBUG_STATUS.kConnected
-    ) {
-      return;
-    }
-    terminalOutput = new JSONArray();
-    debugSend(RUN_COMMAND, flags);
-    debugStatus = DEBUG_STATUS.kRunning;
-  }
+    String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
+    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code"; // change this part for RELEASE
+    String os = System.getProperty("os.name").substring(0,3);
 
-  public void debugReset() {
-    if (debugConnected) {
-      debugStatus = DEBUG_STATUS.kConnected;
-    } else {
-      debugStatus = DEBUG_STATUS.kDisconnected;
+    ArrayList<String> command = new ArrayList<String>();
+
+    if(!os.equals("Mac")){
+      command.add("stdbuf");
+      command.add("-oL");
+    }
+
+    command.add("./hyped");
+    for (int i = 0, size = flags.length(); i < size; i++) {
+      String flag = flags.getString(i);
+      command.add(flag);
+    }
+    command.add("-v");
+    command.add("-d");
+
+    try {
+      System.out.println("Reading from: " + HYPED_PATH);
+      terminalOutput = new JSONArray();
+      debugProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
+
+      StreamGobbler errorGobbler = new StreamGobbler(debugProcess.getErrorStream());
+      StreamGobbler outputGobbler = new StreamGobbler(debugProcess.getInputStream());
+          
+      // start gobblers
+      outputGobbler.start();
+      errorGobbler.start();
+
+    } catch (Throwable t) {
+      t.printStackTrace();
     }
   }
 
   public void debugKill() {
-    while (debugStatus != DEBUG_STATUS.kRunning) {
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+    if (debugProcess == null) {
+      return;
     }
-    debugSend(KILL_COMMAND);
-    debugStatus = DEBUG_STATUS.kConnected;
-  }
-
-  private void debugSend(String command) {
-    debugSend(command, null);
-  }
-
-  private void debugSend(String command, JSONArray flags) {
-    try {
-      OutputStream os = debugClient.getOutputStream();
-      OutputStreamWriter osw = new OutputStreamWriter(os);
-      BufferedWriter bw = new BufferedWriter(osw);
-      JSONObject message = new JSONObject();
-      message.put("msg", command);
-      if (flags != null) {
-        message.put("flags", flags);
-      }
-      bw.write(message.toString());
-      bw.flush();
-      System.out.println("Sent " + command + " to debug server");
-    } catch (IOException e) {
-      System.out.println("Error sending " + command + " to DebugClient");
-    }
+    debugProcess.destroy();
   }
 
   public void debugUpdateSearchPhrase(String searchPhrase) {
@@ -242,74 +189,6 @@ public class Server implements Runnable {
     }
   }
 
-  private class DebugMessageReader implements Runnable {
-    @Override
-    public void run() {
-      System.out.println("Started reading debug");
-      InputStream is;
-      try {
-        is = debugClient.getInputStream();
-      } catch (IOException e) {
-        System.out.println("IO Exception: " + e);
-        throw new RuntimeException("Failed getting input stream");
-      }
-      InputStreamReader isr = new InputStreamReader(is);
-      BufferedReader br = new BufferedReader(isr);
-      while (true) {
-        String r = "";
-        try {
-          r = br.readLine();
-          JSONObject data = new JSONObject(r);
-          String message = data.get("msg").toString();
-
-          switch (debugStatus) {
-            case kCompiling:
-              if (
-                (message.equals(MESSAGE_TERMINATED)) &&
-                (data.get("task").toString().equals(COMPILE_COMMAND)) &&
-                (data.get("success").toString().equals("true"))
-              ) {
-                debugStatus = DEBUG_STATUS.kCompiled;
-              } else if (
-                (message.equals(MESSAGE_TERMINATED)) &&
-                (data.get("task").toString().equals(COMPILE_COMMAND)) &&
-                (data.get("success").toString().equals("false"))
-              ) {
-                debugStatus = DEBUG_STATUS.kCompilingFailed;
-                debugError = data.get("payload").toString();
-              }
-              break;
-            case kRunning:
-              if (message.equals(MESSAGE_CONSOLE_DATA)) {
-                appendTerminalOutput(
-                  new JSONArray(data.get("payload").toString())
-                );
-              } else if (
-                message.equals(MESSAGE_TERMINATED) &&
-                (data.get("task").toString().equals(RUN_COMMAND))
-              ) {
-                debugStatus = DEBUG_STATUS.kConnected;
-              }
-              break;
-            default:
-              // ignore the message
-              break;
-          }
-        } catch (JSONException e) {
-          System.out.println("Failed parsing JSON :" + r);
-        } catch (IOException e) {
-          System.out.println("IO Exception: " + e);
-          throw new RuntimeException("Failed getting input stream");
-        } catch (NullPointerException e) {
-          System.out.println("DebugClient probably disconnected");
-          debugConnected = false;
-          debugStatus = DEBUG_STATUS.kDisconnected;
-          break;
-        }
-      }
-    }
-  }
-
   private static ServerSocket getServerSocket(int portNum) {
     try {
       return new ServerSocket(portNum);
@@ -323,28 +202,6 @@ public class Server implements Runnable {
       return lstn.accept();
     } catch (IOException e) {
       throw new RuntimeException("Failed to get new client socket");
-    }
-  }
-
-  private static Socket getDebugClient(String server, int port) {
-    try {
-      InetAddress inteAddress = InetAddress.getByName(server);
-      SocketAddress socketAddress = new InetSocketAddress(inteAddress, port);
-
-      // create a socket
-      Socket socket = new Socket();
-
-      // this method will block no more than timeout ms.
-      int timeoutInMs = 5 * 1000; // 5 seconds
-      socket.connect(socketAddress, timeoutInMs);
-
-      return socket;
-    } catch (SocketTimeoutException e) {
-      System.err.println("Timed out waiting for the socket.");
-      return null;
-    } catch (IOException e) {
-      System.err.println("Failed to get new server socket");
-      return null;
     }
   }
 
@@ -411,17 +268,5 @@ public class Server implements Runnable {
     }
 
     return newTerminalOutput.toString();
-  }
-
-  public boolean isDebugConnected() {
-    return debugConnected;
-  }
-
-  public String getDebugError() {
-    return debugError;
-  }
-
-  public String getDebugStatus() {
-    return debugStatus.toString();
   }
 }
