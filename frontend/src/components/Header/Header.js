@@ -4,6 +4,7 @@ import logo from "../../hyped.png";
 import PositionBar from "../PositionBar/PositionBar";
 
 export default function Header(props) {
+  
   const [time, setTime] = useState(0);
 
   const telemetryConnectionStyle = props.telemetryConnection
@@ -17,11 +18,8 @@ export default function Header(props) {
     if (props.startTime == 0) {
       return;
     }
-    const interval = setInterval(() => {
-      setTime(Date.now() - props.startTime);
-    }, 1); // runs every milisecond
-    return () => clearInterval(interval);
-  }, [props.startTime, props.endTime]); //sets interval once when timer state changes
+    return () => setTime(props.telemetryData.time - props.startTime);
+  }, [props.startTime, props.endTime,props.telemetryData]); //sets interval once when timer state changes
 
   const formatTime = duration => {
     var milliseconds = parseInt(duration % 1000),
