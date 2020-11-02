@@ -43,7 +43,6 @@ public class Controller {
           scheduler.scheduleAtFixedRate(() -> pingDebugConnection(), PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingTerminalOutput(), PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingDebugStatus(), PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingDebugError(), PING_INTERVAL);
 
           return; // end thread
         }
@@ -53,31 +52,21 @@ public class Controller {
     checkToScheduleThread.start();
   }
 
-  // @MessageMapping("/send/debug/connect")
-  // public void debugConnect(String serverName) {
-  //   if (serverName == null) {
-  //     return;
-  //   }
-  //   server.debugConnect(serverName);
-  // }
+  @MessageMapping("/send/debug/connect")
+  public void debugConnect(String serverName) {
+    // TODO(Steven): implement SSH connection
+  }
 
-  // @MessageMapping("/send/debug/compileRun")
-  // public void debugCompile(String flagsString) {
-  //   JSONArray flags = new JSONArray(flagsString);
-  //   server.debugCompile();
-  //   server.debugRun(flags);
-  // }
+  @MessageMapping("/send/debug/compileRun")
+  public void debugCompile(String flagsString) {
+    // TODO(Steven): implement compiling and running
+  }
 
   @MessageMapping("/send/debug/run")
   public void debugRun(String flagsString) {
     JSONArray data = new JSONArray(flagsString);
     server.debugRun(data);
   }
-
-  // @MessageMapping("/send/debug/reset")
-  // public void debugReset() {
-  //   server.debugReset();
-  // }
 
   @MessageMapping("/send/debug/kill")
   public void debugKill() {
@@ -136,11 +125,7 @@ public class Controller {
   }
 
   public void pingDebugConnection() {
-    if (!server.isDebugConnected()) {
-      template.convertAndSend("/topic/debug/connection", "DISCONNECTED");
-    } else {
-      template.convertAndSend("/topic/debug/connection", "CONNECTED");
-    }
+    // TODO(Steven): implement debugConnection
   }
 
   public void pingTerminalOutput() {
@@ -153,21 +138,7 @@ public class Controller {
   }
 
   public void pingDebugStatus() {
-    if (server.getDebugStatus() != false) {
-      template.convertAndSend(
-        "/topic/debug/status",
-        server.getDebugStatus()
-      );
-    }
-  }
-
-  public void pingDebugError() {
-    if (server.getDebugError() != null) {
-      template.convertAndSend(
-        "/topic/debug/error",
-        server.getDebugError()
-      );
-    }
+    // TODO(Steven): implement debugStatus
   }
 
   public String getResponseMessage(String status, String message) {

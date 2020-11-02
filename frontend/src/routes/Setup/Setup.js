@@ -84,10 +84,10 @@ export default function Setup(props) {
         <label>Fake systems</label>
         <div className="input-group-multiple">{getChoiceList(fakeSystems)}</div>
       </div>
-      <div className="input-group">
+      {/* <div className="input-group">
         <label>Additional values</label>
         <div className="input-group-multiple">{getChoiceList(additional)}</div>
-      </div>
+      </div> */}
       <div className="setup-wrapper-buttons">
         <Button
           caption="RUN"
@@ -95,13 +95,13 @@ export default function Setup(props) {
           backgroundColor="bg-white-gradient"
           icon={faPlay}
         ></Button>
-        <Button
+        {/* <Button
           caption="COMPILE & RUN"
           handleClick={handleCompileClick}
-          backgroundColor="bg-white-gradient"
+          backgroundColor="bg-red-gradient"
           icon={faCogs}
-          disabled={!props.debugConnection}
-        ></Button>
+          disabled={true}
+        ></Button> */}
       </div>
     </div>
   );

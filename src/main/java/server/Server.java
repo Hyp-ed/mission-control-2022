@@ -22,45 +22,10 @@ public class Server implements Runnable {
   // Telemetry
   private JSONObject telemetryData;
   private boolean telemetryConnected = false;
-  private String searchPhrase;
 
   // Debug
-  public static enum DEBUG_STATUS {
-    kDisconnected("DISCONNECTED"), kConnecting("CONNECTING"), kConnectingFailed("CONNECTING_FAILED"),
-    kConnected("CONNECTED"), kCompiling("COMPILING"), kCompilingFailed("COMPILING_FAILED"), kCompiled("COMPILED"),
-    kRunning("RUNNING");
-
-    private final String text;
-
-    /**
-     * @param text
-     */
-    DEBUG_STATUS(final String text) {
-      this.text = text;
-    }
-
-    @Override
-    public String toString() {
-      return text;
-    }
-  }
-
-  public static final String COMPILE_COMMAND = "compile_bin";
-  public static final String RUN_COMMAND = "run_bin";
-  public static final String KILL_COMMAND = "kill_running_bin";
-
-  public static final String MESSAGE_COMPLETED = "completed";
-  public static final String MESSAGE_TERMINATED = "terminated";
-  public static final String MESSAGE_ERROR = "error";
-  public static final String MESSAGE_CONSOLE_DATA = "console_data";
-
-  public static final String ERROR_SERVER = "server_error";
-  public static final String ERROR_COMPILE = "compile_error";
-  public static final String ERROR_EXECUTION = "execution_error";
-
-  private String debugError;
+  private String searchPhrase;
   private JSONArray terminalOutput = new JSONArray();
-  private boolean debugConnected = false;
 
   @Override
   public void run() {
@@ -90,27 +55,27 @@ public class Server implements Runnable {
     InputStream is;
 
     private StreamGobbler(InputStream is) {
-        this.is = is;
+      this.is = is;
     }
 
     @Override
     public void run() {
-        try {
-          InputStreamReader isr = new InputStreamReader(is);
-          BufferedReader br = new BufferedReader(isr);
-          String line = null;
-          while ((line = br.readLine()) != null) {
-            JSONObject output = parseDebugOutput(line);
-            terminalOutput.put(output);
-          }
+      try {
+        InputStreamReader isr = new InputStreamReader(is);
+        BufferedReader br = new BufferedReader(isr);
+        String line = null;
+        while ((line = br.readLine()) != null) {
+          JSONObject output = parseDebugOutput(line);
+          terminalOutput.put(output);
         }
-        catch (IOException ioe) {
-          System.out.println("StreamGobbler stream has closed");
-        }
+      }
+      catch (IOException ioe) {
+        System.out.println("StreamGobbler stream has closed");
+      }
     }
   }
 
-  public JSONObject parseDebugOutput(String line){
+  private JSONObject parseDebugOutput(String line) {
     JSONObject obj = new JSONObject();
     //                                     h       m     s        ms     dbg    [submodule]   log
     Pattern pattern = Pattern.compile("(\\d{2}:\\d{2}:\\d{2}\\.\\d{3}) (\\w*)\\[([\\w-]*)\\]: (.*)");
@@ -129,7 +94,7 @@ public class Server implements Runnable {
 
   public void debugRun(JSONArray flags) {
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
-    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
+    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code"; // change this part for RELEASE
 
     ArrayList<String> command = new ArrayList<String>();
     command.add("stdbuf");
@@ -144,6 +109,7 @@ public class Server implements Runnable {
 
     try {
       System.out.println("Reading from: " + HYPED_PATH);
+      terminalOutput = new JSONArray();
       debugProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
 
       StreamGobbler errorGobbler = new StreamGobbler(debugProcess.getErrorStream());
@@ -164,28 +130,6 @@ public class Server implements Runnable {
     }
     debugProcess.destroy();
   }
-
-  // private void debugSend(String command) {
-  //   debugSend(command, null);
-  // }
-
-  // private void debugSend(String command, JSONArray flags) {
-  //   try {
-  //     OutputStream os = debugClient.getOutputStream();
-  //     OutputStreamWriter osw = new OutputStreamWriter(os);
-  //     BufferedWriter bw = new BufferedWriter(osw);
-  //     JSONObject message = new JSONObject();
-  //     message.put("msg", command);
-  //     if (flags != null) {
-  //       message.put("flags", flags);
-  //     }
-  //     bw.write(message.toString());
-  //     bw.flush();
-  //     System.out.println("Sent " + command + " to debug server");
-  //   } catch (IOException e) {
-  //     System.out.println("Error sending " + command + " to DebugClient");
-  //   }
-  // }
 
   public void debugUpdateSearchPhrase(String searchPhrase) {
     this.searchPhrase = searchPhrase;
@@ -254,28 +198,6 @@ public class Server implements Runnable {
     }
   }
 
-  private static Socket getDebugClient(String server, int port) {
-    try {
-      InetAddress inteAddress = InetAddress.getByName(server);
-      SocketAddress socketAddress = new InetSocketAddress(inteAddress, port);
-
-      // create a socket
-      Socket socket = new Socket();
-
-      // this method will block no more than timeout ms.
-      int timeoutInMs = 5 * 1000; // 5 seconds
-      socket.connect(socketAddress, timeoutInMs);
-
-      return socket;
-    } catch (SocketTimeoutException e) {
-      System.err.println("Timed out waiting for the socket.");
-      return null;
-    } catch (IOException e) {
-      System.err.println("Failed to get new server socket");
-      return null;
-    }
-  }
-
   private static void closeClient(Socket clientSocket) {
     try {
       clientSocket.close();
@@ -330,7 +252,7 @@ public class Server implements Runnable {
       return terminalOutput.toString();
     }
     
-JSONArray newTerminalOutput = new JSONArray();
+    JSONArray newTerminalOutput = new JSONArray();
     for (int i = 0; i < terminalOutput.length(); i++) {
       String cur_line = terminalOutput.getJSONObject(i).toString();
       if (cur_line.toLowerCase().contains(searchPhrase.toLowerCase())) {
@@ -339,17 +261,5 @@ JSONArray newTerminalOutput = new JSONArray();
     }
 
     return newTerminalOutput.toString();
-  }
-
-  public boolean isDebugConnected() {
-    return debugConnected;
-  }
-
-  public String getDebugError() {
-    return debugError;
-  }
-
-  public boolean getDebugStatus() {
-    return false;
   }
 }

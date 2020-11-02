@@ -52,7 +52,7 @@ export default function Loading(props) {
               forceVisible="y"
               autoHide={false}
             >
-              <pre id="terminal_pre">{props.debugError}</pre>
+              <pre id="terminal_pre">{props.terminalOutput}</pre>
             </SimpleBar>
           </div>,
           <Button
