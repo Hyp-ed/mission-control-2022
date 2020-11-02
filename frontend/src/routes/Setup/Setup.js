@@ -15,7 +15,6 @@ import {
 export default function Setup(props) {
   const history = useHistory();
   const [ipAddress, setIpAddress] = useState("localhost");
-  const [defaultChecked, setDefaultChecked] = React.useState(true);
   const [flags, setFlags] = useState([]);
 
   const fakeSystems = [
@@ -168,12 +167,15 @@ export default function Setup(props) {
     setFlags(newFlags);
   };
 
-  document.onkeypress = function (e) {
-    if (e.code == "Enter") {
-      handleConnectClick();
-      initiateFlags();
-    }
-  };
+  // document.onkeypress = function (e) {
+  //   if (e.code == "Enter") {
+  //     handleConnectClick();
+  //   }
+  // };
+
+  useEffect(() => {
+    initiateFlags();
+  }, []); // Only run once
 
   // TODO: fittext
   return (
