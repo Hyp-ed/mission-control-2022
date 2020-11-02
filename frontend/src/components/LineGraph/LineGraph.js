@@ -54,6 +54,7 @@ export default function LineGraph(props) {
       props.paths.forEach(path => {
         const dataPoint = {
           x: props.telemetryData.time,
+          
           y: getDataPointValue(props.telemetryData, path)
         };
         if (oldPathData.hasOwnProperty(path)) {
