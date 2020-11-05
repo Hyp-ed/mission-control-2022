@@ -55,12 +55,12 @@ export default function Terminal(props) {
 
   const filterLogType = (event) => {
     var myObj = {"logType": event.target.value};
-    props.stompClient.send("/app/send/telemetry/logType", {}, JSON.stringify(myObj));
+    props.stompClient.send("/app/send/debug/logType", {}, JSON.stringify(myObj));
   }
 
   const filterSubmodule = (event) => {
     var myObj = {"submodule": event.target.value};
-    props.stompClient.send("/app/send/telemetry/submodule", {}, JSON.stringify(myObj));
+    props.stompClient.send("/app/send/debug/submodule", {}, JSON.stringify(myObj));
   }
 
   let logTypeOptions = 
