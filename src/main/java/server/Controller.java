@@ -92,8 +92,8 @@ public class Controller {
     server.debugUpdateSearchPhrase(searchPhrase);
   } 
 
-  @MessageMapping("/send/telemetry/logType")
-  public void updateLogType(String jsonStr) {
+  @MessageMapping("/send/debug/logType")
+  public void debugUpdateLogType(String jsonStr) {
     String logType = null;
     if (jsonStr != null) {
       try {
@@ -108,11 +108,11 @@ public class Controller {
         System.out.println("Failed parsing jsonStr into JSONObject");
       }
     }
-    server.updateLogTypeFilter(logType);
+    server.debugUpdateLogTypeFilter(logType);
   }
 
-  @MessageMapping("/send/telemetry/submodule")
-  public void updateSubmodule(String jsonStr) {
+  @MessageMapping("/send/debug/submodule")
+  public void debugUpdateSubmodule(String jsonStr) {
     String submodule = null;
     if (jsonStr != null) {
       try {
@@ -127,7 +127,7 @@ public class Controller {
         System.out.println("Failed parsing jsonStr into JSONObject");
       }
     }
-    server.updateSubmoduleFilter(submodule);
+    server.debugUpdateSubmoduleFilter(submodule);
   }
 
   @MessageMapping("/send/telemetry/command")
