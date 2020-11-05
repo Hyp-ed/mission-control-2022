@@ -145,7 +145,7 @@ public class Server implements Runnable {
   }
 
   public void debugUpdateSearchPhrase(String searchPhrase) {
-    this.searchPhrase = searchPhrase;
+    this.searchPhrase = searchPhrase.toLowerCase();
   }
 
   public void debugUpdateLogTypeFilter(String logTypeFilter) {
