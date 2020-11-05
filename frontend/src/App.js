@@ -14,8 +14,7 @@ export default function App() {
   const [telemetryConnection, setTelemetryConnection] = useState(false);
   const [telemetryData, setTelemetryData] = useState(null); // change to testData for testing
   const [debugConnection, setDebugConnection] = useState(false);
-  const [debugStatus, setDebugStatus] = useState("DISCONNECTED");
-  const [debugError, setDebugError] = useState(null);
+  const [debugStatus, setDebugStatus] = useState(false);
   const [terminalOutput, setTerminalOutput] = useState("");
   const [logTypes, setLogTypes] = useState([""])
   const [submoduleTypes, setSubmoduleTypes] = useState([""])
@@ -41,9 +40,6 @@ export default function App() {
         );
         sc.subscribe("/topic/debug/status", message =>
           debugStatusHandler(message)
-        );
-        sc.subscribe("/topic/debug/error", message =>
-          debugErrorHandler(message)
         );
         sc.subscribe("/topic/errors", message =>
           console.error(`ERROR FROM BACKEND: ${message}`)
@@ -76,10 +72,6 @@ export default function App() {
     setDebugStatus(message.body);
   };
 
-  const debugErrorHandler = message => {
-    setDebugError(message.body);
-  };
-
   const disconnectHandler = error => {
     if (error.startsWith("Whoops! Lost connection")) {
       setTelemetryConnection(false);
@@ -102,12 +94,12 @@ export default function App() {
       setStartTime(0);
       setEndTime(0);
     } else if (state == "ACCELERATING" && startTime == 0) {
-      setStartTime(Date.now());
+      setStartTime(telemetryData.time);
     } else if (
       (state == "RUN_COMPLETE" || state == "FAILURE_STOPPED") &&
       endTime == 0
     ) {
-      setEndTime(Date.now());
+      setEndTime(telemetryData.time);
     }
   }, [state]);
 
@@ -138,7 +130,7 @@ export default function App() {
             <Loading
               stompClient={stompClient}
               debugStatus={debugStatus}
-              debugError={debugError}
+              terminalOutput={terminalOutput}
               debugConnection={debugConnection}
             />
           )}

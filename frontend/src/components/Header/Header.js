@@ -4,6 +4,7 @@ import logo from "../../hyped.png";
 import PositionBar from "../PositionBar/PositionBar";
 
 export default function Header(props) {
+  
   const [time, setTime] = useState(0);
 
   const telemetryConnectionStyle = props.telemetryConnection
@@ -17,11 +18,8 @@ export default function Header(props) {
     if (props.startTime == 0) {
       return;
     }
-    const interval = setInterval(() => {
-      setTime(Date.now() - props.startTime);
-    }, 1); // runs every milisecond
-    return () => clearInterval(interval);
-  }, [props.startTime, props.endTime]); //sets interval once when timer state changes
+    return () => setTime(props.telemetryData.time - props.startTime);
+  }, [props.startTime, props.endTime,props.telemetryData]); //sets interval once when timer state changes
 
   const formatTime = duration => {
     var milliseconds = parseInt(duration % 1000),
@@ -46,20 +44,41 @@ export default function Header(props) {
     distance = Math.round((distance + Number.EPSILON) * 100) / 100
   }
 
-  return (
-    <header className="header-root">
-      <img src={logo} className="hyped-logo" alt="logo" />
-      <PositionBar distance={distance} />
-      <p className="timer">{formatTime(time)}</p>
-      <div className="pod-status">
-        <div className={telemetryConnectionStyle}>
-          {props.telemetryConnection ? "CONNECTED" : "DISCONNECTED"}
+  if (props.telemetryData !== null) {
+    return (
+      <header className="header-root">
+        <img src={logo} className="hyped-logo" alt="logo" />
+        
+        <PositionBar telemetryData={props.telemetryData} />
+        <p className="timer">{formatTime(time)}</p>
+        <div className="pod-status">
+          <div className={telemetryConnectionStyle}>
+            {props.telemetryConnection ? "CONNECTED" : "DISCONNECTED"}
+          </div>
+          <div className="pod-state">{props.state}</div>
+          <div className="backend-connection">
+            {props.baseStationConnection ? "" : "NOT CONNECTED TO BACKEND"}
+          </div>
         </div>
-        <div className="pod-state">{props.state}</div>
-        <div className="backend-connection">
-          {props.baseStationConnection ? "" : "NOT CONNECTED TO BACKEND"}
+      </header>
+    );
+  }  else {
+    return (
+      <header className="header-root">
+        <img src={logo} className="hyped-logo" alt="logo" />
+        
+        <p className="timer">{formatTime(time)}</p>
+        <div className="pod-status">
+          <div className={telemetryConnectionStyle}>
+            {props.telemetryConnection ? "CONNECTED" : "DISCONNECTED"}
+          </div>
+          <div className="pod-state">{props.state}</div>
+          <div className="backend-connection">
+            {props.baseStationConnection ? "" : "NOT CONNECTED TO BACKEND"}
+          </div>
         </div>
-      </div>
-    </header>
-  );
+      </header>
+    );
+  }
+
 }

@@ -36,8 +36,8 @@ export default props => {
           <div className="range">
             <div className="range-border range-border-top"></div>
             <div className="range-border range-border-bottom"></div>
-            <div className="range-value range-min">{props.data.min}</div>
-            <div className="range-value range-max">{props.data.max}</div>
+            <div className="range-value range-min">{props.data.min.toFixed(1)}</div>
+            <div className="range-value range-max">{props.data.max.toFixed(1)}</div>
           </div>
         </div>
         <Textfit
@@ -46,7 +46,7 @@ export default props => {
           max={14}
           className="data-row-value"
         >
-          {props.data.value + " " + props.data.unit}
+          {props.data.value.toFixed(1) + " " + props.data.unit}
         </Textfit>
       </div>
     </div>

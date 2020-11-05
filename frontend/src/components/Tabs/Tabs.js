@@ -19,6 +19,7 @@ export default function Tabs(props) {
   const [currentGraph, setCurrentGraph] = useState(-1);
 
   const getGraphs = () => {
+    //Uncomment for debugging purpose
     console.log(props.telemetryData);
     return Array.from(ConfigManager.getConfig().graphs, graph => (
       <LineGraph
@@ -122,7 +123,7 @@ export default function Tabs(props) {
             submoduleTypes={props.submoduleTypes}
             stompClient={props.stompClient}
           />
-          {/* <Status isInactive={!activeTabs[2]} /> */}
+          {<Status isInactive={!activeTabs[2]} statusData={props.telemetryData.status_data}/>}
           <Graphs graphs={getGraphs()} isInactive={!activeTabs[1]}/>
           <Sidebar
             isInactive={!activeTabs[1]}

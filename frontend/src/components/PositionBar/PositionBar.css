@@ -1,17 +1,24 @@
 .position-bar-root {
-    width: 40%;
+    width: 600px; 
     height: 50%;
     display: flex;
-    align-items: center;
+    flex-direction: row;
 }
 
 .position-bar-background {
     background-color: white;
     height: 100%;
-    flex-grow: 1;
+    width: 580px;
 }
 
 .position-value {
     font-size: 1.1em;
     margin-left: 5%;
+    margin-bottom: 2%;
+}
+
+.cursor {
+    height: 100%;
+    background-color: #bf2727;
+    width: 40px;
 }
