@@ -20,7 +20,8 @@ public class Controller {
   @Autowired
   private TaskScheduler scheduler;
 
-  private final int PING_INTERVAL = 100;
+  private final int TELEMETRY_PING_INTERVAL = 100;
+  private final int DEBUG_PING_INTERVAL = 1000;
 
   @PostConstruct
   public void initialize() {
@@ -38,11 +39,11 @@ public class Controller {
 
         @Override
         public void run() {
-          scheduler.scheduleAtFixedRate(() -> pingTelemetryConnection(), PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingTelemetryData(), PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingDebugConnection(), PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingTerminalOutput(), PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingDebugStatus(), PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingTelemetryConnection(), TELEMETRY_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingTelemetryData(), TELEMETRY_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingDebugConnection(), DEBUG_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingTerminalOutput(), DEBUG_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingDebugStatus(), DEBUG_PING_INTERVAL);
 
           return; // end thread
         }

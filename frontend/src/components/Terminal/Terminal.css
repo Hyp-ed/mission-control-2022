@@ -48,3 +48,7 @@ pre {
 .footer select {
     min-width: 80px;
 }
+
+.footer input {
+    min-width: 120px;
+}

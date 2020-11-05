@@ -10,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.json.*;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -235,24 +234,6 @@ public class Server implements Runnable {
     }
   }
 
-  private void appendTerminalOutput(JSONArray sourceArray) {
-    JSONArray newTerminalOutput = new JSONArray();
-    for (
-      int i = Math.max(
-        0,
-        terminalOutput.length() - (100 - sourceArray.length())
-      );
-      i < terminalOutput.length();
-      i++
-    ) {
-      newTerminalOutput.put(terminalOutput.getJSONObject(i));
-    }
-    for (int i = 0; i < sourceArray.length(); i++) {
-      newTerminalOutput.put(sourceArray.getJSONObject(i));
-    }
-    terminalOutput = newTerminalOutput;
-  }
-
   public String getTelemetryData() {
     if (telemetryData == null) {
       return null;
@@ -316,7 +297,11 @@ public class Server implements Runnable {
     if (newTerminalOutput.isEmpty()) {
       ret.put("terminalOutput", JSONObject.NULL);  
     } else {
-      ret.put("terminalOutput", newTerminalOutput.toString());
+      JSONArray last100Lines = new JSONArray();
+      for (int i = Math.max(newTerminalOutput.length() - 100, 0); i < newTerminalOutput.length(); i++) {
+        last100Lines.put(newTerminalOutput.getJSONObject(i));
+      }
+      ret.put("terminalOutput", last100Lines.toString());
     }
     ret.put("logTypes", logTypes);
     ret.put("submoduleTypes", submoduleTypes);

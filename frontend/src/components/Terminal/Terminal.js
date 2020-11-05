@@ -97,7 +97,7 @@ export default function Terminal(props) {
         </select>
         <input 
           type="text"
-          placeholder="Search.." 
+          placeholder="Search..." 
           name="search"
           onChange={handleSearch}
         ></input>
