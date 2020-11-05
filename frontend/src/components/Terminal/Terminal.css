@@ -5,7 +5,6 @@
     width: 100%;
     display: flex;
     flex-flow: row wrap;
-    justify-content: flex-end;
 }
 
 .terminal-content {
@@ -24,12 +23,11 @@
     background-color: #343434;
 }
 
-.bottom-buttons {
+.footer {
     margin: 1%;
     width: 35%;
     height: 8%;
     display: flex;
-    justify-content: space-between;
 }
 
 pre {
@@ -37,4 +35,20 @@ pre {
     height: 100%;
     width: 100%;
     margin: 0;
-  }
+}
+
+.footer input, select {
+    margin-right: 10px;
+    background-color: #FFF;
+    color: #000;
+    width: 38%;
+    justify-content: "flex-start";
+}
+
+.footer select {
+    min-width: 80px;
+}
+
+.footer input {
+    min-width: 120px;
+}

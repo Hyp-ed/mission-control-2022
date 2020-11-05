@@ -16,6 +16,8 @@ export default function App() {
   const [debugConnection, setDebugConnection] = useState(false);
   const [debugStatus, setDebugStatus] = useState(false);
   const [terminalOutput, setTerminalOutput] = useState("");
+  const [logTypes, setLogTypes] = useState([""])
+  const [submoduleTypes, setSubmoduleTypes] = useState([""])
 
   useEffect(() => {
     const sc = Stomp.client("ws://localhost:8080/connecthere");
@@ -60,7 +62,10 @@ export default function App() {
   };
 
   const terminalOutputHandler = message => {
-    setTerminalOutput(JSON.parse(message.body));
+    var jsonObj = JSON.parse(message.body)
+    setTerminalOutput(JSON.parse(jsonObj.terminalOutput))
+    setLogTypes(jsonObj.logTypes)
+    setSubmoduleTypes(jsonObj.submoduleTypes)
   };
 
   const debugStatusHandler = message => {
@@ -111,6 +116,8 @@ export default function App() {
               telemetryData={telemetryData}
               debugConnection={debugConnection}
               terminalOutput={terminalOutput}
+              logTypes={logTypes}
+              submoduleTypes={submoduleTypes}
               state={state}
               startTime={startTime}
               endTime={endTime}

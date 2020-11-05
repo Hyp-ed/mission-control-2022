@@ -53,15 +53,51 @@ export default function Terminal(props) {
     props.stompClient.send("/app/send/debug/search", {}, JSON.stringify(myObj));
   }
 
+  const filterLogType = (event) => {
+    var myObj = {"logType": event.target.value};
+    props.stompClient.send("/app/send/debug/logType", {}, JSON.stringify(myObj));
+  }
+
+  const filterSubmodule = (event) => {
+    var myObj = {"submodule": event.target.value};
+    props.stompClient.send("/app/send/debug/submodule", {}, JSON.stringify(myObj));
+  }
+
+  let logTypeOptions = 
+    props.logTypes &&
+    props.logTypes.length > 0 &&
+    props.logTypes.map((logType, index) => {
+      return <option>{logType}</option>
+    })
+
+  let submoduleOptions = 
+    props.submoduleTypes &&
+    props.submoduleTypes.length > 0 &&
+    props.submoduleTypes.map((submoduleType, index) => {
+      return <option>{submoduleType}</option>
+    })
+
   return (
     <div className="terminal-root">
       <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
         <pre id="terminal_pre">{getTerminalOutput()}</pre>
       </SimpleBar>
-      <div className="bottom-buttons">
+      <div className="footer">
+        <select 
+          name="log-type-dropdown"
+          onChange={filterLogType}
+        >
+          {logTypeOptions}
+        </select>
+        <select 
+          name="submodule-dropdown" 
+          onChange={filterSubmodule}
+        >
+          {submoduleOptions}
+        </select>
         <input 
           type="text"
-          placeholder="Search.." 
+          placeholder="Search..." 
           name="search"
           onChange={handleSearch}
         ></input>

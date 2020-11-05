@@ -43,10 +43,3 @@ button:focus {
   left: 50%;
   transform: translate(-50%);
 }
-
-.bottom-buttons input {
-  margin-right: 10px;
-  background-color: #FFF;
-  color: #000;
-  width: 38%;
-}

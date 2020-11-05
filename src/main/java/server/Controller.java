@@ -20,7 +20,8 @@ public class Controller {
   @Autowired
   private TaskScheduler scheduler;
 
-  private final int PING_INTERVAL = 100;
+  private final int TELEMETRY_PING_INTERVAL = 100;
+  private final int DEBUG_PING_INTERVAL = 1000;
 
   @PostConstruct
   public void initialize() {
@@ -38,11 +39,11 @@ public class Controller {
 
         @Override
         public void run() {
-          scheduler.scheduleAtFixedRate(() -> pingTelemetryConnection(), PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingTelemetryData(), PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingDebugConnection(), PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingTerminalOutput(), PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingDebugStatus(), PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingTelemetryConnection(), TELEMETRY_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingTelemetryData(), TELEMETRY_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingDebugConnection(), DEBUG_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingTerminalOutput(), DEBUG_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingDebugStatus(), DEBUG_PING_INTERVAL);
 
           return; // end thread
         }
@@ -91,6 +92,44 @@ public class Controller {
     }
     server.debugUpdateSearchPhrase(searchPhrase);
   } 
+
+  @MessageMapping("/send/debug/logType")
+  public void debugUpdateLogType(String jsonStr) {
+    String logType = null;
+    if (jsonStr != null) {
+      try {
+        JSONObject obj = new JSONObject(jsonStr);
+        
+        try {
+          logType = obj.getString("logType");
+        } catch (Exception e) {
+          System.out.println("Key \"logType\" does not exist");
+        }
+      } catch (Exception e) {
+        System.out.println("Failed parsing jsonStr into JSONObject");
+      }
+    }
+    server.debugUpdateLogTypeFilter(logType);
+  }
+
+  @MessageMapping("/send/debug/submodule")
+  public void debugUpdateSubmodule(String jsonStr) {
+    String submodule = null;
+    if (jsonStr != null) {
+      try {
+        JSONObject obj = new JSONObject(jsonStr);
+        
+        try {
+          submodule = obj.getString("submodule");
+        } catch (Exception e) {
+          System.out.println("Key \"submodule\" does not exist");
+        }
+      } catch (Exception e) {
+        System.out.println("Failed parsing jsonStr into JSONObject");
+      }
+    }
+    server.debugUpdateSubmoduleFilter(submodule);
+  }
 
   @MessageMapping("/send/telemetry/command")
   @SendTo("/topic/send/telemetry/command/status")

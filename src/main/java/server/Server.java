@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.json.*;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,6 +27,10 @@ public class Server implements Runnable {
 
   // Debug
   private String searchPhrase;
+  private String logTypeFilter;
+  private String submoduleFilter;
+  private List<String> logTypes = new ArrayList<>(List.of(""));
+  private List<String> submoduleTypes = new ArrayList<>(List.of(""));
   private JSONArray terminalOutput = new JSONArray();
 
   @Override
@@ -139,7 +144,15 @@ public class Server implements Runnable {
   }
 
   public void debugUpdateSearchPhrase(String searchPhrase) {
-    this.searchPhrase = searchPhrase;
+    this.searchPhrase = searchPhrase.toLowerCase();
+  }
+
+  public void debugUpdateLogTypeFilter(String logTypeFilter) {
+    this.logTypeFilter = logTypeFilter;
+  }
+
+  public void debugUpdateSubmoduleFilter(String submoduleFilter) {
+    this.submoduleFilter = submoduleFilter;
   }
 
   public void telemetrySendCommand(String command) {
@@ -221,24 +234,6 @@ public class Server implements Runnable {
     }
   }
 
-  private void appendTerminalOutput(JSONArray sourceArray) {
-    JSONArray newTerminalOutput = new JSONArray();
-    for (
-      int i = Math.max(
-        0,
-        terminalOutput.length() - (100 - sourceArray.length())
-      );
-      i < terminalOutput.length();
-      i++
-    ) {
-      newTerminalOutput.put(terminalOutput.getJSONObject(i));
-    }
-    for (int i = 0; i < sourceArray.length(); i++) {
-      newTerminalOutput.put(sourceArray.getJSONObject(i));
-    }
-    terminalOutput = newTerminalOutput;
-  }
-
   public String getTelemetryData() {
     if (telemetryData == null) {
       return null;
@@ -254,19 +249,63 @@ public class Server implements Runnable {
     if (terminalOutput.isEmpty()) {
       return null;
     }
-
-    if (searchPhrase == null) {
-      return terminalOutput.toString();
-    }
     
     JSONArray newTerminalOutput = new JSONArray();
     for (int i = 0; i < terminalOutput.length(); i++) {
-      String cur_line = terminalOutput.getJSONObject(i).toString();
-      if (cur_line.toLowerCase().contains(searchPhrase.toLowerCase())) {
+      JSONObject lineJson = terminalOutput.getJSONObject(i);
+      String cur_line = lineJson.toString();
+      
+      String log_type, submodule, debug_output;
+      boolean check1 = true, check2 = true, check3 = true;
+
+      try {
+        log_type = lineJson.getString("log_type");
+        
+        if (!logTypes.contains(log_type)) {
+          logTypes.add(log_type);
+        }
+
+        check1 = (logTypeFilter == null || log_type.contains(logTypeFilter));
+      } catch (Exception e) {
+        // Don't want to flood stderr
+        // System.err.println("log_type field not found in terminal output line");
+      }
+      try {
+        submodule = lineJson.getString("submodule");
+        
+        if (!submoduleTypes.contains(submodule)) {
+          submoduleTypes.add(submodule);
+        }
+
+        check2 = (submoduleFilter == null || submodule.contains(submoduleFilter));
+      } catch (Exception e) {
+        // System.err.println("submodule field not found in terminal output line");
+      }
+      try {
+        debug_output = lineJson.getString("line").split("]: ")[1].toLowerCase();
+        check3 = (searchPhrase == null || debug_output.contains(searchPhrase));
+      } catch (Exception e) {
+        // System.err.println("debug_output field not found in terminal output line");
+      }
+
+      if (check1 && check2 && check3) {
         newTerminalOutput.put(terminalOutput.getJSONObject(i));
       }
     }
 
-    return newTerminalOutput.toString();
+    JSONObject ret = new JSONObject();
+    if (newTerminalOutput.isEmpty()) {
+      ret.put("terminalOutput", JSONObject.NULL);  
+    } else {
+      JSONArray last100Lines = new JSONArray();
+      for (int i = Math.max(newTerminalOutput.length() - 100, 0); i < newTerminalOutput.length(); i++) {
+        last100Lines.put(newTerminalOutput.getJSONObject(i));
+      }
+      ret.put("terminalOutput", last100Lines.toString());
+    }
+    ret.put("logTypes", logTypes);
+    ret.put("submoduleTypes", submoduleTypes);
+
+    return ret.toString();
   }
 }
