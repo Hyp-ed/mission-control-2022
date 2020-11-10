@@ -1,9 +1,17 @@
 .gui-wrapper {
   display: grid;
-  grid-auto-columns: calc(100%/12);
-  grid-auto-rows: calc(100%/12);
-  height: 94vh;
-  padding: 1.5% 2%;
+  grid-auto-columns: calc(calc(100% - calc(16px * 15))/16);
+  grid-auto-rows: calc(calc(100% - calc(18px * 8))/9);
+  height: calc(100vh - 36px);
+  column-gap: 16px;
+  row-gap: 18px;
+  padding: 18px 16px;
+}
+
+.container {
+  background-color: #191919;
+  border-radius: 15px;
+  box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.8);;
 }
 
 /* Colors */

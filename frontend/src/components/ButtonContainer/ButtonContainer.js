@@ -19,7 +19,6 @@ export default props => {
     calibrate: {
       caption: "CALIBRATE",
       icon: faRuler,
-      slantedLeft: true,
       backgroundColor: "bg-blue-gradient",
       command: "CALIBRATE"
     },
@@ -27,30 +26,25 @@ export default props => {
       caption: "CALIBRATING",
       icon: faSpinner,
       spin: true,
-      slantedLeft: true,
       backgroundColor: "bg-blue-gradient"
     },
     launch: {
       caption: "LAUNCH",
       icon: faForward,
-      slantedLeft: true,
       backgroundColor: "bg-green-gradient",
       command: "LAUNCH"
     },
     abortRunning: {
       caption: "ABORT",
       icon: faExclamationTriangle,
-      slantedLeft: true,
-      slantedRight: true,
       backgroundColor: "bg-red-gradient",
       command: "STOP"
     },
-    reset: {
-      caption: "RESET",
+    shutdown: {
+      caption: "SHUTDOWN",
       icon: faRedo,
-      slantedLeft: true,
       backgroundColor: "bg-blue-gradient",
-      command: "RESET"
+      command: "SHUTDOWN"
     },
     extend: {
       caption: "EXTEND",
@@ -98,8 +92,6 @@ export default props => {
         handleClick={() => {
           handleClick(button.command, disabled);
         }}
-        slantedLeft={button.slantedLeft}
-        slantedRight={button.slantedRight}
         backgroundColor={button.backgroundColor}
         disabled={disabled}
         hidden={hidden}
@@ -123,7 +115,7 @@ export default props => {
       case "RUN_COMPLETE":
       case "FINISHED":
       case "FAILURE_STOPPED":
-        return getButton(buttons.reset, isMainDisabled);
+        return getButton(buttons.shutdown, isMainDisabled);
     }
   };
 
@@ -154,11 +146,12 @@ export default props => {
     return getButton(buttons.abort, false, hidden);
   };
 
+  // TODO: adapt buttons to the new design
   return (
     <div className="button-container">
-      {getMainButton()}
+      {/* {getMainButton()}
       {getBrakeButton()}
-      {getAbortButton()}
+      {getAbortButton()} */}
     </div>
   );
 };

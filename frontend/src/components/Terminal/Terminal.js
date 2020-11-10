@@ -77,41 +77,43 @@ export default function Terminal(props) {
       return <option>{submoduleType}</option>
     })
 
-  return (
-    <div className="terminal-root">
-      <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
-        <pre id="terminal_pre">{getTerminalOutput()}</pre>
-      </SimpleBar>
-      <div className="footer">
-        <select 
-          name="log-type-dropdown"
-          onChange={filterLogType}
-        >
-          {logTypeOptions}
-        </select>
-        <select 
-          name="submodule-dropdown" 
-          onChange={filterSubmodule}
-        >
-          {submoduleOptions}
-        </select>
-        <input 
-          type="text"
-          placeholder="Search..." 
-          name="search"
-          onChange={handleSearch}
-        ></input>
-        <Button
-          caption="KILL"
-          backgroundColor="#FFFFFF"
-          textColor="#000000"
-          icon={faSkull}
-          width="38%"
-          handleClick={handleKillClick}
-        ></Button>
-      </div>
-    </div>
-  );
+  // TODO: adapt Terminal to the new design
+  return (<div id="terminal-container" class="container"></div>);
+  // return (
+  //   <div id="terminal-container" class="container">
+  //     <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
+  //       <pre id="terminal_pre">{getTerminalOutput()}</pre>
+  //     </SimpleBar>
+  //     <div className="footer">
+  //       <select 
+  //         name="log-type-dropdown"
+  //         onChange={filterLogType}
+  //       >
+  //         {logTypeOptions}
+  //       </select>
+  //       <select 
+  //         name="submodule-dropdown" 
+  //         onChange={filterSubmodule}
+  //       >
+  //         {submoduleOptions}
+  //       </select>
+  //       <input 
+  //         type="text"
+  //         placeholder="Search..." 
+  //         name="search"
+  //         onChange={handleSearch}
+  //       ></input>
+  //       <Button
+  //         caption="KILL"
+  //         backgroundColor="#FFFFFF"
+  //         textColor="#000000"
+  //         icon={faSkull}
+  //         width="38%"
+  //         handleClick={handleKillClick}
+  //       ></Button>
+  //     </div>
+  //   </div>
+  // );
 }
 
 Terminal.defaultProps = {

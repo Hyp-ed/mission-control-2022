@@ -1,37 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "./Main.css";
-import ButtonContainer from "../../components/ButtonContainer/ButtonContainer";
-import Header from "../../components/Header/Header";
+import GraphsContainer from "../../components/GraphsContainer/GraphsContainer";
+import StatusContainer from "../../components/StatusContainer/StatusContainer";
+import Terminal from "../../components/Terminal/Terminal";
+import Timer from "../../components/Timer/Timer";
+import Gauge from "../../components/Gauge/Gauge";
 import DataContainer from "../../components/DataContainer/DataContainer";
-import Tabs from "../../components/Tabs/Tabs";
-import GaugeContainer from "../../components/GaugeContainer/GaugeContainer";
+import ButtonContainer from "../../components/ButtonContainer/ButtonContainer";
 
 export default function Main(props) {
   return (
     <div className="gui-wrapper">
-      <Header
-        telemetryConnection={props.telemetryConnection}
-        telemetryData={props.telemetryData}
-        debugConnection={props.debugConnection}
-        baseStationConnection={props.stompClient.connected}
-        startTime={props.startTime}
-        endTime={props.endTime}
-        state={props.state}
-      />
-      <ButtonContainer
-        stompClient={props.stompClient}
-        telemetryData={props.telemetryData}
-        state={props.state}
-      ></ButtonContainer>
-      <DataContainer telemetryData={props.telemetryData}></DataContainer>
-      <GaugeContainer telemetryData={props.telemetryData}></GaugeContainer>
-      <Tabs
-        telemetryData={props.telemetryData}
+      <GraphsContainer />
+      <StatusContainer />
+      <Terminal
         terminalOutput={props.terminalOutput}
         logTypes={props.logTypes}
         submoduleTypes={props.submoduleTypes}
         stompClient={props.stompClient}
       />
+      <Timer />
+      <Gauge gaugeId="distance"/>
+      <Gauge gaugeId="velocity"/>
+      <Gauge gaugeId="acceleration"/>
+      <DataContainer telemetryData={null}/>
+      <ButtonContainer />
     </div>
   );
 }

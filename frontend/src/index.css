@@ -1,13 +1,13 @@
 body {
   overflow: hidden;
   margin: 0;
-  background-color: black;
+  background-color: #0A0A0A;
 }
 
 body,
 button,
 input {
-  font-family: "Roboto Mono", monospace;
+  font-family: "Roboto", monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 2vh;

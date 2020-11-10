@@ -1,8 +1,6 @@
-.terminal-root {
-    color: white;
-    border-top: 1%;
-    height: 98%;
-    width: 100%;
+#terminal-container {
+    grid-row: 5/10;
+    grid-column: 1/8;
     display: flex;
     flex-flow: row wrap;
 }

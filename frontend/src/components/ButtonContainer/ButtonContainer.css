@@ -1,8 +1,4 @@
 .button-container {
-  display: flex;
-  grid-row: 2 / 3;
-  grid-column: 1 / 6;
-  margin-right: 1em;
-  height: 50%;
-  align-self: flex-end;
+  grid-row: 8/10;
+  grid-column: 15/17;
 }
