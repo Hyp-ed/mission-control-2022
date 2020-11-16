@@ -6,7 +6,8 @@
     align-items: center;
 }
 #time{    
+    display: inline-flex;
+    font-size: 175%;
     font-weight: 700;
-    font-size:x-large;
     color: #ffffff;
 }
