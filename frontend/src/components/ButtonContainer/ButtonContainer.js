@@ -1,11 +1,9 @@
 import {
   faRuler,
   faExclamationTriangle,
-  faLock,
-  faLockOpen,
   faSpinner,
   faForward,
-  faRedo
+  faPowerOff
 } from "@fortawesome/free-solid-svg-icons";
 import "./ButtonContainer.css";
 import React, { useState, useEffect } from "react";
@@ -13,55 +11,37 @@ import Button from "../Button/Button";
 
 export default props => {
   const [isMainDisabled, setMainDisabled] = useState(false);
-  const state = props.state;
   
   const buttons = {
     calibrate: {
       caption: "CALIBRATE",
       icon: faRuler,
-      backgroundColor: "bg-blue-gradient",
+      backgroundColor: "button-blue-pulse",
       command: "CALIBRATE"
     },
     calibrating: {
       caption: "CALIBRATING",
       icon: faSpinner,
       spin: true,
-      backgroundColor: "bg-blue-gradient"
+      backgroundColor: "button-blue"
     },
     launch: {
+      id: "button-launch",
       caption: "LAUNCH",
       icon: faForward,
-      backgroundColor: "bg-green-gradient",
+      backgroundColor: "button-green-pulse",
       command: "LAUNCH"
-    },
-    abortRunning: {
-      caption: "ABORT",
-      icon: faExclamationTriangle,
-      backgroundColor: "bg-red-gradient",
-      command: "STOP"
     },
     shutdown: {
       caption: "SHUTDOWN",
-      icon: faRedo,
-      backgroundColor: "bg-blue-gradient",
+      icon: faPowerOff,
+      backgroundColor: "button-red",
       command: "SHUTDOWN"
-    },
-    extend: {
-      caption: "EXTEND",
-      icon: faLock,
-      backgroundColor: "bg-white-gradient",
-      command: "NOMINAL_BRAKING"
-    },
-    retract: {
-      caption: "RETRACT",
-      icon: faLockOpen,
-      backgroundColor: "bg-white-gradient",
-      command: "NOMINAL_RETRACT"
     },
     abort: {
       caption: "ABORT",
       icon: faExclamationTriangle,
-      backgroundColor: "bg-white-gradient",
+      backgroundColor: "button-red",
       command: "STOP"
     }
   };
@@ -79,13 +59,13 @@ export default props => {
   };
 
   useEffect(() => {
-    console.log(state);
     setMainDisabled(false);
-  }, [state]);
+  }, [props.state]);
 
-  const getButton = (button, disabled = false, hidden = false) => {
+  const getButton = (button, disabled = false) => {
     return (
       <Button
+        id={button.id}
         caption={button.caption}
         icon={button.icon}
         spin={button.spin}
@@ -94,13 +74,12 @@ export default props => {
         }}
         backgroundColor={button.backgroundColor}
         disabled={disabled}
-        hidden={hidden}
       ></Button>
     );
   };
 
   const getMainButton = () => {
-    switch (state) {
+    switch (props.state) {
       case "IDLE":
         return getButton(buttons.calibrate, isMainDisabled);
       case "CALIBRATING":
@@ -108,50 +87,35 @@ export default props => {
       case "READY":
         return getButton(buttons.launch, isMainDisabled);
       case "ACCELERATING":
-        return getButton(buttons.abortRunning, isMainDisabled);
       case "EMERGENCY_BRAKING":
       case "NOMINAL_BRAKING":
-        return getButton(buttons.abortRunning, true);
-      case "RUN_COMPLETE":
+        return null;
       case "FINISHED":
       case "FAILURE_STOPPED":
         return getButton(buttons.shutdown, isMainDisabled);
     }
   };
 
-  const getBrakeButton = () => {
-    var hidden = true;
-    switch (state) {
-      case "IDLE":
-      case "RUN_COMPLETE":
-      case "FINISHED":
-      case "FAILURE_STOPPED":
-        hidden = false;
-    }
-    return getButton(
-      props.isBrakeRetracted ? buttons.extend : buttons.retract,
-      false,
-      hidden
-    );
-  };
-
   const getAbortButton = () => {
-    var hidden = true;
-    switch (state) {
+    switch (props.state) {
       case "IDLE":
       case "CALIBRATING":
       case "READY":
-        hidden = false;
+      case "ACCELERATING":
+      case "NOMINAL_BRAKING":
+        return getButton(buttons.abort, isMainDisabled);
+      case "EMERGENCY_BRAKING":
+        return getButton(buttons.abort, true);
+      case "FINISHED":
+      case "FAILURE_STOPPED":
+        return null;
     }
-    return getButton(buttons.abort, false, hidden);
   };
 
-  // TODO: adapt buttons to the new design
   return (
     <div className="button-container">
-      {/* {getMainButton()}
-      {getBrakeButton()}
-      {getAbortButton()} */}
+      {getAbortButton()}
+      {getMainButton()}
     </div>
   );
 };

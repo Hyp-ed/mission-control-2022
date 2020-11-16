@@ -1,40 +1,87 @@
 .button {
-  flex-grow: 1;
+  flex: 1;
+  border-radius: 15px;
+  box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.8);
+  font-size: 1.3vw;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.4vw;
-  cursor: default;
-  user-select: none;
-  transition: flex-grow 1000ms linear;
-}
-
-.button.hidden {
-  flex-grow: 0.0001;
-  margin: 0 !important;
+  color: white;
 }
 
 .button + .button {
-  margin-left: 0.5vw;
-}
-
-.button-slant-left {
-  clip-path: polygon(30px 0, 100% 0, 100% 100%, 0% 100%);
-}
-
-.button-slant-right {
-  clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0% 100%);
-}
-
-.button-slant-both {
-  clip-path: polygon(30px 0, calc(100% - 30px) 0, 100% 100%, 0% 100%);
+  margin-top: 18px;
 }
 
 .button:hover:not(.disabled) {
   cursor: pointer;
 }
 
+.button.disabled:hover {
+  cursor: no-drop;
+}
+
 .button-icon {
   height: 100%;
   margin-right: 10px;
+}
+
+/* Colors */
+
+.button-green-pulse {
+  animation-name: green-color-pulse;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+.button-green-pulse:hover, .button-green-pulse.disabled {
+  animation: 0;
+  background: rgba(17, 114, 26, 1);
+}
+
+@keyframes green-color-pulse {
+  0% {
+    background-color: #191919;
+  }
+  50% {
+    background-color: rgba(17, 114, 26, 1);
+  }
+  100% {
+    background-color: #191919;
+  }
+}
+
+.button-blue-pulse {
+  animation-name: blue-color-pulse;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
+
+.button-blue-pulse:hover, .button-blue-pulse.disabled, .button-blue:hover, .button-blue.disabled {
+  animation: 0;
+  background: rgb(12,114,130);
+}
+
+@keyframes blue-color-pulse {
+  0% {
+    background-color: #191919;
+  }
+  50% {
+    background-color: rgb(16,152,173);
+  }
+  100% {
+    background-color: #191919;
+  }
+}
+
+.button-blue {
+  background: rgb(16,152,173);
+}
+
+.button-red {
+  background: rgba(175,17,27,1);
+}
+
+.button-red:hover, .button-red.disabled {
+  background: rgba(131,13,20,1);
 }
