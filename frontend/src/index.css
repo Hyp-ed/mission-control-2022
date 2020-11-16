@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Roboto";
+  src: url("/Roboto-Medium.ttf") format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
 body {
   overflow: hidden;
   margin: 0;
@@ -7,9 +14,7 @@ body {
 body,
 button,
 input {
-  font-family: "Roboto", monospace;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: "Roboto", sans-serif;
   font-size: 2vh;
 }
 
