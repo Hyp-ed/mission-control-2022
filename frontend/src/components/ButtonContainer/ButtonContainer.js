@@ -59,7 +59,6 @@ export default props => {
   };
 
   useEffect(() => {
-    console.log(props.state)
     setMainDisabled(false);
   }, [props.state]);
 
