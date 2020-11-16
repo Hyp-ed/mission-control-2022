@@ -27,7 +27,6 @@ button {
   border: none;
   margin: 0;
   text-decoration: none;
-  cursor: pointer;
   text-align: center;
   transition: transform 150ms ease;
   -webkit-appearance: none;

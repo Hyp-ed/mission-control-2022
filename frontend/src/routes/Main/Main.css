@@ -11,7 +11,7 @@
 .container {
   background-color: #191919;
   border-radius: 15px;
-  box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.8);;
+  box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.8);
 }
 
 /* Colors */
@@ -23,11 +23,6 @@
 
 .bg-transparent {
   background-color: transparent;
-  color: white;
-}
-
-.bg-blue {
-  background-color: #1098AD;
   color: white;
 }
 

@@ -24,7 +24,10 @@ export default function Main(props) {
       <Gauge gaugeId="velocity"/>
       <Gauge gaugeId="acceleration"/>
       <DataContainer telemetryData={null}/>
-      <ButtonContainer />
+      <ButtonContainer 
+        stompClient={props.stompClient}
+        state={props.state}
+      />
     </div>
   );
 }
