@@ -89,7 +89,7 @@
   outline: none;
   border: none;
   cursor: pointer;
-  background-color: black;
+  background-color: #0A0A0A;
   transition: background-color ease 0.3s;
   border: 1px solid white;
   margin-right: 10px;
