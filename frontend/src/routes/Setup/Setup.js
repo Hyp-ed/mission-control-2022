@@ -51,7 +51,7 @@ export default function Setup(props) {
   const handleRunClick = () => {
     const data = flags;
     console.log(data)
-    props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
+    props.stompClient.send("/app/send/debug/compileRun", {}, JSON.stringify(data));
     history.push("/main");
   };
 

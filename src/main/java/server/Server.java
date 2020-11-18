@@ -20,6 +20,7 @@ public class Server implements Runnable {
 
   private Socket telemetryClient; // TCP socket to pod
   private Process debugProcess;
+  private Process compileProcess;
 
   // Telemetry
   private JSONObject telemetryData;
@@ -32,6 +33,7 @@ public class Server implements Runnable {
   private List<String> logTypes = new ArrayList<>(List.of(""));
   private List<String> submoduleTypes = new ArrayList<>(List.of(""));
   private JSONArray terminalOutput = new JSONArray();
+  private JSONArray compileOutput = new JSONArray();
 
   @Override
   public void run() {
@@ -77,6 +79,7 @@ public class Server implements Runnable {
         }
       }
       catch (Exception e) {
+        System.out.println(e);
         System.out.println("StreamGobbler stream has closed");
       }
     }
@@ -97,6 +100,31 @@ public class Server implements Runnable {
     
     obj.put("line", line);
     return obj;
+  }
+
+  public void debugCompile() {
+    String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
+    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
+
+    try {
+      System.out.println("Compiling from: " + HYPED_PATH);
+      compileOutput = new JSONArray();
+      compileProcess = new ProcessBuilder("make").directory(new File(HYPED_PATH)).start();
+
+      BufferedReader in = new BufferedReader(new InputStreamReader(compileProcess.getInputStream()));
+      String line;
+      while ((line = in.readLine()) != null) {
+          System.out.println(line);
+      }
+      compileProcess.waitFor();
+      System.out.println("Finish compiling");
+      
+      in.close();
+
+    } catch (Throwable t) {
+      t.printStackTrace();
+    }
+
   }
 
   public void debugRun(JSONArray flags) {
@@ -120,7 +148,7 @@ public class Server implements Runnable {
     command.add("-d");
 
     try {
-      System.out.println("Reading from: " + HYPED_PATH);
+      System.out.println("Running from: " + HYPED_PATH);
       terminalOutput = new JSONArray();
       debugProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
 
