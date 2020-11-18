@@ -7,6 +7,7 @@ import Timer from "./components/Timer/Timer";
 import Gauge from "./components/Gauge/Gauge";
 import DataContainer from "./components/DataContainer/DataContainer";
 import ButtonContainer from "./components/ButtonContainer/ButtonContainer";
+import SetupModal from "./components/SetupModal/SetupModal";
 import testData from "./testData.json";
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
   const [terminalOutput, setTerminalOutput] = useState("");
   const [logTypes, setLogTypes] = useState([""])
   const [submoduleTypes, setSubmoduleTypes] = useState([""])
+  const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const sc = Stomp.client("ws://localhost:8080/connecthere");
@@ -122,7 +124,9 @@ export default function App() {
         stompClient={stompClient}
         telemetryConnection={telemetryConnection}
         state={state}
+        setModalOpen={setModalOpen}
       />
+      <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen}></SetupModal>
     </div>
   );
 }

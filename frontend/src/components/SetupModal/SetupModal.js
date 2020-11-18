@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import "./Setup.css";
+import Modal from 'react-modal';
+import "./SetupModal.css";
 import Button from "../Button/Button";
 import {
   faPlay,
 } from "@fortawesome/free-solid-svg-icons";
 
-export default function Setup(props) {
+export default props => {
   const [flags, setFlags] = useState([]);
+  Modal.setAppElement('#root');
 
   const fakeSystems = [
     { name: "IMU", value: "--fake_imu", defaultChecked: true },
@@ -41,7 +43,7 @@ export default function Setup(props) {
 
   const handleRunClick = () => {
     const data = flags;
-    props.closeModal();
+    props.setModalOpen(false);
     props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
   };
 
@@ -71,21 +73,32 @@ export default function Setup(props) {
     initiateFlags();
   }, []); // Only run once
 
+  const closeModal = () => {
+    props.setModalOpen(false);
+  }
+
   // TODO: fittext
   return (
-    <div className="setup-wrapper centered container">
-      <div className="input-group">
-        <label>Fake systems</label>
-        <div className="input-group-multiple">{getChoiceList(fakeSystems)}</div>
+    <Modal
+      isOpen={props.isModalOpen}
+      onRequestClose={closeModal}
+      className="modal-run"
+      overlayClassName="modal-run-overlay"
+    >
+      <div className="setup-wrapper centered container">
+        <div className="input-group">
+          <label>Fake systems</label>
+          <div className="input-group-multiple">{getChoiceList(fakeSystems)}</div>
+        </div>
+        <div className="setup-wrapper-buttons">
+          <Button
+            caption="RUN"
+            handleClick={handleRunClick}
+            backgroundColor="button-blue"
+            icon={faPlay}
+          ></Button>
+        </div>
       </div>
-      <div className="setup-wrapper-buttons">
-        <Button
-          caption="RUN"
-          handleClick={handleRunClick}
-          backgroundColor="button-blue"
-          icon={faPlay}
-        ></Button>
-      </div>
-    </div>
+    </Modal>
   );
 }

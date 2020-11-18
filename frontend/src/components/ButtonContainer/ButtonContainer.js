@@ -11,15 +11,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "./ButtonContainer.css";
 import React, { useState, useEffect } from "react";
-import Modal from 'react-modal';
 import Button from "../Button/Button";
-import Setup from "../Setup/Setup";
 
 export default props => {
   const [isMainDisabled, setMainDisabled] = useState(false);
-  const [isModalOpen, setModalOpen] = useState(false);
-
-  Modal.setAppElement('#root');
   
   const telemetry_buttons = {
     calibrate: {
@@ -96,7 +91,7 @@ export default props => {
     if (debug) {
       switch (command) {
         case "RUN":
-          setModalOpen(true);
+          props.setModalOpen(true);
           break;
         case "COMPILE":
           // TODO(Steven): implement
@@ -163,10 +158,6 @@ export default props => {
     }
   };
 
-  const closeModal = () => {
-    setModalOpen(false);
-  }
-
   // TODO(Steven): implement all the states of compile button
   const getDebugButtons = () => {
     return [getButton(debug_buttons.compile, false, true), getButton(debug_buttons.run, false, true)];
@@ -183,14 +174,6 @@ export default props => {
   else {
     return (
       <div className="button-container">
-        <Modal
-          isOpen={isModalOpen}
-          onRequestClose={closeModal}
-          className="modal-run"
-          overlayClassName="modal-run-overlay"
-        >
-          <Setup stompClient={props.stompClient} closeModal={closeModal}></Setup>
-        </Modal>
         {getDebugButtons()}
       </div>
     );
