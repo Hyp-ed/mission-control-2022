@@ -1,21 +1,14 @@
 import React, { useState, useEffect } from "react";
-import "./Setup.css";
-import SetupLogo from "../SetupLogo/SetupLogo";
-import Button from "../../components/Button/Button";
-import { useHistory } from "react-router-dom";
+import Modal from 'react-modal';
+import "./SetupModal.css";
+import Button from "../Button/Button";
 import {
   faPlay,
-  faCogs,
-  faWifi,
-  faSpinner,
-  faCheck,
-  faRedo
 } from "@fortawesome/free-solid-svg-icons";
-import path from "path"
 
-export default function Setup(props) {
-  const history = useHistory();
+export default props => {
   const [flags, setFlags] = useState([]);
+  Modal.setAppElement('#root');
 
   const fakeSystems = [
     { name: "IMU", value: "--fake_imu", defaultChecked: true },
@@ -50,9 +43,8 @@ export default function Setup(props) {
 
   const handleRunClick = () => {
     const data = flags;
-    console.log(data)
-    props.stompClient.send("/app/send/debug/compileRun", {}, JSON.stringify(data));
-    history.push("/main");
+    props.setModalOpen(false);
+    props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
   };
 
   const initiateFlags = () => {
@@ -77,43 +69,36 @@ export default function Setup(props) {
     setFlags(newFlags);
   };
 
-  // document.onkeypress = function (e) {
-  //   if (e.code == "Enter") {
-  //     handleConnectClick();
-  //   }
-  // };
-
   useEffect(() => {
     initiateFlags();
   }, []); // Only run once
 
+  const closeModal = () => {
+    props.setModalOpen(false);
+  }
+
   // TODO: fittext
   return (
-    <div className="setup-wrapper centered">
-      <SetupLogo></SetupLogo>
-      <div className="input-group">
-        <label>Fake systems</label>
-        <div className="input-group-multiple">{getChoiceList(fakeSystems)}</div>
+    <Modal
+      isOpen={props.isModalOpen}
+      onRequestClose={closeModal}
+      className="modal-run"
+      overlayClassName="modal-run-overlay"
+    >
+      <div className="setup-wrapper centered container">
+        <div className="input-group">
+          <label>Fake systems</label>
+          <div className="input-group-multiple">{getChoiceList(fakeSystems)}</div>
+        </div>
+        <div className="setup-wrapper-buttons">
+          <Button
+            caption="RUN"
+            handleClick={handleRunClick}
+            backgroundColor="button-blue"
+            icon={faPlay}
+          ></Button>
+        </div>
       </div>
-      {/* <div className="input-group">
-        <label>Additional values</label>
-        <div className="input-group-multiple">{getChoiceList(additional)}</div>
-      </div> */}
-      <div className="setup-wrapper-buttons">
-        <Button
-          caption="RUN"
-          handleClick={handleRunClick}
-          backgroundColor="bg-white-gradient"
-          icon={faPlay}
-        ></Button>
-        {/* <Button
-          caption="COMPILE & RUN"
-          handleClick={handleCompileClick}
-          backgroundColor="bg-red-gradient"
-          icon={faCogs}
-          disabled={true}
-        ></Button> */}
-      </div>
-    </div>
+    </Modal>
   );
 }

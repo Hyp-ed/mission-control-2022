@@ -1,7 +1,23 @@
+.modal-run {
+  position: fixed;
+  left: 50%;
+  margin-top: 100px;
+  transform: translate(0, -50%);
+  border: none;
+}
+
+.modal-run-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+}
+
 .setup-wrapper {
-  width: 50%;
-  max-width: 500px;
-  padding: 20px 0;
+  width: 40vw;
+  padding: 0px 20px 20px 20px;
   text-align: center;
   color: white;
   font-size: 1.25em;
@@ -73,7 +89,7 @@
   outline: none;
   border: none;
   cursor: pointer;
-  background-color: black;
+  background-color: #0A0A0A;
   transition: background-color ease 0.3s;
   border: 1px solid white;
   margin-right: 10px;

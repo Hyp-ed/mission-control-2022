@@ -46,3 +46,31 @@ button:focus {
   left: 50%;
   transform: translate(-50%);
 }
+
+.gui-wrapper {
+  display: grid;
+  grid-auto-columns: calc(calc(100% - calc(16px * 15))/16);
+  grid-auto-rows: calc(calc(100% - calc(18px * 8))/9);
+  height: calc(100vh - 36px);
+  column-gap: 16px;
+  row-gap: 18px;
+  padding: 18px 16px;
+}
+
+.container {
+  background-color: #191919;
+  border-radius: 15px;
+  box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.8);
+}
+
+/* Colors */
+
+.bg-white {
+  background-color: white;
+  color: black;
+}
+
+.bg-transparent {
+  background-color: transparent;
+  color: white;
+}
