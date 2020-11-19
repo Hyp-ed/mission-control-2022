@@ -4,6 +4,7 @@
   box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.8);
   font-size: 1.3vw;
   display: inline-flex;
+  padding: 10px;
   justify-content: center;
   align-items: center;
   color: white;

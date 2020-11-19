@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { MemoryRouter, Switch, Route, Link } from "react-router-dom";
-import { createMemoryHistory } from "history";
 import Stomp from "stompjs";
-import Home from "./routes/Home/Home";
-import Main from "./routes/Main/Main";
-import Disconnected from "./routes/Disconnected/Disconnected";
-import Loading from "./routes/Loading/Loading";
-import Setup from "./routes/Setup/Setup";
+import GraphsContainer from "./components/GraphsContainer/GraphsContainer";
+import StatusContainer from "./components/StatusContainer/StatusContainer";
+import Terminal from "./components/Terminal/Terminal";
+import Timer from "./components/Timer/Timer";
+import Gauge from "./components/Gauge/Gauge";
+import DataContainer from "./components/DataContainer/DataContainer";
+import ButtonContainer from "./components/ButtonContainer/ButtonContainer";
+import SetupModal from "./components/SetupModal/SetupModal";
 import testData from "./testData.json";
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
   const [terminalOutput, setTerminalOutput] = useState("");
   const [logTypes, setLogTypes] = useState([""])
   const [submoduleTypes, setSubmoduleTypes] = useState([""])
+  const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const sc = Stomp.client("ws://localhost:8080/connecthere");
@@ -103,51 +105,28 @@ export default function App() {
     }
   }, [state]);
 
-  const history = createMemoryHistory();
   return (
-    <MemoryRouter history={history}>
-      <Switch>
-        <Route
-          path="/main"
-          render={props => (
-            <Main
-              stompClient={stompClient}
-              telemetryConnection={telemetryConnection}
-              telemetryData={telemetryData}
-              debugConnection={debugConnection}
-              terminalOutput={terminalOutput}
-              logTypes={logTypes}
-              submoduleTypes={submoduleTypes}
-              state={state}
-              startTime={startTime}
-              endTime={endTime}
-            />
-          )}
-        ></Route>
-        <Route
-          path="/loading"
-          render={props => (
-            <Loading
-              stompClient={stompClient}
-              debugStatus={debugStatus}
-              terminalOutput={terminalOutput}
-              debugConnection={debugConnection}
-            />
-          )}
-        ></Route>
-        <Route path="/disconnected" render={props => <Disconnected />}></Route>
-        <Route
-          path="/setup"
-          render={props => (
-            <Setup
-              stompClient={stompClient}
-              debugConnection={debugConnection}
-              debugStatus={debugStatus}
-            />
-          )}
-        ></Route>
-        <Route path="/" render={props => <Home />}></Route>
-      </Switch>
-    </MemoryRouter>
+    <div className="gui-wrapper">
+      <GraphsContainer />
+      <StatusContainer />
+      <Terminal
+        terminalOutput={terminalOutput}
+        logTypes={logTypes}
+        submoduleTypes={submoduleTypes}
+        stompClient={stompClient}
+      />
+      <Timer />
+      <Gauge gaugeId="distance"/>
+      <Gauge gaugeId="velocity"/>
+      <Gauge gaugeId="acceleration"/>
+      <DataContainer telemetryData={null}/>
+      <ButtonContainer 
+        stompClient={stompClient}
+        telemetryConnection={telemetryConnection}
+        state={state}
+        setModalOpen={setModalOpen}
+      />
+      <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen}></SetupModal>
+    </div>
   );
 }
