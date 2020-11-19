@@ -109,7 +109,7 @@ public class Server implements Runnable {
     try {
       System.out.println("Compiling from: " + HYPED_PATH);
       compileOutput = new JSONArray();
-      compileProcess = new ProcessBuilder("make").directory(new File(HYPED_PATH)).start();
+      compileProcess = new ProcessBuilder("make -j").directory(new File(HYPED_PATH)).start();
 
       BufferedReader in = new BufferedReader(new InputStreamReader(compileProcess.getInputStream()));
       String line;
