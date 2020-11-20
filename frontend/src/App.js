@@ -20,8 +20,10 @@ export default function App() {
   const [logTypes, setLogTypes] = useState([""])
   const [submoduleTypes, setSubmoduleTypes] = useState([""])
   const [isModalOpen, setModalOpen] = useState(false);
+  const [compileStatus, setCompileStatus] = useState(false);
 
   useEffect(() => {
+    console.log("READY FOR DATA");
     const sc = Stomp.client("ws://localhost:8080/connecthere");
     sc.debug = false;
     setStompClient(sc);
@@ -43,6 +45,9 @@ export default function App() {
         sc.subscribe("/topic/debug/status", message =>
           debugStatusHandler(message)
         );
+        sc.subscribe("/topic/compile/status", message =>
+          compileStatusHandler(message)
+        );
         sc.subscribe("/topic/errors", message =>
           console.error(`ERROR FROM BACKEND: ${message}`)
         );
@@ -50,6 +55,11 @@ export default function App() {
       error => disconnectHandler(error)
     );
   }, []); // Only run once
+  
+  const compileStatusHandler = message => {
+    console.log("Received " + message.body)
+    setCompileStatus(message.body);
+  }
 
   const telemetryConnectionHandler = message => {
     setTelemetryConnection(message.body === "CONNECTED" ? true : false);
@@ -125,6 +135,7 @@ export default function App() {
         telemetryConnection={telemetryConnection}
         state={state}
         setModalOpen={setModalOpen}
+        compileStatus = {compileStatus}
       />
       <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen}></SetupModal>
     </div>

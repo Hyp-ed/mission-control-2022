@@ -26,6 +26,9 @@ public class Server implements Runnable {
   private JSONObject telemetryData;
   private boolean telemetryConnected = false;
 
+  private boolean isCompiled = false;
+  public boolean prevCompiledRes = false;
+
   // Debug
   private String searchPhrase;
   private String logTypeFilter;
@@ -106,10 +109,14 @@ public class Server implements Runnable {
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
 
+    ArrayList<String> command = new ArrayList<String>();
+    // Suppose to be make -j, but it's so buggy so leave it as make for now
+    command.add("make");
+
     try {
       System.out.println("Compiling from: " + HYPED_PATH);
       compileOutput = new JSONArray();
-      compileProcess = new ProcessBuilder("make -j").directory(new File(HYPED_PATH)).start();
+      compileProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
 
       BufferedReader in = new BufferedReader(new InputStreamReader(compileProcess.getInputStream()));
       String line;
@@ -117,6 +124,7 @@ public class Server implements Runnable {
           System.out.println(line);
       }
       compileProcess.waitFor();
+      isCompiled = true;
       System.out.println("Finish compiling");
       
       in.close();
@@ -125,6 +133,17 @@ public class Server implements Runnable {
       t.printStackTrace();
     }
 
+  }
+
+  public boolean getCompiledStatus() {
+    //TODO check if hyped file exist
+    String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
+    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped"; // change this part for RELEASE
+
+    File HYPED_CODE = new File(HYPED_PATH);
+    this.isCompiled = HYPED_CODE.exists();
+
+    return this.isCompiled;
   }
 
   public void debugRun(JSONArray flags) {

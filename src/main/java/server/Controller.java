@@ -22,6 +22,7 @@ public class Controller {
 
   private final int TELEMETRY_PING_INTERVAL = 100;
   private final int DEBUG_PING_INTERVAL = 1000;
+  private final int COMPILE_PING_INTERVAL = 500;
 
   @PostConstruct
   public void initialize() {
@@ -44,7 +45,10 @@ public class Controller {
           scheduler.scheduleAtFixedRate(() -> pingDebugConnection(), DEBUG_PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingTerminalOutput(), DEBUG_PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingDebugStatus(), DEBUG_PING_INTERVAL);
-
+          scheduler.scheduleAtFixedRate(() -> {
+            System.out.println(server.getCompiledStatus());
+            pingCompileStatus();
+          }, COMPILE_PING_INTERVAL);
           return; // end thread
         }
       }
@@ -179,6 +183,14 @@ public class Controller {
 
   public void pingDebugStatus() {
     // TODO(Steven): implement debugStatus
+  }
+
+  public void pingCompileStatus() {
+    if (server.getCompiledStatus()) {
+      template.convertAndSend("/topic/compile/status", true);
+    } else {
+      template.convertAndSend("/topic/compile/status", false);
+    }
   }
 
   public String getResponseMessage(String status, String message) {

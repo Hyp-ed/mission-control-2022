@@ -70,7 +70,7 @@ export default props => {
       command: "COMPILE"
     },
     compiled: {
-      caption: "COMPILED",
+      caption: "RECOMPILE",
       icon: faCheck,
       backgroundColor: "button-green",
     },
@@ -95,6 +95,7 @@ export default props => {
           break;
         case "COMPILE":
           // TODO(Steven): implement
+          props.stompClient.send("/app/send/debug/compileRun", {}, command);
           break;
       }
     }
@@ -159,8 +160,9 @@ export default props => {
   };
 
   // TODO(Steven): implement all the states of compile button
-  const getDebugButtons = () => {
-    return [getButton(debug_buttons.compile, false, true), getButton(debug_buttons.run, false, true)];
+  const getDebugButtons = (isCompiled) => {
+    console.log("BUTTON isCompiled=", isCompiled, "!isCompuled =", !isCompiled)
+    return [getButton(debug_buttons.compile, false, true), getButton(debug_buttons.run, !isCompiled, true)];
   }
 
   if (props.telemetryConnection) {
@@ -172,9 +174,10 @@ export default props => {
     );
   }
   else {
+    console.log("RERENDER" + props.compileStatus)
     return (
       <div className="button-container">
-        {getDebugButtons()}
+        {getDebugButtons(props.compileStatus)}
       </div>
     );
   }
