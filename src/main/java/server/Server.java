@@ -26,9 +26,6 @@ public class Server implements Runnable {
   private JSONObject telemetryData;
   private boolean telemetryConnected = false;
 
-  private boolean isCompiled = false;
-  public boolean prevCompiledRes = false;
-
   // Debug
   private String searchPhrase;
   private String logTypeFilter;
@@ -124,7 +121,6 @@ public class Server implements Runnable {
           System.out.println(line);
       }
       compileProcess.waitFor();
-      isCompiled = true;
       System.out.println("Finish compiling");
       
       in.close();
@@ -141,9 +137,8 @@ public class Server implements Runnable {
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped"; // change this part for RELEASE
 
     File HYPED_CODE = new File(HYPED_PATH);
-    this.isCompiled = HYPED_CODE.exists();
 
-    return this.isCompiled;
+    return HYPED_CODE.exists();
   }
 
   public void debugRun(JSONArray flags) {

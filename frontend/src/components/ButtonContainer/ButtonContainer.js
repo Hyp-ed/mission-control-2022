@@ -161,7 +161,6 @@ export default props => {
 
   // TODO(Steven): implement all the states of compile button
   const getDebugButtons = (isCompiled) => {
-    console.log("BUTTON isCompiled=", isCompiled, "!isCompuled =", !isCompiled)
     return [getButton(debug_buttons.compile, false, true), getButton(debug_buttons.run, !isCompiled, true)];
   }
 
@@ -174,7 +173,6 @@ export default props => {
     );
   }
   else {
-    console.log("RERENDER" + props.compileStatus)
     return (
       <div className="button-container">
         {getDebugButtons(props.compileStatus)}

@@ -57,8 +57,7 @@ export default function App() {
   }, []); // Only run once
   
   const compileStatusHandler = message => {
-    console.log("Received " + message.body)
-    setCompileStatus(message.body);
+    setCompileStatus(message.body == 'true');
   }
 
   const telemetryConnectionHandler = message => {
@@ -129,7 +128,7 @@ export default function App() {
       <Gauge gaugeId="distance"/>
       <Gauge gaugeId="velocity"/>
       <Gauge gaugeId="acceleration"/>
-      <DataContainer telemetryData={null}/>
+      <DataContainer telemetryData={telemetryData}/>
       <ButtonContainer 
         stompClient={stompClient}
         telemetryConnection={telemetryConnection}

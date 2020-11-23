@@ -44,11 +44,7 @@ public class Controller {
           scheduler.scheduleAtFixedRate(() -> pingTelemetryData(), TELEMETRY_PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingDebugConnection(), DEBUG_PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingTerminalOutput(), DEBUG_PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingDebugStatus(), DEBUG_PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> {
-            System.out.println(server.getCompiledStatus());
-            pingCompileStatus();
-          }, COMPILE_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingCompileStatus(), COMPILE_PING_INTERVAL);
           return; // end thread
         }
       }
@@ -179,10 +175,6 @@ public class Controller {
         server.getTerminalOutput()
       );
     }
-  }
-
-  public void pingDebugStatus() {
-    // TODO(Steven): implement debugStatus
   }
 
   public void pingCompileStatus() {
