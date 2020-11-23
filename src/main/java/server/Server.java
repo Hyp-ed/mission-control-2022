@@ -132,7 +132,6 @@ public class Server implements Runnable {
   }
 
   public boolean getCompiledStatus() {
-    //TODO check if hyped file exist
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped"; // change this part for RELEASE
 

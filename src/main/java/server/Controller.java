@@ -60,7 +60,6 @@ public class Controller {
 
   @MessageMapping("/send/debug/compileRun")
   public void debugCompile(String flagsString) {
-    // TODO(Steven): implement compiling and running
     server.debugCompile();
   }
 
