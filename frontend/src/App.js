@@ -116,9 +116,9 @@ export default function App() {
         stompClient={stompClient}
       />
       <Timer />
-      <Gauge gaugeId="distance"/>
-      <Gauge gaugeId="velocity"/>
-      <Gauge gaugeId="acceleration"/>
+      <Gauge title="Distance" gaugeId="distance" telemetryData={telemetryData}/>
+      <Gauge title="Velocity" gaugeId="velocity" telemetryData={telemetryData}/>
+      <Gauge title="Acceleration" gaugeId="acceleration" telemetryData={telemetryData}/>
       <DataContainer telemetryData={null}/>
       <ButtonContainer 
         stompClient={stompClient}
