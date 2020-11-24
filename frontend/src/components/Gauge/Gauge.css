@@ -13,12 +13,6 @@
     grid-column: 15/17;
 }
 
-.gauge {
-    /* display: flex;
-    justify-content: center;
-    vertical-align: middle; */
-}
-
 .gauge-title {
     color: white;
     padding: 10px 15px;
@@ -41,7 +35,3 @@
     transform: rotate(-20deg);
     transform-origin: 50% 50%;
 }
-
-/* .progress-value, .progress-unit {
-    transform: translateY(30px);
-} */
