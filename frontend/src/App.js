@@ -115,7 +115,11 @@ export default function App() {
         submoduleTypes={submoduleTypes}
         stompClient={stompClient}
       />
-      <Timer />
+      <Timer 
+        startTime={startTime}
+        endTime={endTime}
+        telemetryData={telemetryData}
+      />
       <Gauge title="Distance" gaugeId="distance" telemetryData={telemetryData}/>
       <Gauge title="Velocity" gaugeId="velocity" telemetryData={telemetryData}/>
       <Gauge title="Acceleration" gaugeId="acceleration" telemetryData={telemetryData}/>
