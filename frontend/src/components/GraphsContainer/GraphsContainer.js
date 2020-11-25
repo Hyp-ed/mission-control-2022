@@ -91,16 +91,19 @@ export default props => {
     };
 
     // TODO: adapt graphs to a new design
-    return (<div id="graphs-container" class="container"></div>);
-    // return (
-    //     <div id="graphs-container" class="container">
-    //         {getGraphs()}
-    //         <Sidebar
-    //             handleAddGraphClick={ConfigManager.addGraph}
-    //             isAddEnabled={ConfigManager.shouldEnableAdd()}
-    //             handleSaveClick={handleSaveClick}
-    //             handleUploadClick={handleUploadClick}
-    //         ></Sidebar>
-    //     </div>
-    // );
+    //return (<div id="graphs-container" class="container"></div>);
+    return (
+        <div id="graphs-container" class="container">
+          <div id="graphs">
+             {getGraphs()}
+          </div>
+          <Sidebar
+                 id="sidebar"
+                 handleAddGraphClick={ConfigManager.addGraph}
+                 isAddEnabled={ConfigManager.shouldEnableAdd()}
+                 handleSaveClick={handleSaveClick}
+                 handleUploadClick={handleUploadClick}
+             ></Sidebar>
+        </div>
+    );
 }

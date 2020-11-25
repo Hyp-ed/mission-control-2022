@@ -4,9 +4,23 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    position: relative;
 }
 
 #graphs-container:nth-child(2n) {
     break-after: always;
     flex-basis: 100%;
+}
+#graphs{
+    width: 90%;
+    height:100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+#sidebar{
+    width: 10%;
+    position: absolute;
+    right: 0;
+    align-self:center;
 }
