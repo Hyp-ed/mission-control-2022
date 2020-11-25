@@ -33,6 +33,7 @@ public class Server implements Runnable {
   private List<String> logTypes = new ArrayList<>(List.of(""));
   private List<String> submoduleTypes = new ArrayList<>(List.of(""));
   private JSONArray terminalOutput = new JSONArray();
+  private JSONObject debugData;
   private JSONArray compileOutput = new JSONArray();
 
   @Override
@@ -118,7 +119,8 @@ public class Server implements Runnable {
       BufferedReader in = new BufferedReader(new InputStreamReader(compileProcess.getInputStream()));
       String line;
       while ((line = in.readLine()) != null) {
-          System.out.println(line);
+        compileOutput.put(line);
+        System.out.println(line);
       }
       compileProcess.waitFor();
       System.out.println("Finish compiling");
@@ -129,6 +131,13 @@ public class Server implements Runnable {
       t.printStackTrace();
     }
 
+  }
+
+  public String getDebugData() {
+    if (debugData == null) {
+      return null;
+    }
+    return debugData.toString();
   }
 
   public boolean getCompiledStatus() {

@@ -16,6 +16,7 @@ export default function App() {
   const [telemetryData, setTelemetryData] = useState(null); // change to testData for testing
   const [debugConnection, setDebugConnection] = useState(false);
   const [debugStatus, setDebugStatus] = useState(false);
+  const [debugData, setDebugData] = useState(null);
   const [terminalOutput, setTerminalOutput] = useState("");
   const [logTypes, setLogTypes] = useState([""])
   const [submoduleTypes, setSubmoduleTypes] = useState([""])
@@ -48,6 +49,9 @@ export default function App() {
         sc.subscribe("/topic/compile/status", message =>
           compileStatusHandler(message)
         );
+        sc.subscribe("/topic/debug/data", message =>
+          debugDataHandler(message)
+      );
         sc.subscribe("/topic/errors", message =>
           console.error(`ERROR FROM BACKEND: ${message}`)
         );
@@ -58,6 +62,10 @@ export default function App() {
   
   const compileStatusHandler = message => {
     setCompileStatus(message.body == 'true');
+  }
+
+  const debugDataHandler = message => {
+    setDebugData(JSON.parse(message.body));
   }
 
   const telemetryConnectionHandler = message => {

@@ -28,6 +28,9 @@
 }
 
 /* Colors */
+.button-green {
+  background: rgba(17, 114, 26, 1);
+}
 
 .button-green-pulse {
   animation-name: green-color-pulse;

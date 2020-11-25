@@ -73,6 +73,7 @@ export default props => {
       caption: "RECOMPILE",
       icon: faCheck,
       backgroundColor: "button-green",
+      command: "RECOMPILE"
     },
     run: {
       caption: "RUN",
@@ -94,7 +95,7 @@ export default props => {
           props.setModalOpen(true);
           break;
         case "COMPILE":
-          // TODO(Steven): implement
+        case "RECOMPILE":
           props.stompClient.send("/app/send/debug/compileRun", {}, command);
           break;
       }
@@ -161,7 +162,10 @@ export default props => {
 
   // TODO(Steven): implement all the states of compile button
   const getDebugButtons = (isCompiled) => {
-    return [getButton(debug_buttons.compile, false, true), getButton(debug_buttons.run, !isCompiled, true)];
+    if(!isCompiled){
+      return [getButton(debug_buttons.compile, false, true)];
+    }
+    return [getButton(debug_buttons.compiled, false, true), getButton(debug_buttons.run, false, true)];
   }
 
   if (props.telemetryConnection) {

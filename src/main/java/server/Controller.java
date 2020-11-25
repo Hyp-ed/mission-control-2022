@@ -184,6 +184,13 @@ public class Controller {
     }
   }
 
+  public void pingDebugData() {
+    template.convertAndSend(
+        "/topic/debug/data", 
+        server.getDebugData()
+      );
+  }
+
   public String getResponseMessage(String status, String message) {
     JSONObject response = new JSONObject();
     response.put("status", status);
