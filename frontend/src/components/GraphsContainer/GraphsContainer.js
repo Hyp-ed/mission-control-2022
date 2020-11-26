@@ -93,11 +93,9 @@ export default props => {
 
     if (props.telemetryData === null) {
       return (<div id="graphs-container" class="container"></div>);
-    }
-
-    return (
+    }else{
+          return (
         <div id="graphs-container" class="container">
-          <div id="all">
             <div id="graphs">
               {getGraphs()}
             </div>
@@ -108,8 +106,7 @@ export default props => {
                  handleSaveClick={handleSaveClick}
                  handleUploadClick={handleUploadClick}
              ></Sidebar>
-          </div>
-          <DataPointSelector
+            <DataPointSelector
                 visible={currentGraph !== -1}
                 telemetryData={props.telemetryData}
                 onCloseClicked={resetCurrentGraph}
@@ -117,5 +114,8 @@ export default props => {
                 isSelected={isSelected}
           ></DataPointSelector>
         </div>
-    );
+      );
+    }
+
+
 }
