@@ -91,8 +91,10 @@ export default props => {
       return ConfigManager.isPathSelected(path, currentGraph);
     };
 
-    // TODO: adapt graphs to a new design
-    //return (<div id="graphs-container" class="container"></div>);
+    if (props.telemetryData === null) {
+      return (<div id="graphs-container" class="container"></div>);
+    }
+
     return (
         <div id="graphs-container" class="container">
           <div id="all">
