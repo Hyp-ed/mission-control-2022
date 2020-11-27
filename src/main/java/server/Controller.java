@@ -44,6 +44,7 @@ public class Controller {
           scheduler.scheduleAtFixedRate(() -> pingTelemetryData(), TELEMETRY_PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingDebugConnection(), DEBUG_PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingTerminalOutput(), DEBUG_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingDebugStatus(), DEBUG_PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingCompileStatus(), COMPILE_PING_INTERVAL);
           return; // end thread
         }
@@ -53,9 +54,15 @@ public class Controller {
     checkToScheduleThread.start();
   }
 
-  @MessageMapping("/send/debug/connect")
+  @MessageMapping("/send/debug/connection")
   public void debugConnect(String serverName) {
     // TODO(Steven): implement SSH connection
+  }
+
+  @MessageMapping("/send/debug/setCompile")
+  @SendTo("/topic/debug/status")
+  public String setCompile(String command) {
+    return server.setDebugStatus();
   }
 
   @MessageMapping("/send/debug/compileRun")
@@ -163,6 +170,10 @@ public class Controller {
     }
   }
 
+  public void pingDebugStatus() {
+    template.convertAndSend("/topic/debug/status", server.getDebugStatus());
+  }
+
   public void pingDebugConnection() {
     // TODO(Steven): implement debugConnection
   }
@@ -182,13 +193,6 @@ public class Controller {
     } else {
       template.convertAndSend("/topic/compile/status", false);
     }
-  }
-
-  public void pingDebugData() {
-    template.convertAndSend(
-        "/topic/debug/data", 
-        server.getDebugData()
-      );
   }
 
   public String getResponseMessage(String status, String message) {

@@ -95,6 +95,7 @@ export default props => {
           props.setModalOpen(true);
           break;
         case "COMPILE":
+          props.stompClient.send("/app/send/debug/setCompile", {}, command);
         case "RECOMPILE":
           props.stompClient.send("/app/send/debug/compileRun", {}, command);
           break;
@@ -125,6 +126,17 @@ export default props => {
       ></Button>
     );
   };
+
+  const getDebugStatus = () => {
+    switch(props.debugStatus) {
+      case "COMPILING":
+        return debug_buttons.compiling;
+      case "RECOMPILE":
+        return debug_buttons.compiled;
+      default:
+        return debug_buttons.compile;
+    }
+  }
 
   const getMainButton = () => {
     switch (props.state) {
@@ -160,10 +172,11 @@ export default props => {
     }
   };
 
-  // TODO(Steven): implement all the states of compile button
   const getDebugButtons = (isCompiled) => {
+    let button = getDebugStatus();
+
     if(!isCompiled){
-      return [getButton(debug_buttons.compile, false, true)];
+      return [getButton(button, false, true)];
     }
     return [getButton(debug_buttons.compiled, false, true), getButton(debug_buttons.run, false, true)];
   }

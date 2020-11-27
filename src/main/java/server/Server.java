@@ -18,6 +18,13 @@ public class Server implements Runnable {
   private static final int TELEMETRY_PORT = 9090;
   private static final int DEBUG_PORT = 7070;
 
+  private static final String COMPILE = "COMPILE";
+  private static final String COMPILING = "COMPILING";
+  private static final String COMPILED = "RECOMPILE";
+ 
+  private boolean hasStarted = false;  // A boolean indicating if the pod code is still compiling, mainly for the UI
+  private String DebugStatus = COMPILE;
+
   private Socket telemetryClient; // TCP socket to pod
   private Process debugProcess;
   private Process compileProcess;
@@ -103,7 +110,11 @@ public class Server implements Runnable {
     return obj;
   }
 
+  //Compiles the pod code
   public void debugCompile() {
+    DebugStatus = COMPILING;
+    hasStarted = true; // The compiling process start
+
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
 
@@ -133,11 +144,13 @@ public class Server implements Runnable {
 
   }
 
-  public String getDebugData() {
-    if (debugData == null) {
-      return null;
-    }
-    return debugData.toString();
+  public String getDebugStatus() {
+    return DebugStatus;
+  }
+
+  public String setDebugStatus() {
+    DebugStatus = COMPILING;
+    return DebugStatus;
   }
 
   public boolean getCompiledStatus() {
@@ -145,6 +158,16 @@ public class Server implements Runnable {
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped"; // change this part for RELEASE
 
     File HYPED_CODE = new File(HYPED_PATH);
+
+    if (HYPED_CODE.exists()) {
+      DebugStatus = COMPILED;
+      //Ends the compiling process
+      hasStarted = false;
+    } else if (hasStarted){
+      DebugStatus = COMPILING;
+    } else {
+      DebugStatus = COMPILE;
+    }
 
     return HYPED_CODE.exists();
   }
