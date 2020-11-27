@@ -30,6 +30,7 @@ export default function Main(props) {
         terminalOutput={props.terminalOutput}
         logTypes={props.logTypes}
         submoduleTypes={props.submoduleTypes}
+        curStart={props.curStart}
         stompClient={props.stompClient}
       />
     </div>

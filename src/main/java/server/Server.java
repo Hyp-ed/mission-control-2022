@@ -29,6 +29,10 @@ public class Server implements Runnable {
   private String searchPhrase;
   private String logTypeFilter;
   private String submoduleFilter;
+  private int curStart;
+  private int curEnd;
+  private boolean isLive = true;
+  private boolean moreLines;
   private List<String> logTypes = new ArrayList<>(List.of(""));
   private List<String> submoduleTypes = new ArrayList<>(List.of(""));
   private JSONArray terminalOutput = new JSONArray();
@@ -153,6 +157,14 @@ public class Server implements Runnable {
 
   public void debugUpdateSubmoduleFilter(String submoduleFilter) {
     this.submoduleFilter = submoduleFilter;
+  }
+  
+  public void debugUpdateSendMoreLines() {
+    this.moreLines = true;
+  }
+  
+  public void debugToggleIsLive() {
+    this.isLive = !this.isLive;
   }
 
   public void telemetrySendCommand(String command) {
@@ -295,17 +307,30 @@ public class Server implements Runnable {
 
     JSONObject ret = new JSONObject();
     if (newTerminalOutput.isEmpty()) {
-      ret.put("terminalOutput", JSONObject.NULL);  
+      ret.put("terminalOutput", JSONObject.NULL);
     } else {
-      JSONArray last100Lines = new JSONArray();
-      for (int i = Math.max(newTerminalOutput.length() - 100, 0); i < newTerminalOutput.length(); i++) {
-        last100Lines.put(newTerminalOutput.getJSONObject(i));
+      JSONArray returnLines = new JSONArray();
+
+      if (isLive) {
+        curEnd = newTerminalOutput.length() - 1;
+        curStart = Math.max(0, curEnd - 100);
       }
-      ret.put("terminalOutput", last100Lines.toString());
+
+      if (moreLines) {
+        curStart = Math.max(0, curStart - 100);
+        moreLines = false;
+      }
+
+      for (int i = curStart; i <= curEnd; i++) {
+        returnLines.put(newTerminalOutput.getJSONObject(i));
+      }
+      ret.put("terminalOutput", returnLines.toString());
     }
+
     ret.put("logTypes", logTypes);
     ret.put("submoduleTypes", submoduleTypes);
-
+    ret.put("curStart", curStart);
+    
     return ret.toString();
   }
 }
