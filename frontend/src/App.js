@@ -107,7 +107,7 @@ export default function App() {
 
   return (
     <div className="gui-wrapper">
-      <GraphsContainer />
+      <GraphsContainer telemetryData={telemetryData}/>
       <StatusContainer 
         telemetryConnection={telemetryConnection}
         state={state}

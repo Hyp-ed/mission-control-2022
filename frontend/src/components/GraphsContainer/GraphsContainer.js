@@ -54,6 +54,7 @@ export default props => {
         />
       ));
     };
+
   
     const handleUploadClick = () => {
       document.getElementById("fileButton").click();
@@ -90,17 +91,31 @@ export default props => {
       return ConfigManager.isPathSelected(path, currentGraph);
     };
 
-    // TODO: adapt graphs to a new design
-    return (<div id="graphs-container" class="container"></div>);
-    // return (
-    //     <div id="graphs-container" class="container">
-    //         {getGraphs()}
-    //         <Sidebar
-    //             handleAddGraphClick={ConfigManager.addGraph}
-    //             isAddEnabled={ConfigManager.shouldEnableAdd()}
-    //             handleSaveClick={handleSaveClick}
-    //             handleUploadClick={handleUploadClick}
-    //         ></Sidebar>
-    //     </div>
-    // );
+    if (props.telemetryData === null) {
+      return (<div id="graphs-container" class="container"></div>);
+    }else{
+          return (
+        <div id="graphs-container" class="container">
+            <div id="graphs">
+              {getGraphs()}
+            </div>
+            <Sidebar
+                id="sidebar"
+                 handleAddGraphClick={ConfigManager.addGraph}
+                 isAddEnabled={ConfigManager.shouldEnableAdd()}
+                 handleSaveClick={handleSaveClick}
+                 handleUploadClick={handleUploadClick}
+             ></Sidebar>
+            <DataPointSelector
+                visible={currentGraph !== -1}
+                telemetryData={props.telemetryData}
+                onCloseClicked={resetCurrentGraph}
+                onDataPointClicked={handleDataPointClicked}
+                isSelected={isSelected}
+          ></DataPointSelector>
+        </div>
+      );
+    }
+
+
 }
