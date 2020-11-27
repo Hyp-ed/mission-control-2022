@@ -95,8 +95,8 @@ export default props => {
           props.setModalOpen(true);
           break;
         case "COMPILE":
-          props.stompClient.send("/app/send/debug/setCompile", {}, command);
         case "RECOMPILE":
+          props.stompClient.send("/app/send/debug/setCompile", {}, command);
           props.stompClient.send("/app/send/debug/compileRun", {}, command);
           break;
       }
@@ -174,11 +174,12 @@ export default props => {
 
   const getDebugButtons = (isCompiled) => {
     let button = getDebugStatus();
+    let disabled = button == debug_buttons.compiling ? true : false;
 
     if(!isCompiled){
-      return [getButton(button, false, true)];
+      return [getButton(button, disabled, true)];
     }
-    return [getButton(debug_buttons.compiled, false, true), getButton(debug_buttons.run, false, true)];
+    return [getButton(button, disabled, true), getButton(debug_buttons.run, false, true)];
   }
 
   if (props.telemetryConnection) {
