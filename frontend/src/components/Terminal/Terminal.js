@@ -102,7 +102,7 @@ export default function Terminal(props) {
     props.terminalOutput.length > 0 && 
     props.terminalOutput.map((log, index) => {
       if (index == 0) {
-        return <div ref={firstLineRef} id="firstLine" key={index}>{log.line}</div>
+        return <div ref={firstLineRef} key={index}>{log.line}</div>
       } else if (index == props.terminalOutput.length - 1) {
         return <div ref={lastLineRef} key={index}>{log.line}</div>
       } else {
