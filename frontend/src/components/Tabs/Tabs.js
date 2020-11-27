@@ -121,6 +121,7 @@ export default function Tabs(props) {
             terminalOutput={props.terminalOutput}
             logTypes={props.logTypes}
             submoduleTypes={props.submoduleTypes}
+            curStart={props.curStart}
             stompClient={props.stompClient}
           />
           {<Status isInactive={!activeTabs[2]} statusData={props.telemetryData.status_data}/>}

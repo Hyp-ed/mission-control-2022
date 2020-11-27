@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Terminal.css";
 import { animateScroll } from "react-scroll";
 import Button from "../Button/Button";
@@ -11,6 +11,59 @@ export default function Terminal(props) {
   const debug_level = props.debug_level;
   const scrollableNodeRef = React.createRef();
   const previousOutput = usePrevious(props.terminalOutput);
+  const [loading, setLoading] = useState(false);
+  const [isLive, setIsLive] = useState(true);
+  const [scrollCnt, setScrollCnt] = useState(0)
+
+  const updateIsLive = (value) => {
+    if (value == isLive) {
+      return;
+    }
+    setIsLive(!isLive);
+    props.stompClient.send("/app/send/debug/isLive", {}, {});
+  }
+
+  const topObserver = useRef()
+  const firstLineRef = useCallback(node => {
+    if (loading) {
+      return
+    }
+    if (topObserver.current) {
+      topObserver.current.disconnect()
+    }
+    topObserver.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && props.curStart != 0 && !isLive) {
+        setLoading(true);
+        setScrollCnt(Math.min(100, props.curStart - 0));
+        props.stompClient.send("/app/send/debug/moreLines", {}, {});
+      }
+    })
+    if (node) {
+      topObserver.current.observe(node)
+    }
+  }, [loading, props.curStart, isLive])
+  
+  const botObserver = useRef()
+  const lastLineRef = useCallback(node => {
+    if (loading) {
+      return
+    }
+    if (botObserver.current) {
+      botObserver.current.disconnect()
+    }
+    botObserver.current = new IntersectionObserver(entries => {
+      if (!entries[0].isIntersecting) {
+        console.log("not visible");
+        updateIsLive(false);
+      } else {
+        console.log("visible")
+        updateIsLive(true);
+      }
+    })
+    if (node) {
+      botObserver.current.observe(node)
+    }
+  }, [loading, isLive])
 
   function usePrevious(value) {
     const ref = useRef();
@@ -20,47 +73,69 @@ export default function Terminal(props) {
     return ref.current;
   }
 
-  //updates terminal output in the pre
   useEffect(() => {
-    if (JSON.stringify(previousOutput) != JSON.stringify(props.terminalOutput) && scrollableNodeRef.current !== null) {
+    if (loading) {
+      var position = scrollableNodeRef.current.scrollHeight / props.terminalOutput.length * scrollCnt
+      scrollableNodeRef.current.scrollTo(0, position);
+      setLoading(false);
+    }
+  }, [props.curStart]);
+
+  // updates terminal output in the pre
+  useEffect(() => {
+    if (isLive && JSON.stringify(previousOutput) != JSON.stringify(props.terminalOutput) && scrollableNodeRef.current !== null) {
       scrollableNodeRef.current.scrollTo(0, scrollableNodeRef.current.scrollHeight);
     }
     return function cleanup() {
       // TODO: we can cleanup the terminal here when the terminal is inactive
       //  or when too much is in the pre
-      if (props.isInactive) console.log("terminal off");
+      if (props.isInactive) console.log("terminal off", true);
     };
   }, [props.terminalOutput]); //useEffect only called when terminal output changes
-
 
   if (props.isInactive) {
     return null;
   }
 
-  const getTerminalOutput = () => {
-    if (props.terminalOutput == null || !props.terminalOutput) {
-        return;
-    }
-    return props.terminalOutput.map(log => (log.line + "\n"));
-  };
-
+  let terminalOut = 
+    props.terminalOutput && 
+    props.terminalOutput.length > 0 && 
+    props.terminalOutput.map((log, index) => {
+      if (index == 0) {
+        return <div ref={firstLineRef} id="firstLine" key={index}>{log.line}</div>
+      } else if (index == props.terminalOutput.length - 1) {
+        return <div ref={lastLineRef} key={index}>{log.line}</div>
+      } else {
+        return <div key={index}>{log.line}</div>
+      }
+    })
+  
   const handleKillClick = () => {
     props.stompClient.send("/app/send/debug/kill", {}, {});
+  }
+
+  const scrollToEnd = () => {
+    if (scrollableNodeRef.current != null) {
+      scrollableNodeRef.current.scrollTo(0, scrollableNodeRef.current.scrollHeight);
+    }
   }
 
   const handleSearch = (event) => {
     var myObj = {"searchPhrase": event.target.value};
     props.stompClient.send("/app/send/debug/search", {}, JSON.stringify(myObj));
+    scrollToEnd();
   }
 
   const filterLogType = (event) => {
     var myObj = {"logType": event.target.value};
     props.stompClient.send("/app/send/debug/logType", {}, JSON.stringify(myObj));
+    scrollToEnd();
   }
 
   const filterSubmodule = (event) => {
     var myObj = {"submodule": event.target.value};
     props.stompClient.send("/app/send/debug/submodule", {}, JSON.stringify(myObj));
+    scrollToEnd();
   }
 
   let logTypeOptions = 
@@ -79,8 +154,9 @@ export default function Terminal(props) {
 
   return (
     <div className="terminal-root">
+      <div>{loading && "loading..."}</div> 
       <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
-        <pre id="terminal_pre">{getTerminalOutput()}</pre>
+        <pre id="terminal_pre">{terminalOut}</pre>
       </SimpleBar>
       <div className="footer">
         <select 
@@ -101,6 +177,13 @@ export default function Terminal(props) {
           name="search"
           onChange={handleSearch}
         ></input>
+        <Button
+          caption="To End"
+          backgroundColor="#FFFFFF"
+          textColor="#000000"
+          width="38%"
+          handleClick={scrollToEnd}
+        ></Button>
         <Button
           caption="KILL"
           backgroundColor="#FFFFFF"
