@@ -172,13 +172,20 @@ export default props => {
     }
   };
 
-  const getDebugButtons = (isCompiled) => {
+  const getDebugButtons = (isCompiled = false, isSuccess = false) => {
+    console.log(props.debugData)
     let button = getDebugStatus();
     let disabled = button == debug_buttons.compiling ? true : false;
+
+    if(!isSuccess){
+      //Error handle state
+      return [getButton(telemetry_buttons.shutdown, disabled, true)];
+    }
 
     if(!isCompiled){
       return [getButton(button, disabled, true)];
     }
+
     return [getButton(button, disabled, true), getButton(debug_buttons.run, false, true)];
   }
 
@@ -193,7 +200,7 @@ export default props => {
   else {
     return (
       <div className="button-container">
-        {getDebugButtons(props.compileStatus)}
+        {getDebugButtons(props.debugData.isCompiled, props.debugData.isSuccess)}
       </div>
     );
   }

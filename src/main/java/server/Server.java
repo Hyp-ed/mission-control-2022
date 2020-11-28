@@ -2,7 +2,10 @@ package server;
 
 import java.io.*;
 import java.net.*;
-import java.nio.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -17,13 +20,6 @@ import org.springframework.stereotype.Service;
 public class Server implements Runnable {
   private static final int TELEMETRY_PORT = 9090;
   private static final int DEBUG_PORT = 7070;
-
-  private static final String COMPILE = "COMPILE";
-  private static final String COMPILING = "COMPILING";
-  private static final String COMPILED = "RECOMPILE";
- 
-  private boolean hasStarted = false;  // A boolean indicating if the pod code is still compiling, mainly for the UI
-  private String DebugStatus = COMPILE;
 
   private Socket telemetryClient; // TCP socket to pod
   private Process debugProcess;
@@ -40,11 +36,27 @@ public class Server implements Runnable {
   private List<String> logTypes = new ArrayList<>(List.of(""));
   private List<String> submoduleTypes = new ArrayList<>(List.of(""));
   private JSONArray terminalOutput = new JSONArray();
-  private JSONObject debugData;
+
+  // Compile
+  private static final String COMPILE = "COMPILE";
+  private static final String COMPILING = "COMPILING";
+  private static final String COMPILED = "RECOMPILE";
+
+  private static final String IS_COMPILED = "isCompiled";
+  private static final String LAST_MODIFIED_TIME = "lastModifiedTime";
+  private static final String IS_SUCCESS = "isSuccess";
+ 
+  private boolean isCompiling = false;  // A boolean indicating if the pod code is still compiling, mainly for the UI
+  private String DebugStatus = COMPILE;
+
   private JSONArray compileOutput = new JSONArray();
+  private JSONObject debugData;
 
   @Override
   public void run() {
+    // Initialize the compiling state
+    initDebugData();
+
     ServerSocket telemetryServer = getServerSocket(TELEMETRY_PORT);
     System.out.println("Server now listening on port " + TELEMETRY_PORT);
 
@@ -112,8 +124,9 @@ public class Server implements Runnable {
 
   //Compiles the pod code
   public void debugCompile() {
+    initDebugData();
     DebugStatus = COMPILING;
-    hasStarted = true; // The compiling process start
+    isCompiling = true; // The compiling process start
 
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
@@ -134,6 +147,45 @@ public class Server implements Runnable {
         System.out.println(line);
       }
       compileProcess.waitFor();
+
+      //Procedure to check wheter hyped code is successfully compiled
+      boolean isFileExisted = isHypedExist(); // For first time compilation
+      String lastModifiedTime = "-1";
+      if (isFileExisted) {
+        String POD_CODE = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped";
+        Path file = Paths.get(POD_CODE);
+        BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
+        lastModifiedTime = attr.lastModifiedTime().toString(); // For later times
+      }
+
+      debugData.put(IS_COMPILED, true);
+
+      //Change the debugStatus
+      if (isFileExisted) {
+        DebugStatus = COMPILED;
+        //Ends the compiling process
+        isCompiling = false;
+      } else if (isCompiling){
+        DebugStatus = COMPILING;
+      } else {
+        DebugStatus = COMPILE;
+      }
+
+      System.out.println(lastModifiedTime + " and " + debugData.get(LAST_MODIFIED_TIME));
+
+      // Update the debugData
+      if (!isFileExisted) {
+        // Fail when compile for the first time
+        debugData.put(IS_SUCCESS, false);
+        debugData.put(LAST_MODIFIED_TIME, -1);
+      } else if (lastModifiedTime == debugData.get(LAST_MODIFIED_TIME)){
+        // Normal fail
+        debugData.put(IS_SUCCESS, false);
+      } else {
+        debugData.put(IS_SUCCESS, true);
+        debugData.put(LAST_MODIFIED_TIME, lastModifiedTime);
+      }
+
       System.out.println("Finish compiling");
       
       in.close();
@@ -144,7 +196,32 @@ public class Server implements Runnable {
 
   }
 
+  public String getDebugData() {
+    if (debugData == null) {
+      return null;
+    }
+
+    if (isHypedExist()) {
+      debugData.put(IS_COMPILED, true);
+    } else {
+      debugData.put(IS_COMPILED, false);
+    }
+
+    System.out.println(debugData.toString());
+    return debugData.toString();
+  }
+
   public String getDebugStatus() {
+    if (isHypedExist()) {
+      DebugStatus = COMPILED;
+      isCompiling = false;
+    } else if (isCompiling){
+      DebugStatus = COMPILING;
+    } else {
+      DebugStatus = COMPILE;
+      isCompiling = false;
+    }
+
     return DebugStatus;
   }
 
@@ -153,23 +230,40 @@ public class Server implements Runnable {
     return DebugStatus;
   }
 
-  public boolean getCompiledStatus() {
+  public boolean isHypedExist() {
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped"; // change this part for RELEASE
 
     File HYPED_CODE = new File(HYPED_PATH);
+    return HYPED_CODE.exists();
+  }
 
-    if (HYPED_CODE.exists()) {
+  public void initDebugData() {
+    debugData = new JSONObject();
+    debugData.put(IS_SUCCESS, true);
+
+    if (isHypedExist()) {
       DebugStatus = COMPILED;
-      //Ends the compiling process
-      hasStarted = false;
-    } else if (hasStarted){
-      DebugStatus = COMPILING;
+
+      String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
+      String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
+      debugData.put(IS_COMPILED, true);
+
+      try {
+        Path file = Paths.get(HYPED_PATH);
+        BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
+        String lastModifiedTime = attr.lastModifiedTime().toString();
+        debugData.put(LAST_MODIFIED_TIME, lastModifiedTime);
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
+
     } else {
       DebugStatus = COMPILE;
-    }
 
-    return HYPED_CODE.exists();
+      debugData.put(IS_COMPILED, false);
+      debugData.put(LAST_MODIFIED_TIME, -1);
+    }
   }
 
   public void debugRun(JSONArray flags) {

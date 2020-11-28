@@ -16,11 +16,11 @@ export default function App() {
   const [telemetryData, setTelemetryData] = useState(null); // change to testData for testing
   const [debugConnection, setDebugConnection] = useState(false);
   const [debugStatus, setDebugStatus] = useState(false);
+  const [debugData, setDebugData] = useState({"isCompiled": false, "isSuccess": true, "lastModifiedTime": -1});
   const [terminalOutput, setTerminalOutput] = useState("");
   const [logTypes, setLogTypes] = useState([""])
   const [submoduleTypes, setSubmoduleTypes] = useState([""])
   const [isModalOpen, setModalOpen] = useState(false);
-  const [compileStatus, setCompileStatus] = useState(false);
 
   useEffect(() => {
     console.log("READY FOR DATA");
@@ -45,8 +45,8 @@ export default function App() {
         sc.subscribe("/topic/debug/status", message =>
           debugStatusHandler(message)
         );
-        sc.subscribe("/topic/compile/status", message =>
-          compileStatusHandler(message)
+        sc.subscribe("/topic/debug/data", message =>
+          debugDataHandler(message)
         );
         sc.subscribe("/topic/errors", message =>
           console.error(`ERROR FROM BACKEND: ${message}`)
@@ -56,8 +56,8 @@ export default function App() {
     );
   }, []); // Only run once
   
-  const compileStatusHandler = message => {
-    setCompileStatus(message.body == 'true');
+  const debugDataHandler = message => {
+    setDebugData(JSON.parse(message.body));
   }
 
   const telemetryConnectionHandler = message => {
@@ -134,7 +134,7 @@ export default function App() {
         telemetryConnection={telemetryConnection}
         state={state}
         setModalOpen={setModalOpen}
-        compileStatus = {compileStatus}
+        debugData = {debugData}
         debugStatus={debugStatus}
       />
       <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen}></SetupModal>
