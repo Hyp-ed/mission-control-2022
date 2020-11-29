@@ -6,8 +6,7 @@ import {
   faRedo,
 } from "@fortawesome/free-solid-svg-icons";
 
-export default props => {
-  const [flags, setFlags] = useState([]);
+export default React.memo(props => {
   Modal.setAppElement('#root');
 
   const handleCompileClick = () => {
@@ -20,9 +19,19 @@ export default props => {
   useEffect(() => {
     //Get the error message
   }, []); // Only run once
-
+  
   const closeModal = () => {
     props.setDebugModalOpen(false);
+  }
+  
+  const getErrorMessage = () => {
+    return props.debugErrorMessage.split("\n").map(msg => {
+      if (msg.length > 0) {
+        return(
+          <div>{msg}</div>
+        )
+      }
+    })
   }
 
   // TODO: fittext
@@ -36,6 +45,7 @@ export default props => {
       <div className="setup-wrapper centered container">
         <div className="input-group">
           <label>Compilation failed</label>
+          {getErrorMessage()}
         </div>
         <div className="setup-wrapper-buttons">
           <Button
@@ -48,4 +58,4 @@ export default props => {
       </div>
     </Modal>
   );
-}
+})

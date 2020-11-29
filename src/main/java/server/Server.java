@@ -42,11 +42,11 @@ public class Server implements Runnable {
   private static final String COMPILING = "COMPILING";
   private static final String COMPILED = "RECOMPILE";
   private static final String RETRY = "RETRY";
-  private static final String ERROR_MESSAGE = "ERROR_MESSAGE";
-
+  
   private static final String IS_COMPILED = "isCompiled";
   private static final String LAST_MODIFIED_TIME = "lastModifiedTime";
   private static final String IS_SUCCESS = "isSuccess";
+  private static final String ERROR_MESSAGE = "errorMessage";
  
   private boolean isCompiling = false;  // A boolean indicating if the pod code is still compiling, mainly for the UI
   private String DebugStatus = COMPILE;
@@ -178,18 +178,16 @@ public class Server implements Runnable {
         DebugStatus = RETRY;
         debugData.put(IS_SUCCESS, false);
         debugData.put(LAST_MODIFIED_TIME, "");
-        debugData.put(ERROR_MESSAGE, debugOutput.toString());
+        convertDebugOutput();
       } else if (lastModifiedTime.equals(debugData.get(LAST_MODIFIED_TIME))){
         // Normal fail
         DebugStatus = RETRY;
         debugData.put(IS_SUCCESS, false);
-        debugData.put(ERROR_MESSAGE, debugOutput.toString());
-        System.out.println(debugOutput.toString());
+        convertDebugOutput();
       } else {
         debugData.put(IS_SUCCESS, true);
         debugData.put(LAST_MODIFIED_TIME, lastModifiedTime);
       }
-      System.out.println(DebugStatus);
       isCompiling = false;
       System.out.println("Finish compiling");
       
@@ -199,6 +197,17 @@ public class Server implements Runnable {
       t.printStackTrace();
     }
 
+  }
+
+  public void convertDebugOutput() {
+    StringBuffer errorMessage = new StringBuffer("");
+
+    for(int i=0; i < debugOutput.length(); i++) {
+      errorMessage.append(debugOutput.getString(i));
+      errorMessage.append("\n");
+    }
+
+    debugData.put(ERROR_MESSAGE, errorMessage.toString());
   }
 
   public String getDebugData() {

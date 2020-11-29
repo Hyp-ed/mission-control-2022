@@ -33,8 +33,9 @@
 .input-group > label {
   display: block;
   width: 100%;
-  text-align: left;
+  text-align: center;
   margin-bottom: 5px;
+  color: rgba(175,17,27,1);
 }
 
 .input-group > input {
