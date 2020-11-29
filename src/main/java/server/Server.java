@@ -41,6 +41,8 @@ public class Server implements Runnable {
   private static final String COMPILE = "COMPILE";
   private static final String COMPILING = "COMPILING";
   private static final String COMPILED = "RECOMPILE";
+  private static final String RETRY = "RETRY";
+  private static final String ERROR_MESSAGE = "ERROR_MESSAGE";
 
   private static final String IS_COMPILED = "isCompiled";
   private static final String LAST_MODIFIED_TIME = "lastModifiedTime";
@@ -49,7 +51,7 @@ public class Server implements Runnable {
   private boolean isCompiling = false;  // A boolean indicating if the pod code is still compiling, mainly for the UI
   private String DebugStatus = COMPILE;
 
-  private JSONArray compileOutput = new JSONArray();
+  private JSONArray debugOutput = new JSONArray();
   private JSONObject debugData;
 
   @Override
@@ -137,20 +139,20 @@ public class Server implements Runnable {
 
     try {
       System.out.println("Compiling from: " + HYPED_PATH);
-      compileOutput = new JSONArray();
+      debugOutput = new JSONArray();
       compileProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
 
       BufferedReader in = new BufferedReader(new InputStreamReader(compileProcess.getInputStream()));
       String line;
       while ((line = in.readLine()) != null) {
-        compileOutput.put(line);
+        debugOutput.put(line);
         System.out.println(line);
       }
       compileProcess.waitFor();
 
       //Procedure to check wheter hyped code is successfully compiled
       boolean isFileExisted = isHypedExist(); // For first time compilation
-      String lastModifiedTime = "-1";
+      String lastModifiedTime = "";
       if (isFileExisted) {
         String POD_CODE = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped";
         Path file = Paths.get(POD_CODE);
@@ -164,31 +166,31 @@ public class Server implements Runnable {
       if (isFileExisted) {
         DebugStatus = COMPILED;
         //Ends the compiling process
-        isCompiling = false;
       } else if (isCompiling){
         DebugStatus = COMPILING;
       } else {
-        DebugStatus = COMPILE;
+        DebugStatus = RETRY;
       }
-
-      System.out.println("lastModifiedTime for the current file: " + lastModifiedTime);
-      System.out.println("lastModifiedTime for the previous successful compiled file: " + debugData.get(LAST_MODIFIED_TIME));
-      System.out.println(lastModifiedTime.equals(debugData.get(LAST_MODIFIED_TIME)));
 
       // Update the debugData
       if (!isFileExisted) {
         // Fail when compile for the first time
+        DebugStatus = RETRY;
         debugData.put(IS_SUCCESS, false);
-        debugData.put(LAST_MODIFIED_TIME, -1);
-      } else if (lastModifiedTime == debugData.get(LAST_MODIFIED_TIME)){
+        debugData.put(LAST_MODIFIED_TIME, "");
+        debugData.put(ERROR_MESSAGE, debugOutput.toString());
+      } else if (lastModifiedTime.equals(debugData.get(LAST_MODIFIED_TIME))){
         // Normal fail
-        System.out.println("Fail");
+        DebugStatus = RETRY;
         debugData.put(IS_SUCCESS, false);
+        debugData.put(ERROR_MESSAGE, debugOutput.toString());
+        System.out.println(debugOutput.toString());
       } else {
         debugData.put(IS_SUCCESS, true);
         debugData.put(LAST_MODIFIED_TIME, lastModifiedTime);
       }
-
+      System.out.println(DebugStatus);
+      isCompiling = false;
       System.out.println("Finish compiling");
       
       in.close();
@@ -215,12 +217,9 @@ public class Server implements Runnable {
   }
 
   public String getDebugStatus() {
-    if (isHypedExist()) {
-      DebugStatus = COMPILED;
-      isCompiling = false;
-    } else if (isCompiling){
+    if (isCompiling) {
       DebugStatus = COMPILING;
-    } else {
+    } else if (!isHypedExist() && Boolean.TRUE.equals(debugData.get(IS_SUCCESS))){
       DebugStatus = COMPILE;
       isCompiling = false;
     }
@@ -244,12 +243,13 @@ public class Server implements Runnable {
   public void initDebugData() {
     debugData = new JSONObject();
     debugData.put(IS_SUCCESS, true);
+    debugData.remove(ERROR_MESSAGE);
 
     if (isHypedExist()) {
       DebugStatus = COMPILED;
 
       String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
-      String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
+      String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped";
       debugData.put(IS_COMPILED, true);
 
       try {
@@ -265,7 +265,7 @@ public class Server implements Runnable {
       DebugStatus = COMPILE;
 
       debugData.put(IS_COMPILED, false);
-      debugData.put(LAST_MODIFIED_TIME, -1);
+      debugData.put(LAST_MODIFIED_TIME, "");
     }
   }
 

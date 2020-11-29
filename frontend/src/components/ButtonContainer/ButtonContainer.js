@@ -136,6 +136,8 @@ export default props => {
         return debug_buttons.compiling;
       case "RECOMPILE":
         return debug_buttons.compiled;
+      case "RETRY":
+        return debug_buttons.retry;
       default:
         return debug_buttons.compile;
     }
@@ -177,19 +179,19 @@ export default props => {
 
   const getDebugButtons = (isCompiled = false, isSuccess = false) => {
     let button = getDebugStatus();
-    let disabled = button == debug_buttons.compiling ? true : false;
-    console.log(props.debugData)
+    let isDisabled = button == debug_buttons.compiling ? true : false;
+    console.log(props.debugData, props.debugStatus)
 
     if(!isSuccess){
       //Error handle state
-      return [getButton(debug_buttons.retry, false, true)];
+      return [getButton(button, false, true)];
     }
 
     if(!isCompiled){
-      return [getButton(button, disabled, true)];
+      return [getButton(button, isDisabled, true)];
     }
 
-    return [getButton(button, disabled, true), getButton(debug_buttons.run, false, true)];
+    return [getButton(button, isDisabled, true), getButton(debug_buttons.run, isDisabled, true)];
   }
 
   if (props.telemetryConnection) {
