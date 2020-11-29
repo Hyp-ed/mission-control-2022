@@ -67,7 +67,7 @@ export default props => {
       caption: "RETRY",
       icon: faRedo,
       backgroundColor: "button-red",
-      command: "COMPILE"
+      command: "RETRY"
     },
     compiled: {
       caption: "RECOMPILE",
@@ -91,6 +91,9 @@ export default props => {
 
     if (debug) {
       switch (command) {
+        case "RETRY":
+          props.setDebugModalOpen(true);
+          break;
         case "RUN":
           props.setModalOpen(true);
           break;
@@ -173,13 +176,13 @@ export default props => {
   };
 
   const getDebugButtons = (isCompiled = false, isSuccess = false) => {
-    console.log(props.debugData)
     let button = getDebugStatus();
     let disabled = button == debug_buttons.compiling ? true : false;
+    console.log(props.debugData)
 
     if(!isSuccess){
       //Error handle state
-      return [getButton(telemetry_buttons.shutdown, disabled, true)];
+      return [getButton(debug_buttons.retry, false, true)];
     }
 
     if(!isCompiled){

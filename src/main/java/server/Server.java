@@ -171,7 +171,9 @@ public class Server implements Runnable {
         DebugStatus = COMPILE;
       }
 
-      System.out.println(lastModifiedTime + " and " + debugData.get(LAST_MODIFIED_TIME));
+      System.out.println("lastModifiedTime for the current file: " + lastModifiedTime);
+      System.out.println("lastModifiedTime for the previous successful compiled file: " + debugData.get(LAST_MODIFIED_TIME));
+      System.out.println(lastModifiedTime.equals(debugData.get(LAST_MODIFIED_TIME)));
 
       // Update the debugData
       if (!isFileExisted) {
@@ -180,6 +182,7 @@ public class Server implements Runnable {
         debugData.put(LAST_MODIFIED_TIME, -1);
       } else if (lastModifiedTime == debugData.get(LAST_MODIFIED_TIME)){
         // Normal fail
+        System.out.println("Fail");
         debugData.put(IS_SUCCESS, false);
       } else {
         debugData.put(IS_SUCCESS, true);
@@ -207,7 +210,7 @@ public class Server implements Runnable {
       debugData.put(IS_COMPILED, false);
     }
 
-    System.out.println(debugData.toString());
+    //System.out.println(debugData.toString());
     return debugData.toString();
   }
 

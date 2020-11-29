@@ -8,6 +8,7 @@ import Gauge from "./components/Gauge/Gauge";
 import DataContainer from "./components/DataContainer/DataContainer";
 import ButtonContainer from "./components/ButtonContainer/ButtonContainer";
 import SetupModal from "./components/SetupModal/SetupModal";
+import DebugModal from "./components/DebugModal/DebugModal";
 import testData from "./testData.json";
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
   const [logTypes, setLogTypes] = useState([""])
   const [submoduleTypes, setSubmoduleTypes] = useState([""])
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isDebugModalOpen, setDebugModalOpen] = useState(false);
 
   useEffect(() => {
     console.log("READY FOR DATA");
@@ -134,10 +136,12 @@ export default function App() {
         telemetryConnection={telemetryConnection}
         state={state}
         setModalOpen={setModalOpen}
+        setDebugModalOpen={setDebugModalOpen}
         debugData = {debugData}
         debugStatus={debugStatus}
       />
       <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen}></SetupModal>
+      <DebugModal stompClient={stompClient} isDebugModalOpen={isDebugModalOpen} setDebugModalOpen={setDebugModalOpen}></DebugModal>
     </div>
   );
 }
