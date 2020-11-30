@@ -41,10 +41,10 @@ public class Controller {
         public void run() {
           scheduler.scheduleAtFixedRate(() -> pingTelemetryConnection(), TELEMETRY_PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingTelemetryData(), TELEMETRY_PING_INTERVAL);
-          scheduler.scheduleAtFixedRate(() -> pingDebugConnection(), DEBUG_PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingTerminalOutput(), DEBUG_PING_INTERVAL);
+          scheduler.scheduleAtFixedRate(() -> pingDebugConnection(), DEBUG_PING_INTERVAL);
           scheduler.scheduleAtFixedRate(() -> pingDebugStatus(), DEBUG_PING_INTERVAL);
-
+          scheduler.scheduleAtFixedRate(() -> pingDebugData(), DEBUG_PING_INTERVAL);
           return; // end thread
         }
       }
@@ -53,14 +53,20 @@ public class Controller {
     checkToScheduleThread.start();
   }
 
-  @MessageMapping("/send/debug/connect")
+  @MessageMapping("/send/debug/connection")
   public void debugConnect(String serverName) {
     // TODO(Steven): implement SSH connection
   }
 
+  @MessageMapping("/send/debug/setCompile")
+  @SendTo("/topic/debug/status")
+  public String setCompile(String command) {
+    return server.setDebugStatus();
+  }
+
   @MessageMapping("/send/debug/compileRun")
   public void debugCompile(String flagsString) {
-    // TODO(Steven): implement compiling and running
+    server.debugCompile();
   }
 
   @MessageMapping("/send/debug/run")
@@ -163,6 +169,10 @@ public class Controller {
     }
   }
 
+  public void pingDebugStatus() {
+    template.convertAndSend("/topic/debug/status", server.getDebugStatus());
+  }
+
   public void pingDebugConnection() {
     // TODO(Steven): implement debugConnection
   }
@@ -176,8 +186,8 @@ public class Controller {
     }
   }
 
-  public void pingDebugStatus() {
-    // TODO(Steven): implement debugStatus
+  public void pingDebugData() {
+    template.convertAndSend("/topic/debug/data", server.getDebugData());
   }
 
   public String getResponseMessage(String status, String message) {

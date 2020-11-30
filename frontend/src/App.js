@@ -8,6 +8,7 @@ import Gauge from "./components/Gauge/Gauge";
 import DataContainer from "./components/DataContainer/DataContainer";
 import ButtonContainer from "./components/ButtonContainer/ButtonContainer";
 import SetupModal from "./components/SetupModal/SetupModal";
+import DebugModal from "./components/DebugModal/DebugModal";
 import testData from "./testData.json";
 
 export default function App() {
@@ -16,12 +17,16 @@ export default function App() {
   const [telemetryData, setTelemetryData] = useState(null); // change to testData for testing
   const [debugConnection, setDebugConnection] = useState(false);
   const [debugStatus, setDebugStatus] = useState(false);
+  const [debugData, setDebugData] = useState({"isCompiled": false, "isSuccess": true, "lastModifiedTime": -1});
   const [terminalOutput, setTerminalOutput] = useState("");
   const [logTypes, setLogTypes] = useState([""])
   const [submoduleTypes, setSubmoduleTypes] = useState([""])
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isDebugModalOpen, setDebugModalOpen] = useState(false);
+  const [debugErrorMessage, setDebugErrorMessage] = useState("");
 
   useEffect(() => {
+    console.log("READY FOR DATA");
     const sc = Stomp.client("ws://localhost:8080/connecthere");
     sc.debug = false;
     setStompClient(sc);
@@ -43,6 +48,9 @@ export default function App() {
         sc.subscribe("/topic/debug/status", message =>
           debugStatusHandler(message)
         );
+        sc.subscribe("/topic/debug/data", message =>
+          debugDataHandler(message)
+        );
         sc.subscribe("/topic/errors", message =>
           console.error(`ERROR FROM BACKEND: ${message}`)
         );
@@ -50,6 +58,10 @@ export default function App() {
       error => disconnectHandler(error)
     );
   }, []); // Only run once
+  
+  const debugDataHandler = message => {
+    setDebugData(JSON.parse(message.body));
+  }
 
   const telemetryConnectionHandler = message => {
     setTelemetryConnection(message.body === "CONNECTED" ? true : false);
@@ -132,8 +144,18 @@ export default function App() {
         telemetryConnection={telemetryConnection}
         state={state}
         setModalOpen={setModalOpen}
+        setDebugModalOpen={setDebugModalOpen}
+        debugData = {debugData}
+        debugStatus={debugStatus}
+        setDebugErrorMessage={setDebugErrorMessage}
       />
       <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen}></SetupModal>
+      <DebugModal stompClient={stompClient} 
+                  isDebugModalOpen={isDebugModalOpen} 
+                  setDebugModalOpen={setDebugModalOpen}
+                  debugErrorMessage={debugErrorMessage}
+      >
+      </DebugModal>
     </div>
   );
 }

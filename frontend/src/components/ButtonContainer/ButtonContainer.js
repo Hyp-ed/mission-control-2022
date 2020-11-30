@@ -67,12 +67,13 @@ export default props => {
       caption: "RETRY",
       icon: faRedo,
       backgroundColor: "button-red",
-      command: "COMPILE"
+      command: "RETRY"
     },
     compiled: {
-      caption: "COMPILED",
+      caption: "RECOMPILE",
       icon: faCheck,
       backgroundColor: "button-green",
+      command: "RECOMPILE"
     },
     run: {
       caption: "RUN",
@@ -90,11 +91,16 @@ export default props => {
 
     if (debug) {
       switch (command) {
+        case "RETRY":
+          props.setDebugModalOpen(true);
+          break;
         case "RUN":
           props.setModalOpen(true);
           break;
         case "COMPILE":
-          // TODO(Steven): implement
+        case "RECOMPILE":
+          props.stompClient.send("/app/send/debug/setCompile", {}, command);
+          props.stompClient.send("/app/send/debug/compileRun", {}, command);
           break;
       }
     }
@@ -123,6 +129,19 @@ export default props => {
       ></Button>
     );
   };
+
+  const getDebugStatus = () => {
+    switch(props.debugStatus) {
+      case "COMPILING":
+        return debug_buttons.compiling;
+      case "RECOMPILE":
+        return debug_buttons.compiled;
+      case "RETRY":
+        return debug_buttons.retry;
+      default:
+        return debug_buttons.compile;
+    }
+  }
 
   const getMainButton = () => {
     switch (props.state) {
@@ -158,9 +177,23 @@ export default props => {
     }
   };
 
-  // TODO(Steven): implement all the states of compile button
-  const getDebugButtons = () => {
-    return [getButton(debug_buttons.compile, false, true), getButton(debug_buttons.run, false, true)];
+  const getDebugButtons = (isCompiled = false, isSuccess = false) => {
+    let button = getDebugStatus();
+    let isDisabled = button == debug_buttons.compiling ? true : false;
+
+    if(!isSuccess){
+      //Error handle state
+      props.setDebugErrorMessage(props.debugData.errorMessage);
+      props.setDebugModalOpen(true);
+      return [getButton(button, false, true)];
+    }
+
+    props.setDebugModalOpen(false);
+    if(!isCompiled){
+      return [getButton(button, isDisabled, true)];
+    }
+
+    return [getButton(button, isDisabled, true), getButton(debug_buttons.run, isDisabled, true)];
   }
 
   if (props.telemetryConnection) {
@@ -174,7 +207,7 @@ export default props => {
   else {
     return (
       <div className="button-container">
-        {getDebugButtons()}
+        {getDebugButtons(props.debugData.isCompiled, props.debugData.isSuccess)}
       </div>
     );
   }
