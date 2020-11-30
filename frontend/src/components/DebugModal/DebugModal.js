@@ -28,7 +28,7 @@ export default React.memo(props => {
     return props.debugErrorMessage.split("\n").map(msg => {
       if (msg.length > 0) {
         return(
-          <div>{msg}</div>
+          <pre className="errormsg">{msg}</pre>
         )
       }
     })
@@ -42,18 +42,20 @@ export default React.memo(props => {
       className="modal-run"
       overlayClassName="modal-run-overlay"
     >
-      <div className="setup-wrapper centered container">
-        <div className="input-group">
-          <label>Compilation failed</label>
-          {getErrorMessage()}
-        </div>
-        <div className="setup-wrapper-buttons">
-          <Button
-            caption="RETRY"
-            handleClick={handleCompileClick}
-            backgroundColor="button-red"
-            icon={faRedo}
-          ></Button>
+      <div className="modal-dialog">
+        <div className="debug-wrapper centered container">
+          <div className="debug-group">
+            <label>Compilation failed</label>
+            <div className="errormsgs">{getErrorMessage()}</div>
+          </div>
+          <div className="debug-wrapper-buttons">
+            <Button
+              caption="RETRY"
+              handleClick={handleCompileClick}
+              backgroundColor="button-red"
+              icon={faRedo}
+            ></Button>
+          </div>
         </div>
       </div>
     </Modal>

@@ -180,13 +180,16 @@ export default props => {
   const getDebugButtons = (isCompiled = false, isSuccess = false) => {
     let button = getDebugStatus();
     let isDisabled = button == debug_buttons.compiling ? true : false;
+    console.log(props.debugData, props.debugStatus)
 
     if(!isSuccess){
       //Error handle state
       props.setDebugErrorMessage(props.debugData.errorMessage);
+      props.setDebugModalOpen(true);
       return [getButton(button, false, true)];
     }
 
+    props.setDebugModalOpen(false);
     if(!isCompiled){
       return [getButton(button, isDisabled, true)];
     }

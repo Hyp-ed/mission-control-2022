@@ -142,11 +142,10 @@ public class Server implements Runnable {
       debugOutput = new JSONArray();
       compileProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
 
-      BufferedReader in = new BufferedReader(new InputStreamReader(compileProcess.getInputStream()));
+      BufferedReader in = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
       String line;
       while ((line = in.readLine()) != null) {
         debugOutput.put(line);
-        System.out.println(line);
       }
       compileProcess.waitFor();
 
@@ -172,6 +171,7 @@ public class Server implements Runnable {
         DebugStatus = RETRY;
       }
 
+      System.out.println(lastModifiedTime + " AND " + debugData.get(LAST_MODIFIED_TIME));
       // Update the debugData
       if (!isFileExisted) {
         // Fail when compile for the first time
@@ -181,6 +181,7 @@ public class Server implements Runnable {
         convertDebugOutput();
       } else if (lastModifiedTime.equals(debugData.get(LAST_MODIFIED_TIME))){
         // Normal fail
+        System.out.println("fail");
         DebugStatus = RETRY;
         debugData.put(IS_SUCCESS, false);
         convertDebugOutput();
@@ -189,6 +190,7 @@ public class Server implements Runnable {
         debugData.put(LAST_MODIFIED_TIME, lastModifiedTime);
       }
       isCompiling = false;
+      System.out.println(DebugStatus);
       System.out.println("Finish compiling");
       
       in.close();

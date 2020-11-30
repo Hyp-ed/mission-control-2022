@@ -15,22 +15,35 @@
   background: rgba(0, 0, 0, 0.8);
 }
 
-.setup-wrapper {
+.modal-dialog {
+  overflow-y: initial !important
+}
+
+.debug-wrapper {
+  overflow-y: auto;
+  position: fixed;
   width: 40vw;
+  height: 70vh;
   padding: 0px 20px 20px 20px;
-  text-align: center;
   color: white;
   font-size: 1.25em;
 }
 
-.setup-wrapper-buttons {
+.debug-wrapper-buttons {
   display: flex;
   width: 100%;
   margin-top: 20px;
   height: 30px;
 }
+.errormsgs {
+  font-size: 0.75em;
+}
 
-.input-group > label {
+.errormsg {
+  font-family: monospace, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.debug-group > label {
   display: block;
   width: 100%;
   text-align: center;
@@ -38,14 +51,7 @@
   color: rgba(175,17,27,1);
 }
 
-.input-group > input {
-  display: block;
-  width: 100%;
-  margin-bottom: 5px;
-  padding: 5px 2px;
-}
-
-.input-group {
+.debug-group {
   margin-top: 20px;
 }
 
