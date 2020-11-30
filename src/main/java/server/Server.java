@@ -44,7 +44,6 @@ public class Server implements Runnable {
   private static final String RETRY = "RETRY";
   
   private static final String IS_COMPILED = "isCompiled";
-  private static final String LAST_MODIFIED_TIME = "lastModifiedTime";
   private static final String IS_SUCCESS = "isSuccess";
   private static final String ERROR_MESSAGE = "errorMessage";
  
@@ -149,15 +148,10 @@ public class Server implements Runnable {
       }
       compileProcess.waitFor();
 
+      boolean isSuccess = compileProcess.exitValue() == 0;
+
       //Procedure to check wheter hyped code is successfully compiled
       boolean isFileExisted = isHypedExist(); // For first time compilation
-      String lastModifiedTime = "";
-      if (isFileExisted) {
-        String POD_CODE = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped";
-        Path file = Paths.get(POD_CODE);
-        BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
-        lastModifiedTime = attr.lastModifiedTime().toString(); // For later times
-      }
 
       debugData.put(IS_COMPILED, true);
 
@@ -171,26 +165,21 @@ public class Server implements Runnable {
         DebugStatus = RETRY;
       }
 
-      System.out.println(lastModifiedTime + " AND " + debugData.get(LAST_MODIFIED_TIME));
       // Update the debugData
       if (!isFileExisted) {
         // Fail when compile for the first time
         DebugStatus = RETRY;
         debugData.put(IS_SUCCESS, false);
-        debugData.put(LAST_MODIFIED_TIME, "");
         convertDebugOutput();
-      } else if (lastModifiedTime.equals(debugData.get(LAST_MODIFIED_TIME))){
+      } else if (!isSuccess){
         // Normal fail
-        System.out.println("fail");
         DebugStatus = RETRY;
         debugData.put(IS_SUCCESS, false);
         convertDebugOutput();
       } else {
         debugData.put(IS_SUCCESS, true);
-        debugData.put(LAST_MODIFIED_TIME, lastModifiedTime);
       }
       isCompiling = false;
-      System.out.println(DebugStatus);
       System.out.println("Finish compiling");
       
       in.close();
@@ -258,25 +247,12 @@ public class Server implements Runnable {
 
     if (isHypedExist()) {
       DebugStatus = COMPILED;
-
-      String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
-      String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped";
       debugData.put(IS_COMPILED, true);
-
-      try {
-        Path file = Paths.get(HYPED_PATH);
-        BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
-        String lastModifiedTime = attr.lastModifiedTime().toString();
-        debugData.put(LAST_MODIFIED_TIME, lastModifiedTime);
-      } catch (IOException e) {
-          e.printStackTrace();
-      }
 
     } else {
       DebugStatus = COMPILE;
 
       debugData.put(IS_COMPILED, false);
-      debugData.put(LAST_MODIFIED_TIME, "");
     }
   }
 
