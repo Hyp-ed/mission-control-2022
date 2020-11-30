@@ -1,7 +1,124 @@
 import React from "react";
+import 'status-indicator/styles.css'
 import "./StatusContainer.css";
 
 export default props => {
-    // TODO: adapt status section to the new design
-    return (<div id="status-container" class="container"></div>);
+    const getModulesColumn = () => {
+        return (
+            <div class="status-modules">
+                <div class="status-title">Modules</div>
+                <div class="status-modules-content">
+                    {getModuleIndicator("MOT")}
+                    {getModuleIndicator("BAT")}
+                    {getModuleIndicator("SEN")}
+                    {getModuleIndicator("TEL")}
+                    {getModuleIndicator("NAV")}
+                    {getModuleIndicator("BRA")}
+                </div>
+            </div>
+        );
+    }
+
+    const getStatusColumn = (title) => {
+        return (
+            <div class="status-sensors">
+                <div class="status-title">{title}</div>
+                <div class="status-sensors-content">
+                    {getStatusIndicator(1)}
+                    {getStatusIndicator(2)}
+                    {getStatusIndicator(3)}
+                    {getStatusIndicator(4)}
+                </div>
+            </div>
+        );
+    }
+
+    const getModuleIndicator = (title) => {
+        // TODO: connect to the backend
+        return (<div class="status-indicator">{title}</div>);
+    }
+
+    const getStatusIndicator = (title) => {
+        // TODO: connect to the backend
+        return (<div class="status-indicator">{title}</div>);
+    }
+
+    // 0 - red, 1 - green, 2 - blue, 3 - orange
+    const getConnectionIndicator = (status) => {
+        switch(status) {
+            case 0:
+                return (<status-indicator negative pulse class="connection-indicator"></status-indicator>);
+            case 1:
+                return (<status-indicator positive pulse class="connection-indicator"></status-indicator>);
+            case 2:
+                return (<status-indicator active pulse class="connection-indicator"></status-indicator>);
+            case 3:
+                return (<status-indicator intermediary pulse class="connection-indicator"></status-indicator>);
+            default:
+                return null;
+        }
+    }
+
+    const getTelemetryConnectionStatus = () => {
+        return (<div>{getConnectionIndicator(props.telemetryConnection ? 1 : 0)}{props.telemetryConnection ? "CONNECTED" : "DISCONNECTED"}</div>);
+    }
+
+    const getDebugStatus = () => {
+        // TODO: implement debug status
+        return null;
+    }
+
+    const getSTMStatus = () => {
+        if (!props.telemetryConnection) {
+            return null;
+        }
+        var indicator = 0;
+        switch (props.state) {
+            case "EMERGENCY_BRAKING":
+                indicator = 3;
+                break;
+            case "IDLE":
+            case "CALIBRATING":
+                indicator = 2;
+                break;
+            case "READY":
+            case "ACCELERATING":
+            case "NOMINAL_BRAKING":
+            case "FINISHED":
+            case "RUN_COMPLETE":
+                indicator = 1;
+                break;
+            case "FAILURE_STOPPED":
+            default:
+                indicator = 0;
+                break;
+        }
+        return (<div>{getConnectionIndicator(indicator)}{props.state}</div>);
+    }
+
+    return (
+        <div id="status">
+            <div id="connection-container">
+                {getTelemetryConnectionStatus()}
+                {getDebugStatus()}
+                {getSTMStatus()}
+            </div>
+            <div id="status-container" class="container">
+                {/* TODO: connect to the backend */}
+                <div class="status-sensors-container">
+                    <div class="status-sensors-row status-sensors-row-top">
+                        {getStatusColumn("Sensors 1")}
+                        {getStatusColumn("Sensors 2")}
+                        {getStatusColumn("Sensors 3")}
+                    </div>
+                    <div class="status-sensors-row status-sensors-row-bottom">
+                        {getStatusColumn("Sensors 4")}
+                        {getStatusColumn("Sensors 5")}
+                        {getStatusColumn("Sensors 6")}
+                    </div>
+                </div>
+                {getModulesColumn()}
+            </div>
+        </div>
+    );
 }

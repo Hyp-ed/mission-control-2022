@@ -119,19 +119,26 @@ export default function App() {
 
   return (
     <div className="gui-wrapper">
-      <GraphsContainer />
-      <StatusContainer />
+      <GraphsContainer telemetryData={telemetryData}/>
+      <StatusContainer 
+        telemetryConnection={telemetryConnection}
+        state={state}
+      />
       <Terminal
         terminalOutput={terminalOutput}
         logTypes={logTypes}
         submoduleTypes={submoduleTypes}
         stompClient={stompClient}
       />
-      <Timer />
-      <Gauge gaugeId="distance"/>
-      <Gauge gaugeId="velocity"/>
-      <Gauge gaugeId="acceleration"/>
-      <DataContainer telemetryData={telemetryData}/>
+      <Timer 
+        startTime={startTime}
+        endTime={endTime}
+        telemetryData={telemetryData}
+      />
+      <Gauge title="Distance" gaugeId="distance" telemetryData={telemetryData}/>
+      <Gauge title="Velocity" gaugeId="velocity" telemetryData={telemetryData}/>
+      <Gauge title="Acceleration" gaugeId="acceleration" telemetryData={telemetryData}/>
+      <DataContainer telemetryData={null}/>
       <ButtonContainer 
         stompClient={stompClient}
         telemetryConnection={telemetryConnection}
