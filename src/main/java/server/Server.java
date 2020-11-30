@@ -48,7 +48,7 @@ public class Server implements Runnable {
   private static final String ERROR_MESSAGE = "errorMessage";
  
   private boolean isCompiling = false;  // A boolean indicating if the pod code is still compiling, mainly for the UI
-  private String DebugStatus = COMPILE;
+  private String debugStatus = COMPILE;
 
   private JSONArray debugOutput = new JSONArray();
   private JSONObject debugData;
@@ -126,7 +126,7 @@ public class Server implements Runnable {
   //Compiles the pod code
   public void debugCompile() {
     initDebugData();
-    DebugStatus = COMPILING;
+    debugStatus = COMPILING;
     isCompiling = true; // The compiling process start
 
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
@@ -157,23 +157,23 @@ public class Server implements Runnable {
 
       //Change the debugStatus
       if (isFileExisted) {
-        DebugStatus = COMPILED;
+        debugStatus = COMPILED;
         //Ends the compiling process
       } else if (isCompiling){
-        DebugStatus = COMPILING;
+        debugStatus = COMPILING;
       } else {
-        DebugStatus = RETRY;
+        debugStatus = RETRY;
       }
 
       // Update the debugData
       if (!isFileExisted) {
         // Fail when compile for the first time
-        DebugStatus = RETRY;
+        debugStatus = RETRY;
         debugData.put(IS_SUCCESS, false);
         convertDebugOutput();
       } else if (!isSuccess){
         // Normal fail
-        DebugStatus = RETRY;
+        debugStatus = RETRY;
         debugData.put(IS_SUCCESS, false);
         convertDebugOutput();
       } else {
@@ -218,18 +218,18 @@ public class Server implements Runnable {
 
   public String getDebugStatus() {
     if (isCompiling) {
-      DebugStatus = COMPILING;
+      debugStatus = COMPILING;
     } else if (!isHypedExist() && Boolean.TRUE.equals(debugData.get(IS_SUCCESS))){
-      DebugStatus = COMPILE;
+      debugStatus = COMPILE;
       isCompiling = false;
     }
 
-    return DebugStatus;
+    return debugStatus;
   }
 
   public String setDebugStatus() {
-    DebugStatus = COMPILING;
-    return DebugStatus;
+    debugStatus = COMPILING;
+    return debugStatus;
   }
 
   public boolean isHypedExist() {
@@ -246,11 +246,11 @@ public class Server implements Runnable {
     debugData.remove(ERROR_MESSAGE);
 
     if (isHypedExist()) {
-      DebugStatus = COMPILED;
+      debugStatus = COMPILED;
       debugData.put(IS_COMPILED, true);
 
     } else {
-      DebugStatus = COMPILE;
+      debugStatus = COMPILE;
 
       debugData.put(IS_COMPILED, false);
     }
