@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Terminal.css";
 import { animateScroll } from "react-scroll";
 import Button from "../Button/Button";
-import { faSkull, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { faSkull, faPlay, faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
 
@@ -183,6 +183,7 @@ export default function Terminal(props) {
         ></input>
         <Button
           caption="To End"
+          icon={faArrowDown}
           width="38%"
           handleClick={scrollToEnd}
         ></Button>

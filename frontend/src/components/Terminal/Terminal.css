@@ -5,7 +5,6 @@
     justify-content: center;
     align-content: center;
     flex-flow: row wrap;
-    flex: 1 1 auto;
 }
 
 .terminal-content {
@@ -49,17 +48,8 @@ pre {
     justify-content: "center";
 }
 
-.footer select {
-    flex-grow: 0;
-}
-
-.footer input {
-    flex-grow: 2;
-}
-
 .footer button {
     margin-right:10px;
-    flex-grow: 4;
     color: #000;    
     background-color: #FFF;
 }
