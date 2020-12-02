@@ -19,8 +19,9 @@ export default function App() {
   const [debugStatus, setDebugStatus] = useState(false);
   const [debugData, setDebugData] = useState({"isCompiled": false, "isSuccess": true, "lastModifiedTime": -1});
   const [terminalOutput, setTerminalOutput] = useState("");
-  const [logTypes, setLogTypes] = useState([""])
-  const [submoduleTypes, setSubmoduleTypes] = useState([""])
+  const [logTypes, setLogTypes] = useState([""]);
+  const [submoduleTypes, setSubmoduleTypes] = useState([""]);
+  const [curStart, setCurStart] = useState(0);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDebugModalOpen, setDebugModalOpen] = useState(false);
   const [debugErrorMessage, setDebugErrorMessage] = useState("");
@@ -77,9 +78,10 @@ export default function App() {
 
   const terminalOutputHandler = message => {
     var jsonObj = JSON.parse(message.body)
-    setTerminalOutput(JSON.parse(jsonObj.terminalOutput))
-    setLogTypes(jsonObj.logTypes)
-    setSubmoduleTypes(jsonObj.submoduleTypes)
+    setTerminalOutput(JSON.parse(jsonObj.terminalOutput));
+    setLogTypes(jsonObj.logTypes);
+    setSubmoduleTypes(jsonObj.submoduleTypes);
+    setCurStart(jsonObj.curStart);
   };
 
   const debugStatusHandler = message => {
@@ -128,6 +130,7 @@ export default function App() {
         terminalOutput={terminalOutput}
         logTypes={logTypes}
         submoduleTypes={submoduleTypes}
+        curStart={curStart}
         stompClient={stompClient}
       />
       <Timer 

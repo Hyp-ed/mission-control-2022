@@ -137,6 +137,16 @@ public class Controller {
     server.debugUpdateSubmoduleFilter(submodule);
   }
 
+  @MessageMapping("/send/debug/moreLines")
+  public void debugUpdateSendMoreLines() {
+    server.debugUpdateSendMoreLines();
+  }
+
+  @MessageMapping("/send/debug/isLive")
+  public void debugToggleIsLive() {
+    server.debugToggleIsLive();
+  }
+
   @MessageMapping("/send/telemetry/command")
   @SendTo("/topic/send/telemetry/command/status")
   public String sendTelemetryCommand(String command) {
