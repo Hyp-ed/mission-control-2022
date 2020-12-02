@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Terminal.css";
 import { animateScroll } from "react-scroll";
 import Button from "../Button/Button";
@@ -14,6 +14,7 @@ export default function Terminal(props) {
   const [loading, setLoading] = useState(false);
   const [isLive, setIsLive] = useState(true);
   const [scrollCnt, setScrollCnt] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
 
   const updateIsLive = (value) => {
     if (value == isLive) {
@@ -41,7 +42,7 @@ export default function Terminal(props) {
     if (node) {
       topObserver.current.observe(node)
     }
-  }, [loading, props.curStart, isLive])
+  }, [loading, props.curStart, isLive, scrolled])
   
   const botObserver = useRef()
   const lastLineRef = useCallback(node => {
@@ -53,17 +54,16 @@ export default function Terminal(props) {
     }
     botObserver.current = new IntersectionObserver(entries => {
       if (!entries[0].isIntersecting) {
-        console.log("not visible");
         updateIsLive(false);
       } else {
-        console.log("visible")
         updateIsLive(true);
       }
     })
     if (node) {
       botObserver.current.observe(node)
     }
-  }, [loading, isLive])
+    setScrolled(false);
+  }, [loading, isLive, scrolled])
 
   function usePrevious(value) {
     const ref = useRef();
@@ -75,13 +75,13 @@ export default function Terminal(props) {
 
   useEffect(() => {
     if (loading) {
-      var position = scrollableNodeRef.current.scrolLHeight / props.terminalOutput.length * scrollCnt;
+      var position = scrollableNodeRef.current.scrollHeight / props.terminalOutput.length * scrollCnt;
       scrollableNodeRef.current.scrollTo(0, position);
       setLoading(false);
     }
-  }, [props.curStart])
+  }, [props.curStart]);
 
-  //updates terminal output in the pre
+  // updates terminal output in the pre
   useEffect(() => {
     if (isLive && JSON.stringify(previousOutput) != JSON.stringify(props.terminalOutput) && scrollableNodeRef.current !== null) {
       scrollableNodeRef.current.scrollTo(0, scrollableNodeRef.current.scrollHeight);
@@ -99,7 +99,7 @@ export default function Terminal(props) {
   }
 
   let terminalOut = 
-    props.terminalOutput &&
+    props.terminalOutput && 
     props.terminalOutput.length > 0 && 
     props.terminalOutput.map((log, index) => {
       if (index == 0) {
@@ -110,15 +110,15 @@ export default function Terminal(props) {
         return <div key={index}>{log.line}</div>
       }
     })
-  
+
+  const handleKillClick = () => {
+    props.stompClient.send("/app/send/debug/kill", {}, {});
+  }
+
   const scrollToEnd = () => {
     if (scrollableNodeRef.current != null) {
       scrollableNodeRef.current.scrollTo(0, scrollableNodeRef.current.scrollHeight);
     }
-  }
-
-  const handleKillClick = () => {
-    props.stompClient.send("/app/send/debug/kill", {}, {});
   }
 
   const handleSearch = (event) => {
@@ -139,6 +139,10 @@ export default function Terminal(props) {
     scrollToEnd();
   }
 
+  const setScrolledTrue = () => {
+    setScrolled(true);
+  }
+
   let logTypeOptions = 
     props.logTypes &&
     props.logTypes.length > 0 &&
@@ -153,12 +157,9 @@ export default function Terminal(props) {
       return <option>{submoduleType}</option>
     })
 
-  // TODO: adapt Terminal to the new design
-  // return (<div id="terminal-container" class="container"></div>);
   return (
     <div id="terminal-container" class="container">
-      <div>{loading && "loading..."}</div>
-      <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
+      <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} onScroll={setScrolledTrue} scrollableNodeProps={{ ref: scrollableNodeRef }}>
         <pre id="terminal_pre">{terminalOut}</pre>
       </SimpleBar>
       <div className="footer">

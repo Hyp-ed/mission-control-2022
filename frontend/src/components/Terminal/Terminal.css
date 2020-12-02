@@ -24,6 +24,10 @@
     background-color: #343434;
 }
 
+.loading {
+    height: 8%;
+}
+
 .footer {
     margin: 1%;
     width: 100%;
@@ -46,16 +50,16 @@ pre {
 }
 
 .footer select {
-    flex-grow: 1;
+    flex-grow: 0;
 }
 
 .footer input {
-    flex-grow: 5;
+    flex-grow: 2;
 }
 
 .footer button {
     margin-right:10px;
-    flex-grow: 3;
+    flex-grow: 4;
     color: #000;    
     background-color: #FFF;
 }
