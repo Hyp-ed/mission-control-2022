@@ -10,10 +10,6 @@
   color: white;
 }
 
-.button + .button {
-  margin-top: 18px;
-}
-
 .button:hover:not(.disabled) {
   cursor: pointer;
 }
