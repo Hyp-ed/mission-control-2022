@@ -1,12 +1,7 @@
 .data-list-header {
-  position: relative;
-  height: 30px;
+  height: 26px;
   color: white;
   display: flex;
-  z-index: 2;
-  background: rgb(27,27,27);
-  background: linear-gradient(96deg, rgba(27,27,27,1) 10%, rgba(52,52,52,1) 100%);
-  padding-right: 20px;
 }
 
 .data-list-header:hover {
@@ -38,13 +33,14 @@
   width: 100%;
   justify-content: space-between;
   align-items: center;
+  font-size: 14px;
 }
 
 .data-list-header > .data-list-header-content > .data-list-header-content-title {
-  padding-left: 5px;
+  padding-left: 0px;
 }
 
 .data-list-body-collapse {
   transition: height 500ms;
-  padding-left: 16px;
+  padding-left: 0px;
 }

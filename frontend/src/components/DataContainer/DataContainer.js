@@ -25,20 +25,17 @@ export default props => {
       }
     });
 
-  // TODO: adapt data section to the new design
-  return (<SimpleBar className="data-container" forceVisible="y" autoHide={false}></SimpleBar>);
-  // if (props.telemetryData !== null) {
-  //   const data = props.telemetryData.additional_data;
-  //   return (
-  //     <SimpleBar className="data-container" forceVisible="y" autoHide={false}>
-  //       {getLists(data, 0)}
-  //     </SimpleBar>
-  //   );
-  // }
-  // else {
-  //   return (<SimpleBar className="data-container" forceVisible="y" autoHide={false}>
+  if (props.telemetryData !== null) {
+    const data = props.telemetryData.additional_data;
+    return (
+      <SimpleBar className="data-container" forceVisible="y" autoHide={false}>
+        {getLists(data, 0)}
+      </SimpleBar>
+    );
+  }
+  else {
+    return (<SimpleBar className="data-container" forceVisible="y" autoHide={false}>
     
-  // </SimpleBar>)
-  // }
-  
+  </SimpleBar>)
+  }  
 };

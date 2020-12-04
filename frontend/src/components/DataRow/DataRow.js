@@ -10,9 +10,8 @@ export default props => {
   const percentage = ((value - realMin) / range) * 100;
 
   return (
-    <div className="data-row-container">
-      {props.level > 0 ? <div className="data-row-line"></div> : ""}
-      <div className={"data-row " + (props.level > 0 ? "next" : "")}>
+    <div>
+      <div className={"data-row"}>
         <Textfit
           mode="single"
           forceSingleModeWidth={false}
@@ -33,12 +32,6 @@ export default props => {
               width: percentage + "%"
             }}
           ></div>
-          <div className="range">
-            <div className="range-border range-border-top"></div>
-            <div className="range-border range-border-bottom"></div>
-            <div className="range-value range-min">{props.data.min.toFixed(1)}</div>
-            <div className="range-value range-max">{props.data.max.toFixed(1)}</div>
-          </div>
         </div>
         <Textfit
           mode="single"

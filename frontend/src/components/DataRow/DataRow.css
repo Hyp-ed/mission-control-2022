@@ -2,7 +2,7 @@
   display: flex;
   position: relative;
   height: 25px;
-  border-left: 0.5px solid #707070;
+  left: 0.5px solid #707070;
 }
 
 .data-row-container:last-child {
@@ -15,12 +15,8 @@
   grid-auto-columns: calc(100% / 10);
   height: 25px;
   width: 100%;
-  background: rgb(75,75,75);
-  background: linear-gradient(96deg, rgba(75,75,75,1) 10%, rgba(100,100,100,1) 100%);
+  background: #191919;
   align-items: center;
-  border-style: solid;
-  border-color: black;
-  border-width: 0.5px 0;
 }
 
 .data-row.next {
@@ -53,14 +49,14 @@
   margin-left: 15px;
   white-space: nowrap;
   margin-right: 10px;
+  margin-left: 5px;
 }
 
 .data-row > .data-row-bar {
   grid-row: 1 / 2;
   grid-column: 5 / 9;
-  height: 70%;
-  background-color: #464646;
-  border: 1px solid #000000;
+  height: 60%;
+  border: 1px solid #757575;
   display: grid;
   grid-template: 1fr / 1fr;
 }
@@ -86,6 +82,7 @@
 .data-row-bar > .progress-bar {
   height: 100%;
   transition: width 500ms;
+  background-color: #fff;
 }
 
 .data-row-bar > .range {
