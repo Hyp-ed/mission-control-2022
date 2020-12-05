@@ -1,44 +1,46 @@
 #list-container {
-  margin-top: 0.2em;
-  grid-column: 1/8;
-  grid-row: 2/11;
-  z-index: 2;
-  background-color: #343434;
-  color: #8f8f8f;
+  z-index: 3;
+  background-color:#191919;
+  color: #fff;
   height: 100%;
+  position: absolute;
+  left: 0;
+  width: 100%;
+  border-radius: 15px;
 }
 
 #list-close-button {
   border-radius: 50%;
-  height: 1em;
-  width: 1em;
-  margin: 0.5em 0.5em 0 0.5em;
+  height: 1.5em;
+  width: 1.5em;
+  margin: 1em 1.3em 0 1.1em;
   padding: 0.5em;
 }
 
 #list-close-button:hover {
   cursor: pointer;
-  color: #343434;
-  background-color: #8f8f8f;
+  color: #191919;
+  background-color: #fff;
 }
 
 #list {
-  height: 90%;
-  overflow: auto;
+  height: 82%;
+  overflow-y: auto;
 }
 
 .dataPoint {
   text-transform: capitalize;
-  margin: 0.2em 0.5em 0.2em 0.5em;
+  margin: 0.3em 1.6em 0.3em 1.6em;
   padding: 0.5em;
   font-size: 0.9em;
-  width: 95%;
+  width: 91%;
+  border-radius: 5px;
 }
 
 .dataPoint:hover {
   cursor: pointer;
-  background-color: #8f8f8f;
-  color: #343434;
+  background-color: #fff;
+  color:#191919;
 }
 
 .dataPoint--selected,

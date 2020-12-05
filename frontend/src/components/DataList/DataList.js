@@ -4,17 +4,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretUp, faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { Collapse } from "react-collapse";
 
-export default props => {
+export default function DataList(props) {
   const [isOpen, setIsOpen] = useState(true);
   return (
-    <div className={"data-list " + (props.level > 0 ? "next" : "")}>
+    <div>
       <div className="data-list-header" onClick={() => setIsOpen(!isOpen)}>
-        {props.level > 0 && <div className="data-list-header-line"></div>}
         <div className="data-list-header-content">
           <div className="data-list-header-content-title">{props.title}</div>
           <FontAwesomeIcon
             className="data-list-header-content-caret"
-            icon={isOpen ? faCaretUp : faCaretDown}
+            icon={isOpen ? faCaretDown : faCaretUp }
           ></FontAwesomeIcon>
         </div>
       </div>

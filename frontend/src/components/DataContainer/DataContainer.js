@@ -1,42 +1,57 @@
 import React from "react";
 import "./DataContainer.css";
 import DataRow from "../DataRow/DataRow";
-import DataRowString from "../DataRow/DataRowString";
 import DataList from "../DataList/DataList";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
 
-export default props => {
-  const getLists = (lists, level) =>
-    lists.map((list, i) => {
+export default function DataContainer(props) {
+  var dataList = {};
+
+  const combine = (title, data) => {
+    for (var list of Object.values(data)) {
       if (Array.isArray(list.value)) {
-        return (
-          <DataList
-            title={list.name}
-            value={getLists(list.value, level + 1)}
-            level={level}
-          ></DataList>
-        );
-      } else if (isNaN(list.value)) {
-        return <DataRowString data={list} level={level - 1}></DataRowString>
+        combine(title.concat([list.name]), list.value);
       }
       else {
-        return <DataRow data={list} level={level - 1}></DataRow>
+        if (title.join(" > ") in dataList === false) {
+          dataList[title.join(" > ")] = [];
+        }
+        dataList[title.join(" > ")].push(list);
       }
+    };
+  }
+
+  const getListItems = (list) => {
+    return list.map((data, i) => {
+      return <DataRow data={data} key={data.name}></DataRow>;
     });
+  }
+
+  const getFormattedLists = () => {
+    var response = []
+    for (var title in dataList) {
+      response.push(
+        <DataList
+          title={title}
+          value={getListItems(dataList[title])}
+          key={title}
+        ></DataList>
+      )
+    }
+    return response;
+  }
 
   if (props.telemetryData !== null) {
-    const data = props.telemetryData.additional_data;
+    combine([], props.telemetryData.additional_data);
+    
     return (
       <SimpleBar className="data-container" forceVisible="y" autoHide={false}>
-        {getLists(data, 0)}
+        {getFormattedLists()}
       </SimpleBar>
     );
   }
   else {
-    return (<SimpleBar className="data-container" forceVisible="y" autoHide={false}>
-    
-  </SimpleBar>)
-  }
-  
+    return (<SimpleBar className="data-container" forceVisible="y" autoHide={false}></SimpleBar>);
+  }  
 };

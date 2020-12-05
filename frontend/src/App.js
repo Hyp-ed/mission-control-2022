@@ -1,24 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { MemoryRouter, Switch, Route, Link } from "react-router-dom";
-import { createMemoryHistory } from "history";
 import Stomp from "stompjs";
-import Home from "./routes/Home/Home";
-import Main from "./routes/Main/Main";
-import Disconnected from "./routes/Disconnected/Disconnected";
-import Loading from "./routes/Loading/Loading";
-import Setup from "./routes/Setup/Setup";
+import GraphsContainer from "./components/GraphsContainer/GraphsContainer";
+import StatusContainer from "./components/StatusContainer/StatusContainer";
+import Terminal from "./components/Terminal/Terminal";
+import Timer from "./components/Timer/Timer";
+import Gauge from "./components/Gauge/Gauge";
+import DataContainer from "./components/DataContainer/DataContainer";
+import ButtonContainer from "./components/ButtonContainer/ButtonContainer";
+import SetupModal from "./components/SetupModal/SetupModal";
+import DebugModal from "./components/DebugModal/DebugModal";
 import testData from "./testData.json";
 
 export default function App() {
   const [stompClient, setStompClient] = useState(null);
   const [telemetryConnection, setTelemetryConnection] = useState(false);
   const [telemetryData, setTelemetryData] = useState(null); // change to testData for testing
-  const [debugConnection, setDebugConnection] = useState(false);
   const [debugStatus, setDebugStatus] = useState(false);
+  const [debugData, setDebugData] = useState({"isCompiled": false, "isSuccess": true});
   const [terminalOutput, setTerminalOutput] = useState("");
   const [logTypes, setLogTypes] = useState([""]);
   const [submoduleTypes, setSubmoduleTypes] = useState([""]);
   const [curStart, setCurStart] = useState(0);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [isDebugModalOpen, setDebugModalOpen] = useState(false);
+  const [debugErrorMessage, setDebugErrorMessage] = useState("");
 
   useEffect(() => {
     const sc = Stomp.client("ws://localhost:8080/connecthere");
@@ -36,11 +41,11 @@ export default function App() {
         sc.subscribe("/topic/debug/output", message =>
           terminalOutputHandler(message)
         );
-        sc.subscribe("/topic/debug/connection", message =>
-          debugConnectionHandler(message)
-        );
         sc.subscribe("/topic/debug/status", message =>
           debugStatusHandler(message)
+        );
+        sc.subscribe("/topic/debug/data", message =>
+          debugDataHandler(message)
         );
         sc.subscribe("/topic/errors", message =>
           console.error(`ERROR FROM BACKEND: ${message}`)
@@ -49,13 +54,17 @@ export default function App() {
       error => disconnectHandler(error)
     );
   }, []); // Only run once
+  
+  const debugDataHandler = message => {
+    var parsedMessage = JSON.parse(message.body);
+    if (!parsedMessage.isSuccess) {
+      setDebugErrorMessage(parsedMessage.errorMessage);
+    }
+    setDebugData(parsedMessage);
+  }
 
   const telemetryConnectionHandler = message => {
     setTelemetryConnection(message.body === "CONNECTED" ? true : false);
-  };
-
-  const debugConnectionHandler = message => {
-    setDebugConnection(message.body === "CONNECTED" ? true : false);
   };
 
   const telemetryDataHandler = message => {
@@ -64,13 +73,16 @@ export default function App() {
 
   const terminalOutputHandler = message => {
     var jsonObj = JSON.parse(message.body)
-    setTerminalOutput(JSON.parse(jsonObj.terminalOutput))
-    setLogTypes(jsonObj.logTypes)
-    setSubmoduleTypes(jsonObj.submoduleTypes)
+    setTerminalOutput(JSON.parse(jsonObj.terminalOutput));
+    setLogTypes(jsonObj.logTypes);
+    setSubmoduleTypes(jsonObj.submoduleTypes);
     setCurStart(jsonObj.curStart);
   };
 
   const debugStatusHandler = message => {
+    if (message.body === "COMPILING") {
+      setDebugModalOpen(false);
+    }
     setDebugStatus(message.body);
   };
 
@@ -92,65 +104,59 @@ export default function App() {
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
   useEffect(() => {
-    if (state == "CALIBRATING") {
+    if (state === "IDLE" || state === "CALIBRATING") {
       setStartTime(0);
       setEndTime(0);
-    } else if (state == "ACCELERATING" && startTime == 0) {
+    } else if (state === "ACCELERATING" && startTime === 0) {
       setStartTime(telemetryData.time);
     } else if (
-      (state == "RUN_COMPLETE" || state == "FAILURE_STOPPED") &&
-      endTime == 0
+      (state === "RUN_COMPLETE" || state === "FAILURE_STOPPED") &&
+      endTime === 0
     ) {
       setEndTime(telemetryData.time);
     }
-  }, [state]);
+  }, [state, startTime, endTime, telemetryData]);
 
-  const history = createMemoryHistory();
   return (
-    <MemoryRouter history={history}>
-      <Switch>
-        <Route
-          path="/main"
-          render={props => (
-            <Main
-              stompClient={stompClient}
-              telemetryConnection={telemetryConnection}
-              telemetryData={telemetryData}
-              debugConnection={debugConnection}
-              terminalOutput={terminalOutput}
-              logTypes={logTypes}
-              submoduleTypes={submoduleTypes}
-              curStart={curStart}
-              state={state}
-              startTime={startTime}
-              endTime={endTime}
-            />
-          )}
-        ></Route>
-        <Route
-          path="/loading"
-          render={props => (
-            <Loading
-              stompClient={stompClient}
-              debugStatus={debugStatus}
-              terminalOutput={terminalOutput}
-              debugConnection={debugConnection}
-            />
-          )}
-        ></Route>
-        <Route path="/disconnected" render={props => <Disconnected />}></Route>
-        <Route
-          path="/setup"
-          render={props => (
-            <Setup
-              stompClient={stompClient}
-              debugConnection={debugConnection}
-              debugStatus={debugStatus}
-            />
-          )}
-        ></Route>
-        <Route path="/" render={props => <Home />}></Route>
-      </Switch>
-    </MemoryRouter>
+    <div className="gui-wrapper">
+      <GraphsContainer telemetryData={telemetryData}/>
+      <StatusContainer 
+        telemetryConnection={telemetryConnection}
+        state={state}
+      />
+      <Terminal
+        terminalOutput={terminalOutput}
+        logTypes={logTypes}
+        submoduleTypes={submoduleTypes}
+        curStart={curStart}
+        stompClient={stompClient}
+      />
+      <Timer 
+        startTime={startTime}
+        endTime={endTime}
+        telemetryData={telemetryData}
+      />
+      <Gauge title="Distance" gaugeId="distance" telemetryData={telemetryData}/>
+      <Gauge title="Velocity" gaugeId="velocity" telemetryData={telemetryData}/>
+      <Gauge title="Acceleration" gaugeId="acceleration" telemetryData={telemetryData}/>
+      <DataContainer telemetryData={telemetryData}/>
+      <ButtonContainer 
+        stompClient={stompClient}
+        telemetryConnection={telemetryConnection}
+        state={state}
+        setModalOpen={setModalOpen}
+        debugData = {debugData}
+        debugStatus={debugStatus}
+        setDebugErrorMessage={setDebugErrorMessage}
+      />
+      <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen} />
+      <DebugModal 
+        stompClient={stompClient} 
+        isDebugModalOpen={isDebugModalOpen} 
+        setDebugModalOpen={setDebugModalOpen} 
+        debugStatus={debugStatus}
+        debugErrorMessage={debugErrorMessage} 
+      />
+    </div>
   );
 }

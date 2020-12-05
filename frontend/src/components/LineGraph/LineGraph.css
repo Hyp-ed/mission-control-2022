@@ -1,4 +1,6 @@
 #graph-container {
+  grid-row: 1/5;
+  grid-column: 1/8;
   margin: auto;
   height: 45%;
   width: 48%;
@@ -20,15 +22,15 @@
 
 #button-container > * {
   display: flex;
-  color: #8f8f8f;
+  color: #fff;
   margin-top: 1em;
   padding: 0.3em;
 }
 
 #button-container > *:hover {
   cursor: pointer;
-  background-color: #8f8f8f;
-  color: #343434;
+  background-color: #fff;
+  color: #191919;
 }
 
 #graph-close-button {
@@ -43,7 +45,7 @@
   font-size: 0.8em;
   outline-width: 1px;
   outline-style: solid;
-  outline-color: #8f8f8f;
+  outline-color: #fff;
 }
 
 #graph-wrapper {

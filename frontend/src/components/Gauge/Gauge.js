@@ -1,71 +1,68 @@
-import React from "react";
-import LiquidFillGauge from "react-liquid-gauge";
-
-const black = "#000000";
-const gray = "#8F8F8F";
-const green = "#00A000";
-const yellow = "#EAA200";
-const red = "#F10026";
-
-const gradientStops = [
-  {
-    key: "0%",
-    stopColor: green,
-    stopOpacity: 1,
-    offset: "0%"
-  },
-  {
-    key: "60%",
-    stopColor: yellow,
-    stopOpacity: 0.75,
-    offset: "75%"
-  },
-  {
-    key: "80%",
-    stopColor: red,
-    stopOpacity: 0.5,
-    offset: "100%"
-  }
-];
+import React, { useEffect, useState } from "react";
+import useWindowDimensions from "./WindowDimensions"
+import "./Gauge.css";
 
 export default function Gauge(props) {
-  const maxValue = props.value.max;
-  const pctValue = (props.value.value / maxValue) * 100;
+  const { height, width } = useWindowDimensions();
+  const [size, setSize] = useState(150);
+  const [progress, setProgress] = useState(395);
+  const [data, setData] = useState({value: 0, unit: "N/A"});
+  
+  useEffect(() => {
+    setSize(Math.min((width - 16*17) / 8 + 16, (height - 18*10) / 4.5 + 35));
+  }, [height, width]);
 
-  // Specifies a custom text renderer for rendering a percent value.
-  const textRenderer = () => {
-    const value = Math.round(props.value.value);
-    const fontSize = props.size / 4;
-    return (
-      <tspan>
-        <tspan className="value" style={{ fontSize }}>
-          {value}
-        </tspan>
-        <tspan style={{ fontSize: fontSize * 0.6 }}>{props.value.unit}</tspan>
-      </tspan>
-    );
-  };
+  const position = {
+    top: "30px",
+    left: (Math.min((width - 16*17) / 8 + 16 - size) / 2) + "px"
+  }
 
-  return (
-    <LiquidFillGauge
-      innerRadius={0.9}
-      width={props.size}
-      height={props.size}
-      value={pctValue} // value must be in percent as per documentation
-      textRenderer={textRenderer}
-      riseAnimation
-      waveAnimation={false}
-      waveFrequency={2}
-      waveAmplitude={0} // remove wave
-      gradient
-      gradientStops={gradientStops}
-      circleStyle={{ fill: pctValue > 80 ? red : gray }}
-      textStyle={{
-        fill: gray
-      }}
-      waveTextStyle={{
-        fill: black
-      }}
-    />
+  useEffect(() => {
+    if (props.telemetryData === null) return;
+    var parsedData = props.telemetryData.crucial_data.find(o => o.name === props.gaugeId);
+    setData(parsedData);
+    setProgress(395 - 197 * ((parsedData.value - parsedData.min) / (parsedData.max - parsedData.min)));
+  }, [props.telemetryData, props.gaugeId]);
+
+  return(
+    <div id={"gauge-" + props.gaugeId} className="gauge container">
+      <div className="gauge-title">{props.title}</div>
+      <svg
+        className="progress-ring" width="150px" height="150px" transform={"scale(" + (size / 150) + ")"} style={position}>
+        <text className="progress-value" x="50%" y="50%" textAnchor="middle" fill="white" fontSize="37px">{data.value.toFixed(4 - Math.round(data.value).toString().length)}</text>
+        <text className="progress-unit" x="50%" y="65%" textAnchor="middle" fill="grey" fontSize="16px">{data.unit}</text>
+        <circle
+          className="progress-ring-progress"
+          stroke="grey"
+          strokeWidth="6"
+          strokeDasharray="395 395"
+          strokeDashoffset="197"
+          fill="transparent"
+          r="63"
+          cx="75"
+          cy="75"/>
+        <circle
+          className="progress-ring-progress"
+          stroke="white"
+          strokeWidth="6"
+          strokeDasharray="395 395"
+          strokeDashoffset={progress}
+          fill="transparent"
+          r="63"
+          cx="75"
+          cy="75"/>
+        <circle
+          className="progress-ring-stopper"
+          stroke="red"
+          strokeWidth="7"
+          strokeDasharray="395 395"
+          strokeDashoffset="351"
+          fill="transparent"
+          r="63"
+          cx="75"
+          cy="75"/>
+      </svg>
+    </div>
   );
 }
+

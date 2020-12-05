@@ -1,10 +1,6 @@
 .data-container {
   position: relative;
-  grid-row: 3/13;
-  grid-column: 1/6;
-  background-color: #1b1b1b;
-  margin-right: 1em;
-  height: calc(100% - 10px);
-  margin-top: 5px;
+  grid-row: 3/10;
+  grid-column: 8/15;
 }
 

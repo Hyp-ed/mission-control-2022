@@ -2,7 +2,10 @@ package server;
 
 import java.io.*;
 import java.net.*;
-import java.nio.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -20,6 +23,7 @@ public class Server implements Runnable {
 
   private Socket telemetryClient; // TCP socket to pod
   private Process debugProcess;
+  private Process compileProcess;
 
   // Telemetry
   private JSONObject telemetryData;
@@ -37,8 +41,27 @@ public class Server implements Runnable {
   private List<String> submoduleTypes = new ArrayList<>(List.of(""));
   private JSONArray terminalOutput = new JSONArray();
 
+  // Compile
+  private static final String COMPILE = "COMPILE";
+  private static final String COMPILING = "COMPILING";
+  private static final String COMPILED = "RECOMPILE";
+  private static final String RETRY = "RETRY";
+  
+  private static final String IS_COMPILED = "isCompiled";
+  private static final String IS_SUCCESS = "isSuccess";
+  private static final String ERROR_MESSAGE = "errorMessage";
+ 
+  private boolean isCompiling = false;  // A boolean indicating if the pod code is still compiling, mainly for the UI
+  private String debugStatus = COMPILE;
+
+  private JSONArray debugOutput = new JSONArray();
+  private JSONObject debugData;
+
   @Override
   public void run() {
+    // Initialize the compiling state
+    initDebugData();
+
     ServerSocket telemetryServer = getServerSocket(TELEMETRY_PORT);
     System.out.println("Server now listening on port " + TELEMETRY_PORT);
 
@@ -81,6 +104,7 @@ public class Server implements Runnable {
         }
       }
       catch (Exception e) {
+        System.out.println(e);
         System.out.println("StreamGobbler stream has closed");
       }
     }
@@ -103,6 +127,139 @@ public class Server implements Runnable {
     return obj;
   }
 
+  //Compiles the pod code
+  public void debugCompile() {
+    initDebugData();
+    debugStatus = COMPILING;
+    isCompiling = true; // The compiling process start
+
+    String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
+    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
+
+    ArrayList<String> command = new ArrayList<String>();
+    // Suppose to be make -j, but it's so buggy so leave it as make for now
+    command.add("make");
+
+    try {
+      System.out.println("Compiling from: " + HYPED_PATH);
+      debugOutput = new JSONArray();
+      compileProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
+
+      BufferedReader in = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
+      String line;
+      while ((line = in.readLine()) != null) {
+        debugOutput.put(line);
+      }
+      compileProcess.waitFor();
+
+      boolean isSuccess = compileProcess.exitValue() == 0;
+
+      //Procedure to check wheter hyped code is successfully compiled
+      boolean isFileExisted = isHypedExist(); // For first time compilation
+
+      debugData.put(IS_COMPILED, true);
+
+      //Change the debugStatus
+      if (isFileExisted) {
+        debugStatus = COMPILED;
+        //Ends the compiling process
+      } else if (isCompiling){
+        debugStatus = COMPILING;
+      } else {
+        debugStatus = RETRY;
+      }
+
+      // Update the debugData
+      if (!isFileExisted) {
+        // Fail when compile for the first time
+        debugStatus = RETRY;
+        debugData.put(IS_SUCCESS, false);
+        convertDebugOutput();
+      } else if (!isSuccess){
+        // Normal fail
+        debugStatus = RETRY;
+        debugData.put(IS_SUCCESS, false);
+        convertDebugOutput();
+      } else {
+        debugData.put(IS_SUCCESS, true);
+      }
+      isCompiling = false;
+      System.out.println("Finish compiling");
+      
+      in.close();
+
+    } catch (Throwable t) {
+      t.printStackTrace();
+    }
+
+  }
+
+  public void convertDebugOutput() {
+    StringBuffer errorMessage = new StringBuffer("");
+
+    for(int i=0; i < debugOutput.length(); i++) {
+      errorMessage.append(debugOutput.getString(i));
+      errorMessage.append("\n");
+    }
+
+    debugData.put(ERROR_MESSAGE, errorMessage.toString());
+  }
+
+  public String getDebugData() {
+    if (debugData == null) {
+      return null;
+    }
+
+    if (isHypedExist()) {
+      debugData.put(IS_COMPILED, true);
+    } else {
+      debugData.put(IS_COMPILED, false);
+    }
+
+    //System.out.println(debugData.toString());
+    return debugData.toString();
+  }
+
+  public String getDebugStatus() {
+    if (isCompiling) {
+      debugStatus = COMPILING;
+    } else if (!isHypedExist() && Boolean.TRUE.equals(debugData.get(IS_SUCCESS))){
+      debugStatus = COMPILE;
+      isCompiling = false;
+    }
+
+    return debugStatus;
+  }
+
+  public String setDebugStatus() {
+    debugStatus = COMPILING;
+    return debugStatus;
+  }
+
+  public boolean isHypedExist() {
+    String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
+    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped"; // change this part for RELEASE
+
+    File HYPED_CODE = new File(HYPED_PATH);
+    return HYPED_CODE.exists();
+  }
+
+  public void initDebugData() {
+    debugData = new JSONObject();
+    debugData.put(IS_SUCCESS, true);
+    debugData.remove(ERROR_MESSAGE);
+
+    if (isHypedExist()) {
+      debugStatus = COMPILED;
+      debugData.put(IS_COMPILED, true);
+
+    } else {
+      debugStatus = COMPILE;
+
+      debugData.put(IS_COMPILED, false);
+    }
+  }
+
   public void debugRun(JSONArray flags) {
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code"; // change this part for RELEASE
@@ -121,10 +278,10 @@ public class Server implements Runnable {
       command.add(flag);
     }
     command.add("-v");
-    command.add("-d");
+    command.add("--debug=3");
 
     try {
-      System.out.println("Reading from: " + HYPED_PATH);
+      System.out.println("Running from: " + HYPED_PATH);
       terminalOutput = new JSONArray();
       debugProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
 
@@ -158,11 +315,11 @@ public class Server implements Runnable {
   public void debugUpdateSubmoduleFilter(String submoduleFilter) {
     this.submoduleFilter = submoduleFilter;
   }
-  
+
   public void debugUpdateSendMoreLines() {
     this.moreLines = true;
   }
-  
+
   public void debugToggleIsLive() {
     this.isLive = !this.isLive;
   }
@@ -307,7 +464,7 @@ public class Server implements Runnable {
 
     JSONObject ret = new JSONObject();
     if (newTerminalOutput.isEmpty()) {
-      ret.put("terminalOutput", JSONObject.NULL);
+      ret.put("terminalOutput", JSONObject.NULL);  
     } else {
       JSONArray returnLines = new JSONArray();
 
