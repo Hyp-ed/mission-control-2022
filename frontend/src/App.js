@@ -14,7 +14,7 @@ import testData from "./testData.json";
 export default function App() {
   const [stompClient, setStompClient] = useState(null);
   const [telemetryConnection, setTelemetryConnection] = useState(false);
-  const [telemetryData, setTelemetryData] = useState(testData); // change to testData for testing
+  const [telemetryData, setTelemetryData] = useState(null); // change to testData for testing
   const [debugConnection, setDebugConnection] = useState(false);
   const [debugStatus, setDebugStatus] = useState(false);
   const [debugData, setDebugData] = useState({"isCompiled": false, "isSuccess": true, "lastModifiedTime": -1});
