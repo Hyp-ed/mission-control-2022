@@ -9,7 +9,7 @@ export default function DataPointSelector(props) {
 
   useEffect(() => {
     setPaths(getAllPaths(props.telemetryData));
-  }, []);
+  }, [props.telemetryData]);
 
   const getPathList = () => {
     // const paths = ;

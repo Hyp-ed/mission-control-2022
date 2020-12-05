@@ -6,7 +6,7 @@ import Sidebar from "../Sidebar/Sidebar";
 import LineGraph from "../LineGraph/LineGraph"
 import { defaults } from "react-chartjs-2";
 
-export default props => {
+export default function GraphsContainer(props) {
     const accentColor = "#8F8F8F";
 
     const setGraphDefaults = () => {
@@ -92,10 +92,10 @@ export default props => {
     };
 
     if (props.telemetryData === null) {
-      return (<div id="graphs-container" class="container"></div>);
+      return (<div id="graphs-container" className="container"></div>);
     }else{
           return (
-        <div id="graphs-container" class="container">
+        <div id="graphs-container" className="container">
             <div id="graphs">
               {getGraphs()}
             </div>

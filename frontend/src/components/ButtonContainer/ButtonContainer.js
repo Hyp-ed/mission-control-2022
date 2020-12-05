@@ -13,7 +13,7 @@ import "./ButtonContainer.css";
 import React, { useState, useEffect } from "react";
 import Button from "../Button/Button";
 
-export default props => {
+export default function ButtonContainer(props) {
   const [isMainDisabled, setMainDisabled] = useState(false);
   
   const telemetry_buttons = {
@@ -91,14 +91,13 @@ export default props => {
 
     if (debug) {
       switch (command) {
-        case "RETRY":
-          props.setDebugModalOpen(true);
-          break;
         case "RUN":
           props.setModalOpen(true);
           break;
         case "COMPILE":
         case "RECOMPILE":
+        case "RETRY":
+        default:
           props.stompClient.send("/app/send/debug/setCompile", {}, command);
           props.stompClient.send("/app/send/debug/compileRun", {}, command);
           break;
@@ -117,7 +116,6 @@ export default props => {
   const getButton = (button, disabled = false, debug = false) => {
     return (
       <Button
-        id={button.id}
         caption={button.caption}
         icon={button.icon}
         spin={button.spin}
@@ -126,6 +124,7 @@ export default props => {
         }}
         backgroundColor={button.backgroundColor}
         disabled={disabled}
+        key={button.caption}
       ></Button>
     );
   };
@@ -157,6 +156,7 @@ export default props => {
         return null;
       case "FINISHED":
       case "FAILURE_STOPPED":
+      default:
         return getButton(telemetry_buttons.shutdown, isMainDisabled);
     }
   };
@@ -173,27 +173,25 @@ export default props => {
         return getButton(telemetry_buttons.abort, true);
       case "FINISHED":
       case "FAILURE_STOPPED":
+      default:
         return null;
     }
   };
 
   const getDebugButtons = (isCompiled = false, isSuccess = false) => {
     let button = getDebugStatus();
-    let isDisabled = button == debug_buttons.compiling ? true : false;
+    let isDisabled = button === debug_buttons.compiling ? true : false;
 
-    if(!isSuccess){
+    if (!isSuccess){
       //Error handle state
-      props.setDebugErrorMessage(props.debugData.errorMessage);
-      props.setDebugModalOpen(true);
       return [getButton(button, false, true)];
     }
-
-    props.setDebugModalOpen(false);
-    if(!isCompiled){
+    else if (!isCompiled){
       return [getButton(button, isDisabled, true)];
     }
-
-    return [getButton(button, isDisabled, true), getButton(debug_buttons.run, isDisabled, true)];
+    else {
+      return [getButton(button, isDisabled, true), getButton(debug_buttons.run, isDisabled, true)];
+    }
   }
 
   if (props.telemetryConnection) {

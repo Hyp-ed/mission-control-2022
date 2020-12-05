@@ -2,12 +2,12 @@ import React from "react";
 import 'status-indicator/styles.css'
 import "./StatusContainer.css";
 
-export default props => {
+export default function StatusContainer(props) {
     const getModulesColumn = () => {
         return (
-            <div class="status-modules">
-                <div class="status-title">Modules</div>
-                <div class="status-modules-content">
+            <div className="status-modules">
+                <div className="status-title">Modules</div>
+                <div className="status-modules-content">
                     {getModuleIndicator("MOT")}
                     {getModuleIndicator("BAT")}
                     {getModuleIndicator("SEN")}
@@ -21,9 +21,9 @@ export default props => {
 
     const getStatusColumn = (title) => {
         return (
-            <div class="status-sensors">
-                <div class="status-title">{title}</div>
-                <div class="status-sensors-content">
+            <div className="status-sensors">
+                <div className="status-title">{title}</div>
+                <div className="status-sensors-content">
                     {getStatusIndicator(1)}
                     {getStatusIndicator(2)}
                     {getStatusIndicator(3)}
@@ -35,25 +35,25 @@ export default props => {
 
     const getModuleIndicator = (title) => {
         // TODO: connect to the backend
-        return (<div class="status-indicator">{title}</div>);
+        return (<div className="status-indicator">{title}</div>);
     }
 
     const getStatusIndicator = (title) => {
         // TODO: connect to the backend
-        return (<div class="status-indicator">{title}</div>);
+        return (<div className="status-indicator">{title}</div>);
     }
 
     // 0 - red, 1 - green, 2 - blue, 3 - orange
     const getConnectionIndicator = (status) => {
         switch(status) {
             case 0:
-                return (<status-indicator negative pulse class="connection-indicator"></status-indicator>);
+                return (<status-indicator negative pulse></status-indicator>);
             case 1:
-                return (<status-indicator positive pulse class="connection-indicator"></status-indicator>);
+                return (<status-indicator positive pulse></status-indicator>);
             case 2:
-                return (<status-indicator active pulse class="connection-indicator"></status-indicator>);
+                return (<status-indicator active pulse></status-indicator>);
             case 3:
-                return (<status-indicator intermediary pulse class="connection-indicator"></status-indicator>);
+                return (<status-indicator intermediary pulse></status-indicator>);
             default:
                 return null;
         }
@@ -103,15 +103,15 @@ export default props => {
                 {getDebugStatus()}
                 {getSTMStatus()}
             </div>
-            <div id="status-container" class="container">
+            <div id="status-container" className="container">
                 {/* TODO: connect to the backend */}
-                <div class="status-sensors-container">
-                    <div class="status-sensors-row status-sensors-row-top">
+                <div className="status-sensors-container">
+                    <div className="status-sensors-row status-sensors-row-top">
                         {getStatusColumn("Sensors 1")}
                         {getStatusColumn("Sensors 2")}
                         {getStatusColumn("Sensors 3")}
                     </div>
-                    <div class="status-sensors-row status-sensors-row-bottom">
+                    <div className="status-sensors-row status-sensors-row-bottom">
                         {getStatusColumn("Sensors 4")}
                         {getStatusColumn("Sensors 5")}
                         {getStatusColumn("Sensors 6")}

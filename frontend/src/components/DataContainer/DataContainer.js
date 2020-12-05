@@ -5,11 +5,11 @@ import DataList from "../DataList/DataList";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
 
-export default props => {
+export default function DataContainer(props) {
   var dataList = {};
 
   const combine = (title, data) => {
-    data.map((list, i) => {
+    for (var list of Object.values(data)) {
       if (Array.isArray(list.value)) {
         combine(title.concat([list.name]), list.value);
       }
@@ -19,15 +19,13 @@ export default props => {
         }
         dataList[title.join(" > ")].push(list);
       }
-    });
+    };
   }
 
   const getListItems = (list) => {
-    var response = []
-    list.map((data, i) => {
-      response.push(<DataRow data={data}></DataRow>);
+    return list.map((data, i) => {
+      return <DataRow data={data} key={data.name}></DataRow>;
     });
-    return response;
   }
 
   const getFormattedLists = () => {
@@ -37,6 +35,7 @@ export default props => {
         <DataList
           title={title}
           value={getListItems(dataList[title])}
+          key={title}
         ></DataList>
       )
     }

@@ -6,11 +6,11 @@ export default function Timer(props){
     const [time, setTime] = useState(0);
 
     useEffect(() => {
-    if (props.endTime != 0) {
+    if (props.endTime !== 0) {
       return;
     }
-    if (props.startTime == 0) {
-      return;
+    if (props.startTime === 0) {
+      return () => setTime(0);
     }
     return () => setTime(props.telemetryData.time - props.startTime);
     }, [props.startTime, props.endTime,props.telemetryData]); //sets interval once when timer state changes
@@ -32,7 +32,7 @@ export default function Timer(props){
     return  minutes + ":" + seconds + "." + milliseconds ;
   };
 
-  return <div id="timer" class="container">
+  return <div id="timer" className="container">
       <p className="timer" id="time">{formatTime(time)}</p>
   </div>;
 }

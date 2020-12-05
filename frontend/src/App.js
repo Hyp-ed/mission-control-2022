@@ -15,9 +15,8 @@ export default function App() {
   const [stompClient, setStompClient] = useState(null);
   const [telemetryConnection, setTelemetryConnection] = useState(false);
   const [telemetryData, setTelemetryData] = useState(null); // change to testData for testing
-  const [debugConnection, setDebugConnection] = useState(false);
   const [debugStatus, setDebugStatus] = useState(false);
-  const [debugData, setDebugData] = useState({"isCompiled": false, "isSuccess": true, "lastModifiedTime": -1});
+  const [debugData, setDebugData] = useState({"isCompiled": false, "isSuccess": true});
   const [terminalOutput, setTerminalOutput] = useState("");
   const [logTypes, setLogTypes] = useState([""]);
   const [submoduleTypes, setSubmoduleTypes] = useState([""]);
@@ -27,7 +26,6 @@ export default function App() {
   const [debugErrorMessage, setDebugErrorMessage] = useState("");
 
   useEffect(() => {
-    console.log("READY FOR DATA");
     const sc = Stomp.client("ws://localhost:8080/connecthere");
     sc.debug = false;
     setStompClient(sc);
@@ -42,9 +40,6 @@ export default function App() {
         );
         sc.subscribe("/topic/debug/output", message =>
           terminalOutputHandler(message)
-        );
-        sc.subscribe("/topic/debug/connection", message =>
-          debugConnectionHandler(message)
         );
         sc.subscribe("/topic/debug/status", message =>
           debugStatusHandler(message)
@@ -61,15 +56,15 @@ export default function App() {
   }, []); // Only run once
   
   const debugDataHandler = message => {
-    setDebugData(JSON.parse(message.body));
+    var parsedMessage = JSON.parse(message.body);
+    if (!parsedMessage.isSuccess) {
+      setDebugErrorMessage(parsedMessage.errorMessage);
+    }
+    setDebugData(parsedMessage);
   }
 
   const telemetryConnectionHandler = message => {
     setTelemetryConnection(message.body === "CONNECTED" ? true : false);
-  };
-
-  const debugConnectionHandler = message => {
-    setDebugConnection(message.body === "CONNECTED" ? true : false);
   };
 
   const telemetryDataHandler = message => {
@@ -85,6 +80,9 @@ export default function App() {
   };
 
   const debugStatusHandler = message => {
+    if (message.body === "COMPILING") {
+      setDebugModalOpen(false);
+    }
     setDebugStatus(message.body);
   };
 
@@ -106,18 +104,18 @@ export default function App() {
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
   useEffect(() => {
-    if (state == "CALIBRATING") {
+    if (state === "IDLE" || state === "CALIBRATING") {
       setStartTime(0);
       setEndTime(0);
-    } else if (state == "ACCELERATING" && startTime == 0) {
+    } else if (state === "ACCELERATING" && startTime === 0) {
       setStartTime(telemetryData.time);
     } else if (
-      (state == "RUN_COMPLETE" || state == "FAILURE_STOPPED") &&
-      endTime == 0
+      (state === "RUN_COMPLETE" || state === "FAILURE_STOPPED") &&
+      endTime === 0
     ) {
       setEndTime(telemetryData.time);
     }
-  }, [state]);
+  }, [state, startTime, endTime, telemetryData]);
 
   return (
     <div className="gui-wrapper">
@@ -147,18 +145,18 @@ export default function App() {
         telemetryConnection={telemetryConnection}
         state={state}
         setModalOpen={setModalOpen}
-        setDebugModalOpen={setDebugModalOpen}
         debugData = {debugData}
         debugStatus={debugStatus}
         setDebugErrorMessage={setDebugErrorMessage}
       />
-      <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen}></SetupModal>
-      <DebugModal stompClient={stompClient} 
-                  isDebugModalOpen={isDebugModalOpen} 
-                  setDebugModalOpen={setDebugModalOpen}
-                  debugErrorMessage={debugErrorMessage}
-      >
-      </DebugModal>
+      <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen} />
+      <DebugModal 
+        stompClient={stompClient} 
+        isDebugModalOpen={isDebugModalOpen} 
+        setDebugModalOpen={setDebugModalOpen} 
+        debugStatus={debugStatus}
+        debugErrorMessage={debugErrorMessage} 
+      />
     </div>
   );
 }
