@@ -2,7 +2,7 @@ import React from "react";
 import "./DataRow.css";
 import { Textfit } from "react-textfit";
 
-export default props => {
+export default function DataRow(props) {
   const range = (props.data.max - props.data.min) / 0.8;
   const realMin = props.data.min - range * 0.1;
   const realMax = props.data.max + range * 0.1;

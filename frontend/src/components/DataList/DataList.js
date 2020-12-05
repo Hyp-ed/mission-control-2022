@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretUp, faCaretDown } from "@fortawesome/free-solid-svg-icons";
 import { Collapse } from "react-collapse";
 
-export default props => {
+export default function DataList(props) {
   const [isOpen, setIsOpen] = useState(true);
   return (
     <div>

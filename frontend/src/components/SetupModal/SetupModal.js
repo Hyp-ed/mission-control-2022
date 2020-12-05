@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Modal from 'react-modal';
 import "./SetupModal.css";
 import Button from "../Button/Button";
@@ -6,8 +6,8 @@ import {
   faPlay,
 } from "@fortawesome/free-solid-svg-icons";
 
-export default props => {
-  const [flags, setFlags] = useState([]);
+export default function SetupModal(props) {
+  const [flags, setFlags] = useState(["--fake_imu", "--fake_batteries", "--fake_keyence", "--fake_temperature", "--fake_embrakes", "--fake_motors", "--fake_highpower"]);
   Modal.setAppElement('#root');
 
   const fakeSystems = [
@@ -25,13 +25,12 @@ export default props => {
     { name: "High power", value: "--fake_highpower", defaultChecked: true }
   ];
 
-  const additional = [];
   const getChoiceList = choices => {
     return choices.map(choice => (
-      <div className="input-group-switch">
+      <div className="input-group-switch" key={choice.value}>
         <input
           type="checkbox"
-          class="switch"
+          className="switch"
           value={choice.value}
           onChange={handleFlagChange}
           defaultChecked={choice.defaultChecked}
@@ -47,18 +46,6 @@ export default props => {
     props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
   };
 
-  const initiateFlags = () => {
-    var newFlags = flags;
-
-    newFlags.push("--fake_imu");
-    newFlags.push("--fake_batteries");
-    newFlags.push("--fake_keyence");
-    newFlags.push("--fake_temperature");
-    newFlags.push("--fake_embrakes");
-    newFlags.push("--fake_motors");
-    newFlags.push("--fake_highpower");
-      };
-
   const handleFlagChange = e => {
     var newFlags = flags;
     if (e.target.checked) {
@@ -68,10 +55,6 @@ export default props => {
     }
     setFlags(newFlags);
   };
-
-  useEffect(() => {
-    initiateFlags();
-  }, []); // Only run once
 
   const closeModal = () => {
     props.setModalOpen(false);

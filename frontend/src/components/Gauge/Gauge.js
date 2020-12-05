@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import useWindowDimensions from "./WindowDimensions"
 import "./Gauge.css";
 
-export default props => {
+export default function Gauge(props) {
   const { height, width } = useWindowDimensions();
   const [size, setSize] = useState(150);
   const [progress, setProgress] = useState(395);
@@ -22,15 +22,15 @@ export default props => {
     var parsedData = props.telemetryData.crucial_data.find(o => o.name === props.gaugeId);
     setData(parsedData);
     setProgress(395 - 197 * ((parsedData.value - parsedData.min) / (parsedData.max - parsedData.min)));
-  }, [props.telemetryData]);
+  }, [props.telemetryData, props.gaugeId]);
 
   return(
     <div id={"gauge-" + props.gaugeId} className="gauge container">
       <div className="gauge-title">{props.title}</div>
       <svg
         className="progress-ring" width="150px" height="150px" transform={"scale(" + (size / 150) + ")"} style={position}>
-        <text className="progress-value" x="50%" y="50%" text-anchor="middle" fill="white" font-size="37px">{data.value.toFixed(4 - Math.round(data.value).toString().length)}</text>
-        <text className="progress-unit" x="50%" y="65%" text-anchor="middle" fill="grey" font-size="16px">{data.unit}</text>
+        <text className="progress-value" x="50%" y="50%" textAnchor="middle" fill="white" fontSize="37px">{data.value.toFixed(4 - Math.round(data.value).toString().length)}</text>
+        <text className="progress-unit" x="50%" y="65%" textAnchor="middle" fill="grey" fontSize="16px">{data.unit}</text>
         <circle
           className="progress-ring-progress"
           stroke="grey"

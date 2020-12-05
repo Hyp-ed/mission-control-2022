@@ -40,7 +40,7 @@ const useDeepEffect = (fn, deps) => {
 
     isFirst.current = false;
     prevDeps.current = deps;
-  }, deps);
+  }, [fn, deps]);
 };
 
 const IGNORE_KEYS = ["additional_data", "crucial_data"];

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Modal from 'react-modal';
 import "./DebugModal.css";
 import Button from "../Button/Button";
@@ -17,8 +17,10 @@ export default React.memo(props => {
 
 
   useEffect(() => {
-    //Get the error message
-  }, []); // Only run once
+    if (props.debugStatus === "RETRY") {
+      props.setDebugModalOpen(true);
+    }
+  }, [props]);
   
   const closeModal = () => {
     props.setDebugModalOpen(false);
@@ -27,9 +29,10 @@ export default React.memo(props => {
   const getErrorMessage = () => {
     return props.debugErrorMessage.split("\n").map(msg => {
       if (msg.length > 0) {
-        return(
-          <pre className="errormsg">{msg}</pre>
-        )
+        return <pre className="errormsg">{msg}</pre>;
+      }
+      else {
+        return null;
       }
     })
   }
