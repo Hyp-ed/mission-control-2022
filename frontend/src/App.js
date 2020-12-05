@@ -141,7 +141,7 @@ export default function App() {
       <Gauge title="Distance" gaugeId="distance" telemetryData={telemetryData}/>
       <Gauge title="Velocity" gaugeId="velocity" telemetryData={telemetryData}/>
       <Gauge title="Acceleration" gaugeId="acceleration" telemetryData={telemetryData}/>
-      <DataContainer telemetryData={null}/>
+      <DataContainer telemetryData={telemetryData}/>
       <ButtonContainer 
         stompClient={stompClient}
         telemetryConnection={telemetryConnection}
