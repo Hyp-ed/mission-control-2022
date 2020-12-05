@@ -10,38 +10,31 @@ export default props => {
   const percentage = ((value - realMin) / range) * 100;
 
   return (
-    <div>
-      <div className={"data-row"}>
-        <Textfit
-          mode="single"
-          forceSingleModeWidth={false}
-          max={14}
-          className="data-row-name"
-        >
-          {props.data.name}
-        </Textfit>
+    <div className={"data-row"}>
+      <Textfit
+        mode="single"
+        forceSingleModeWidth={false}
+        max={14}
+        className="data-row-name"
+      >
+        {props.data.name}
+      </Textfit>
+      <div className="data-row-bar">
         <div
-          className={
-            "data-row-bar" +
-            (percentage > 90 || percentage < 10 ? " alert" : "")
-          }
-        >
-          <div
-            className={"progress-bar " + (percentage > 90 || percentage < 10 ? " bg-red-gradient" : "bg-white-gradient")}
-            style={{
-              width: percentage + "%"
-            }}
-          ></div>
-        </div>
-        <Textfit
-          mode="single"
-          forceSingleModeWidth={false}
-          max={14}
-          className="data-row-value"
-        >
-          {props.data.value.toFixed(1) + " " + props.data.unit}
-        </Textfit>
+          className={"progress-bar " + (percentage > 90 || percentage < 10 ? " progress-bar-red" : "progress-bar-white")}
+          style={{
+            width: percentage + "%"
+          }}
+        ></div>
       </div>
+      <Textfit
+        mode="single"
+        forceSingleModeWidth={false}
+        max={14}
+        className="data-row-value"
+      >
+        {props.data.value.toFixed(1) + " " + props.data.unit}
+      </Textfit>
     </div>
   );
 };
