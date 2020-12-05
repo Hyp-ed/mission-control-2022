@@ -278,7 +278,7 @@ public class Server implements Runnable {
       command.add(flag);
     }
     command.add("-v");
-    command.add("-d");
+    command.add("--debug=3");
 
     try {
       System.out.println("Running from: " + HYPED_PATH);
