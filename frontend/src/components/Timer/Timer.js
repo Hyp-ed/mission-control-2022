@@ -10,7 +10,7 @@ export default function Timer(props){
       return;
     }
     if (props.startTime === 0) {
-      return;
+      return () => setTime(0);
     }
     return () => setTime(props.telemetryData.time - props.startTime);
     }, [props.startTime, props.endTime,props.telemetryData]); //sets interval once when timer state changes

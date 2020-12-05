@@ -104,7 +104,7 @@ export default function App() {
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
   useEffect(() => {
-    if (state === "CALIBRATING") {
+    if (state === "IDLE" || state === "CALIBRATING") {
       setStartTime(0);
       setEndTime(0);
     } else if (state === "ACCELERATING" && startTime === 0) {
