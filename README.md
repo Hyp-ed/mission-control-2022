@@ -5,14 +5,12 @@ This is the repository for the HYPED Mission Control, which is responsible for c
 ### How to run
 First of all, make sure that your Java version is 8 or up.
 
-Then download the latest release from [Github](https://github.com/Hyp-ed/mission-control-2021/releases), and run:
+Then download the latest release from [Github](https://github.com/Hyp-ed/mission-control-2021/releases), put it inside your `hyped-2021` repo if you want the debug functionality,  and run:
 ```
 $ java -jar mission-control-2021.jar
 ```
 
 Go to `localhost:8080` for the GUI.
-
-Then run `./hyped` (from the hyped-2020 repo) to start the pod, and you should see the pod connecting on the gui.
 
 ### How to build the project:
 This project uses gradle as its build system. Only manually build the project instead of using the released jar file as explained above if you actually intend to work on the mission control. The gradle wrapper is already checked into this repo, so no need to explicitly download gradle (unless you want to).
