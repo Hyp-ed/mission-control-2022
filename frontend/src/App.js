@@ -26,7 +26,7 @@ export default function App() {
   const [debugErrorMessage, setDebugErrorMessage] = useState("");
 
   useEffect(() => {
-    const sc = Stomp.client("ws://localhost:8080/connecthere");
+    const sc = Stomp.client("ws://" + window.location.hostname + ":8080/connecthere");
     sc.debug = false;
     setStompClient(sc);
     sc.connect(
