@@ -1,6 +1,6 @@
 #terminal-container {
-    grid-row: 5/10;
-    grid-column: 1/8;
+    grid-row: 3/10;
+    grid-column: 10/21;
     display: flex;
     justify-content: center;
     align-content: center;
@@ -39,6 +39,7 @@ pre {
     height: 100%;
     width: 100%;
     margin: 0;
+    font-size: 0.9em;
 }
 
 .footer input, select {

@@ -49,12 +49,12 @@ button:focus {
 
 .gui-wrapper {
   display: grid;
-  grid-auto-columns: calc(calc(100% - calc(16px * 15))/16);
+  grid-auto-columns: calc(calc(100% - calc(16px * 31))/32);
   grid-auto-rows: calc(calc(100% - calc(18px * 8))/9);
   height: calc(100vh - 36px);
   column-gap: 16px;
   row-gap: 18px;
-  padding: 18px 16px;
+  padding: 18px 8px;
 }
 
 .container {
