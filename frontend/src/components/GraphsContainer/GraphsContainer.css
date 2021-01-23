@@ -1,6 +1,6 @@
 #graphs-container {
-    grid-row: 1/5;
-    grid-column: 1/8;
+    grid-row: 1/10;
+    grid-column: 1/10;
     display: flex;
     position: relative;
 }

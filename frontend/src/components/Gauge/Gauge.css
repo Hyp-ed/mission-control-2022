@@ -1,16 +1,16 @@
 #gauge-distance {
     grid-row: 2/4;
-    grid-column: 15/17;
+    grid-column: 29/33;
 }
 
 #gauge-velocity {
     grid-row: 4/6;
-    grid-column: 15/17;
+    grid-column: 29/33;
 }
 
 #gauge-acceleration {
     grid-row: 6/8;
-    grid-column: 15/17;
+    grid-column: 29/33;
 }
 
 .gauge-title {

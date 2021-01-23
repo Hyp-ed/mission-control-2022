@@ -2,22 +2,11 @@
   grid-row: 1/5;
   grid-column: 1/8;
   margin: auto;
-  height: 45%;
-  width: 48%;
+  height: 23%;
+  width: 98%;
   display: flex;
   align-self: center;
   align-items: center;
-}
-
-#graph-container:only-child {
-  margin: 0.5em;
-  height: 90%;
-  width: 100%;
-}
-
-#graph-container:nth-child(1):nth-last-child(2),
-#graph-container:nth-child(2):last-child {
-  height: 95%;
 }
 
 #button-container > * {
