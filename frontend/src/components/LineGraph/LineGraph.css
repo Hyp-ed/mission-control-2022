@@ -32,9 +32,9 @@
   transform: rotate(-180deg);
   writing-mode: vertical-rl;
   font-size: 0.8em;
-  outline-width: 1px;
-  outline-style: solid;
-  outline-color: #fff;
+  margin-right: 1.1em;
+  border-radius: 0.8em;
+  border: #fff solid 1px
 }
 
 #graph-wrapper {

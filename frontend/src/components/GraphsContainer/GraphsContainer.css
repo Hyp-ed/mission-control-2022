@@ -3,6 +3,7 @@
     grid-column: 1/10;
     display: flex;
     position: relative;
+    flex-direction: column;
 }
 
 #graphs-container:nth-child(2n) {
@@ -10,15 +11,19 @@
     flex-basis: 100%;
 }
 #graphs{
-    width: 90%;
-    height:100%;
+    width: 98%;
+    height:95%;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
+    margin-left: 0.8%;
+    margin-top: 4%;
 }
 #sidebar{
     width: 10%;
+    height: 5%;
     position: absolute;
     right: 0;
+    top: 0;
     align-self:center;
 }

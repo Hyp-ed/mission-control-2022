@@ -67,6 +67,9 @@ class ConfigManager {
    * CONFIG HANDLERS
    */
   getConfig = () => {
+    while(this.config.graphs.length<MAX_GRAPHS){
+      this.addGraph()
+    }
     return this.config;
   };
 

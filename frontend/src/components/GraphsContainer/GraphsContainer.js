@@ -48,13 +48,30 @@ export default function GraphsContainer(props) {
           key={graph.ID}
           ID={graph.ID}
           paths={graph.paths ? graph.paths : []}
-          removeGraph={path => ConfigManager.removeGraph(path, currentGraph)}
+          //removeGraph={path => ConfigManager.removeGraph(path, currentGraph)}
           telemetryData={props.telemetryData}
           onSelectClicked={setCurrentGraph}
         />
       ));
     };
+    
+    const handleToolClick =() => {
+      if (document.getElementById("toolButton").input == false){
+        document.getElementById("toolButton").input = true
+      }else{
+        document.getElementById("toolButton").input = false
+      }
 
+    };
+  
+    const isToolClicked = () => {
+        if (document.getElementById("toolButton").input == false){
+          return false
+        } 
+        else{
+          return true
+        }
+    }
   
     const handleUploadClick = () => {
       document.getElementById("fileButton").click();
@@ -96,16 +113,15 @@ export default function GraphsContainer(props) {
     }else{
           return (
         <div id="graphs-container" className="container">
-            <div id="graphs">
-              {getGraphs()}
-            </div>
+            
             <Sidebar
                 id="sidebar"
-                 handleAddGraphClick={ConfigManager.addGraph}
-                 isAddEnabled={ConfigManager.shouldEnableAdd()}
                  handleSaveClick={handleSaveClick}
                  handleUploadClick={handleUploadClick}
              ></Sidebar>
+             <div id="graphs">
+              {getGraphs()}
+            </div>
             <DataPointSelector
                 visible={currentGraph !== -1}
                 telemetryData={props.telemetryData}

@@ -103,9 +103,6 @@ export default function LineGraph(props) {
     <div id="graph-container">
       <div id="button-container">
         <FontAwesomeIcon
-          id="graph-close-button"
-          onClick={onCloseClicked}
-          icon={faTimes}
         />
         <span id="select-button" onClick={onSelectClicked}>
           Select data points
