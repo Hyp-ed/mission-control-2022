@@ -10,7 +10,7 @@
 .terminal-content {
     overflow-x: hidden;
     overflow-y: auto;
-    height: 88%;
+    height: 82%;
     width: 100%;
     display: block;
     background-color: black;
@@ -30,8 +30,13 @@
 .footer {
     margin: 1%;
     width: 100%;
-    height: 8%;
-    display: flex;
+    height: 7%;
+    display: flex;  
+    padding-left: 10px;
+}
+
+.footer.other {
+    padding-bottom: 5px;
 }
 
 pre {
@@ -42,53 +47,54 @@ pre {
     font-size: 0.9em;
 }
 
-.footer input, select {
+input {
     margin-right: 10px;
     background-color: #FFF;
     color: #000;
+    font-size: 18px;
     justify-content: "center";
 }
 
 .footer button {
+    border-radius: 6px;
     margin-right:10px;
     color: #000;    
     background-color: #FFF;
 }
 
 a {
-    color: var(--text-color);
-    text-decoration: none;;
+    text-decoration: none;
 }
 
-.dropdown {
+.dropdown-log {
     position: absolute;
-    width: 150px;
-    transform: translateX(30%);
+    width: 210px;
     background-color: #242526;
     border: 1px solid #474a4d;
     padding: 1rem;
     overflow: hidden;
+    transform: translateX(0%);
 }
 
-.nav-item {
-    width: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-  }
+.dropdown-sub {
+    position: absolute;
+    width: 210px;
+    background-color: #242526;
+    border: 1px solid #474a4d;
+    padding: 1rem;
+    overflow: hidden;
+    transform: translateX(100%);
+}
 
 .menu-item {
     height: 25px;
     display: flex;
     border-radius: 8px;
     align-items: center;
-    transition: background 500ms;
     padding: 0.5rem;
     color: #FFF;
   }
 
 .menu-item:hover {
-    animation: 0;
     background-color: #525357;
 }

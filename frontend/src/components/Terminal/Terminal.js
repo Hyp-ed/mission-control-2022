@@ -1,9 +1,29 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Terminal.css";
 import Button from "../Button/Button";
-import { faSkull, faArrowDown, faSortDown} from "@fortawesome/free-solid-svg-icons";
+import { faSkull, faArrowDown, faSortDown, faSearch} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
+
+function DropdownItem(props) {
+  return (
+    <a href="#" className="menu-item" onClick={props.clickEffect}>
+      {props.children}
+    </a>
+  )
+}
+
+function DropdownMenu(props) {
+  return (
+    <div 
+    className={props.name}
+    style={{top: 605 - 41.25 * React.Children.toArray(props.children).length}}
+    >
+      {props.children}
+    </div>
+  );
+};
 
 export default function Terminal(props) {
   const scrollableNodeRef = React.createRef();
@@ -122,97 +142,42 @@ export default function Terminal(props) {
     scrollToEnd();
   }
 
-  const filterLogType = (event) => {
-    var myObj = {"logType": event.target.value};
+  const filterLogType = (value) => {
+    var myObj = {"logType": value};
     props.stompClient.send("/app/send/debug/logType", {}, JSON.stringify(myObj));
     scrollToEnd();
+    setOpen("");
   }
 
-  const filterSubmodule = (event) => {
-    var myObj = {"submodule": event.target.value};
+  const filterSubmodule = (value) => {
+    var myObj = {"submodule": value};
     props.stompClient.send("/app/send/debug/submodule", {}, JSON.stringify(myObj));
     scrollToEnd();
+    setOpen("");
   }
 
-  // let logTypeOptions = 
-  //   props.logTypes &&
-  //   props.logTypes.length > 0 &&
-  //   props.logTypes.map((logType, index) => {
-  //     return <option key={logType}>{logType}</option>
-  //   })
+  let logTypeOptionsNew = 
+    props.logTypes &&
+    props.logTypes.length > 0 &&
+    props.logTypes.map((logType, index) => {
+      return <DropdownItem clickEffect={() => filterLogType(logType)}>{logType}</DropdownItem>
+    })
 
-  // let logTypeOptionsNew = 
-  //   props.logTypes &&
-  //   props.logTypes.length > 0 &&
-  //   props.logTypes.map((logType, index) => {
-  //     return <DropdownItem>{logType}</DropdownItem>
-  //   })
-
-  // let submoduleOptions = 
-  //   props.submoduleTypes &&
-  //   props.submoduleTypes.length > 0 &&
-  //   props.submoduleTypes.map((submoduleType, index) => {
-  //     return <option key={submoduleType}>{submoduleType}</option>
-  //   })
-
-  // let submoduleOptionsNew = 
-  //   props.submoduleTypes &&
-  //   props.submoduleTypes.length > 0 &&
-  //   props.submoduleTypes.map((submoduleType, index) => {
-  //     return <DropdownItem>{submoduleType}</DropdownItem>
-  //   })
-
-  const NavItem = React.memo(props => {
-    return (
-      <li className="nav-item">
-        <Button 
-          // caption={props.name}
-          // icon={props.icon}
-          // handleClick={() => {
-          //   if (open === props.name) {
-          //     setOpen("");
-          //   } else {
-          //     setOpen(props.name);
-          //   }
-          // }}
-          handleClick={() => {
-            alert("hehe");
-          }}
-        ></Button>
-        {(open === props.name) && props.children}
-      </li>
-    );
-  });
-
-  function DropdownItem(props) {
-    return (
-      <a href="#" className="menu-item">
-        {props.children}
-      </a>
-    )
-  }
-  
-  function DropdownMenu(props) {
-    return (
-      <div 
-      className="dropdown"
-      style={{top: 590 - 25 * 3 /*React.Children.toArray(props.children).length*/}}
-      >
-        <DropdownItem>ahahah</DropdownItem>
-        <DropdownItem>ahahah</DropdownItem>
-        <DropdownItem>ahahah</DropdownItem>
-      </div>
-    );
-  };
+  let submoduleOptionsNew = 
+    props.submoduleTypes &&
+    props.submoduleTypes.length > 0 &&
+    props.submoduleTypes.map((submoduleType, index) => {
+      return <DropdownItem clickEffect={() => filterSubmodule(submoduleType)}>{submoduleType}</DropdownItem>
+    })
 
   return (
     <div id="terminal-container" className="container">
       <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
         <pre id="terminal_pre">{terminalOut}</pre>
       </SimpleBar>
-      <div className="footer">
+      <div className="footer filtering">
       <Button 
-        caption="log"
+        caption="Log Type"
         icon={faSortDown}
         handleClick={() => {
           if (open === "log") {
@@ -222,22 +187,22 @@ export default function Terminal(props) {
           }
         }}
       ></Button>
-      {open && <DropdownMenu></DropdownMenu>}
-        {/* <NavItem 
-          name="log"
-          icon={faSortDown}
-        >
-          <DropdownMenu>
-          </DropdownMenu>
-        </NavItem>
-        <NavItem 
-          name="sub"
-          icon={faSortDown}
-        >
-          <DropdownMenu>
-          </DropdownMenu>
-        </NavItem>  */}
-        <input 
+       <Button 
+        caption="Submodule"
+        icon={faSortDown}
+        handleClick={() => {
+          if (open === "sub") {
+            setOpen("");
+          } else {
+            setOpen("sub");
+          }
+        }}
+      ></Button>
+      {open === "log" && <DropdownMenu name={"dropdown-log"}>{logTypeOptionsNew}</DropdownMenu>}
+      {open === "sub" && <DropdownMenu name={"dropdown-sub"}>{submoduleOptionsNew}</DropdownMenu>}
+      </div>
+      <div className="footer other">
+        <input
           type="text"
           placeholder="Search..." 
           name="search"
