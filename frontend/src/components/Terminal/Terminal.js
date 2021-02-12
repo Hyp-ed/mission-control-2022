@@ -184,23 +184,23 @@ export default function Terminal(props) {
     );
   });
 
-  function DropdownItem(props) {
+  const getItems = () => {
+    console.log("test", props.logTypes);
     return (
       <a href="#" className="menu-item">
-        {props.children}
+        {props.curStart}
       </a>
     )
   }
   
-  function DropdownMenu(props) {
+  const getDropDown = () => {
+    if (!open) return null;
     return (
       <div 
       className="dropdown"
       style={{top: 590 - 25 * 3 /*React.Children.toArray(props.children).length*/}}
       >
-        <DropdownItem>ahahah</DropdownItem>
-        <DropdownItem>ahahah</DropdownItem>
-        <DropdownItem>ahahah</DropdownItem>
+        {getItems()}
       </div>
     );
   };
@@ -222,7 +222,7 @@ export default function Terminal(props) {
           }
         }}
       ></Button>
-      {open && <DropdownMenu></DropdownMenu>}
+      {getDropDown()}
         {/* <NavItem 
           name="log"
           icon={faSortDown}
