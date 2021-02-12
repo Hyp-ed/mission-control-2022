@@ -54,3 +54,41 @@ pre {
     color: #000;    
     background-color: #FFF;
 }
+
+a {
+    color: var(--text-color);
+    text-decoration: none;;
+}
+
+.dropdown {
+    position: absolute;
+    width: 150px;
+    transform: translateX(30%);
+    background-color: #242526;
+    border: 1px solid #474a4d;
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.nav-item {
+    width: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+  }
+
+.menu-item {
+    height: 25px;
+    display: flex;
+    border-radius: 8px;
+    align-items: center;
+    transition: background 500ms;
+    padding: 0.5rem;
+    color: #FFF;
+  }
+
+.menu-item:hover {
+    animation: 0;
+    background-color: #525357;
+}

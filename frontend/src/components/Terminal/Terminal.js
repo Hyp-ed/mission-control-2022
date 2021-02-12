@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Terminal.css";
 import Button from "../Button/Button";
-import { faSkull, faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { faSkull, faArrowDown, faSortDown} from "@fortawesome/free-solid-svg-icons";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
 
@@ -11,6 +11,7 @@ export default function Terminal(props) {
   const [loading, setLoading] = useState(false);
   const [isLive, setIsLive] = useState(true);
   const [scrollCnt, setScrollCnt] = useState(0);
+  const [open, setOpen] = useState("");
 
   const topObserver = useRef()
   const firstLineRef = useCallback(node => {
@@ -133,19 +134,76 @@ export default function Terminal(props) {
     scrollToEnd();
   }
 
-  let logTypeOptions = 
-    props.logTypes &&
-    props.logTypes.length > 0 &&
-    props.logTypes.map((logType, index) => {
-      return <option key={logType}>{logType}</option>
-    })
+  // let logTypeOptions = 
+  //   props.logTypes &&
+  //   props.logTypes.length > 0 &&
+  //   props.logTypes.map((logType, index) => {
+  //     return <option key={logType}>{logType}</option>
+  //   })
 
-  let submoduleOptions = 
-    props.submoduleTypes &&
-    props.submoduleTypes.length > 0 &&
-    props.submoduleTypes.map((submoduleType, index) => {
-      return <option key={submoduleType}>{submoduleType}</option>
-    })
+  // let logTypeOptionsNew = 
+  //   props.logTypes &&
+  //   props.logTypes.length > 0 &&
+  //   props.logTypes.map((logType, index) => {
+  //     return <DropdownItem>{logType}</DropdownItem>
+  //   })
+
+  // let submoduleOptions = 
+  //   props.submoduleTypes &&
+  //   props.submoduleTypes.length > 0 &&
+  //   props.submoduleTypes.map((submoduleType, index) => {
+  //     return <option key={submoduleType}>{submoduleType}</option>
+  //   })
+
+  // let submoduleOptionsNew = 
+  //   props.submoduleTypes &&
+  //   props.submoduleTypes.length > 0 &&
+  //   props.submoduleTypes.map((submoduleType, index) => {
+  //     return <DropdownItem>{submoduleType}</DropdownItem>
+  //   })
+
+  const NavItem = React.memo(props => {
+    return (
+      <li className="nav-item">
+        <Button 
+          // caption={props.name}
+          // icon={props.icon}
+          // handleClick={() => {
+          //   if (open === props.name) {
+          //     setOpen("");
+          //   } else {
+          //     setOpen(props.name);
+          //   }
+          // }}
+          handleClick={() => {
+            alert("hehe");
+          }}
+        ></Button>
+        {(open === props.name) && props.children}
+      </li>
+    );
+  });
+
+  function DropdownItem(props) {
+    return (
+      <a href="#" className="menu-item">
+        {props.children}
+      </a>
+    )
+  }
+  
+  function DropdownMenu(props) {
+    return (
+      <div 
+      className="dropdown"
+      style={{top: 590 - 25 * 3 /*React.Children.toArray(props.children).length*/}}
+      >
+        <DropdownItem>ahahah</DropdownItem>
+        <DropdownItem>ahahah</DropdownItem>
+        <DropdownItem>ahahah</DropdownItem>
+      </div>
+    );
+  };
 
   return (
     <div id="terminal-container" className="container">
@@ -153,18 +211,32 @@ export default function Terminal(props) {
         <pre id="terminal_pre">{terminalOut}</pre>
       </SimpleBar>
       <div className="footer">
-        <select 
-          name="log-type-dropdown"
-          onChange={filterLogType}
+      <Button 
+        caption="log"
+        icon={faSortDown}
+        handleClick={() => {
+          if (open === "log") {
+            setOpen("");
+          } else {
+            setOpen("log");
+          }
+        }}
+      ></Button>
+      {open && <DropdownMenu></DropdownMenu>}
+        {/* <NavItem 
+          name="log"
+          icon={faSortDown}
         >
-          {logTypeOptions}
-        </select>
-        <select 
-          name="submodule-dropdown" 
-          onChange={filterSubmodule}
+          <DropdownMenu>
+          </DropdownMenu>
+        </NavItem>
+        <NavItem 
+          name="sub"
+          icon={faSortDown}
         >
-          {submoduleOptions}
-        </select>
+          <DropdownMenu>
+          </DropdownMenu>
+        </NavItem>  */}
         <input 
           type="text"
           placeholder="Search..." 
