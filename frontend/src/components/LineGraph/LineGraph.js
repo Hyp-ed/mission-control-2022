@@ -98,14 +98,13 @@ export default function LineGraph(props) {
   const onSelectClicked = () => {
     props.onSelectClicked(props.ID);
   };
-
+          //Select data points
   return (
     <div id="graph-container">
       <div id="button-container">
         <FontAwesomeIcon
         />
         <span id="select-button" onClick={onSelectClicked}>
-          Select data points
         </span>
       </div>
       <div id="graph-wrapper">
