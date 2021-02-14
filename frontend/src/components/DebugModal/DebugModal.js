@@ -11,8 +11,7 @@ export default React.memo(props => {
 
   const handleCompileClick = () => {
     props.setDebugModalOpen(false);
-    props.stompClient.send("/app/send/debug/setCompile", {}, "COMPILE");
-    props.stompClient.send("/app/send/debug/compileRun", {}, "COMPILE");
+    props.stompClient.send("/app/send/debug/compile", {}, "COMPILE");
   };
 
 

@@ -58,13 +58,7 @@ public class Controller {
     // TODO(Steven): implement SSH connection
   }
 
-  @MessageMapping("/send/debug/setCompile")
-  @SendTo("/topic/debug/status")
-  public String setCompile(String command) {
-    return server.setDebugStatus();
-  }
-
-  @MessageMapping("/send/debug/compileRun")
+  @MessageMapping("/send/debug/compile")
   public void debugCompile(String flagsString) {
     server.debugCompile();
   }
