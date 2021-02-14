@@ -5,6 +5,8 @@ import Button from "../Button/Button";
 import {
   faRedo,
 } from "@fortawesome/free-solid-svg-icons";
+import SimpleBar from "simplebar-react";
+import "simplebar/dist/simplebar.min.css";
 
 export default React.memo(props => {
   Modal.setAppElement('#root');
@@ -46,7 +48,7 @@ export default React.memo(props => {
       overlayClassName="modal-run-overlay"
     >
       <div className="modal-dialog">
-        <div className="debug-wrapper centered container">
+        <SimpleBar className="debug-wrapper centered container" forceVisible="y" autoHide={false}>
           <div className="debug-group">
             <label>Compilation failed</label>
             <div className="errormsgs">{getErrorMessage()}</div>
@@ -59,7 +61,7 @@ export default React.memo(props => {
               icon={faRedo}
             ></Button>
           </div>
-        </div>
+        </SimpleBar>
       </div>
     </Modal>
   );

@@ -14,37 +14,43 @@ export default function ButtonContainerDebug(props) {
       caption: "LOADING",
       icon: faSpinner,
       spin: true,
-      backgroundColor: "button-blue"
+      backgroundColor: "button-blue",
+      disabled: true
     },
     compile: {
       caption: "COMPILE",
       icon: faCogs,
       backgroundColor: "button-blue",
-      command: "COMPILE"
+      command: "COMPILE",
+      disabled: false
     },
     compiling: {
       caption: "COMPILING",
       icon: faSpinner,
       spin: true,
-      backgroundColor: "button-blue"
+      backgroundColor: "button-blue",
+      disabled: true
     },
     retry: {
       caption: "RETRY",
       icon: faRedo,
       backgroundColor: "button-red",
-      command: "RETRY"
+      command: "RETRY",
+      disabled: false
     },
     compiled: {
       caption: "RECOMPILE",
       icon: faCheck,
       backgroundColor: "button-green",
-      command: "RECOMPILE"
+      command: "RECOMPILE",
+      disabled: false
     },
     run: {
       caption: "RUN",
       icon: faPlay,
       backgroundColor: "button-blue",
-      command: "RUN"
+      command: "RUN",
+      disabled: false
     },
   };
 
@@ -68,25 +74,26 @@ export default function ButtonContainerDebug(props) {
     }
   };
 
-  const getButton = (button, disabled = false) => {
+  const getButton = (button) => {
     return (
       <Button
         caption={button.caption}
         icon={button.icon}
         spin={button.spin}
         handleClick={() => {
-          handleClick(button.command, disabled);
+          handleClick(button.command, button.disabled);
         }}
         backgroundColor={button.backgroundColor}
-        disabled={disabled}
+        disabled={button.disabled}
         key={button.caption}
       ></Button>
     );
   };
 
   const getDebugStatus = () => {
-    console.log(props.debugStatus);
     switch(props.debugStatus) {
+      case "COMPILE":
+        return buttons.compile;
       case "COMPILING":
         return buttons.compiling;
       case "RECOMPILE":
@@ -98,25 +105,20 @@ export default function ButtonContainerDebug(props) {
     }
   }
 
-  const getButtons = (isCompiled = false, isSuccess = false) => {
+  const getButtons = (isCompiled = false) => {
     let button = getDebugStatus();
-    let isDisabled = (button === buttons.compiling || button === buttons.loading) ? true : false;
 
-    if (!isSuccess){
-      //Error handle state
-      return [getButton(button, false, true)];
-    }
-    else if (!isCompiled){
-      return [getButton(button, isDisabled, true)];
+    if (isCompiled) {
+      return [getButton(button), getButton(buttons.run)];
     }
     else {
-      return [getButton(button, isDisabled, true), getButton(buttons.run, isDisabled, true)];
+      return [getButton(button)];
     }
   }
 
   return (
     <div className="button-container">
-      {getButtons(props.debugData.isCompiled, props.debugData.isSuccess)}
+      {getButtons(props.debugData.isCompiled)}
     </div>
   );
 };

@@ -24,7 +24,7 @@
   overflow-y: auto;
   position: fixed;
   width: 50vw;
-  height: 70vh;
+  max-height: 70vh;
   padding: 0px 20px 20px 20px;
   color: white;
   font-size: 1.25em;
