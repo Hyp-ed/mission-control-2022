@@ -156,14 +156,14 @@ export default function Terminal(props) {
     setOpen("");
   }
 
-  let logTypeOptionsNew = 
+  let logTypeOptions = 
     props.logTypes &&
     props.logTypes.length > 0 &&
     props.logTypes.map((logType, index) => {
       return <DropdownItem clickEffect={() => filterLogType(logType)}>{logType}</DropdownItem>
     })
 
-  let submoduleOptionsNew = 
+  let submoduleOptions = 
     props.submoduleTypes &&
     props.submoduleTypes.length > 0 &&
     props.submoduleTypes.map((submoduleType, index) => {
@@ -198,8 +198,8 @@ export default function Terminal(props) {
             }
           }}
         ></Button>
-        {open === "log" && <DropdownMenu name={"dropdown-log"}>{logTypeOptionsNew}</DropdownMenu>}
-        {open === "sub" && <DropdownMenu name={"dropdown-sub"}>{submoduleOptionsNew}</DropdownMenu>}
+        {open === "log" && <DropdownMenu name={"dropdown-log"}>{logTypeOptions}</DropdownMenu>}
+        {open === "sub" && <DropdownMenu name={"dropdown-sub"}>{submoduleOptions}</DropdownMenu>}
       </div>
       <div className="footer other">
         <input
