@@ -17,6 +17,7 @@
   height: 0.8em;
   padding: 0.5em;
   margin: 0em;
+  z-index: 75;
 }
 
 .sidebar-icon:hover {

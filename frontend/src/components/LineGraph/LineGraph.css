@@ -18,8 +18,6 @@
 
 #button-container > *:hover {
   cursor: pointer;
-  /*background-color: #fff;
-  color: #191919;*/
 }
 
 #graph-close-button {
@@ -29,18 +27,18 @@
 }
 
 #select-button {
-  /*transform: rotate(-180deg);
-  writing-mode: vertical-rl;
-  font-size: 0.8em;
-  margin-right: 1.1em;
-  border-radius: 0.8em;
-  border: #fff solid 1px*/
   display:block;
-  width: 90%;
-  height: 19%;
+  width: 24.8vw;
+  height: 21vh;
   position: absolute;
-  margin-top: -22%;
+  margin-top: -11vh;
   z-index:50;
+  border-radius: 5px;
+}
+
+#select-button:hover {
+  background-color: grey;
+  opacity: 0.3;
 }
 
 #graph-wrapper {
