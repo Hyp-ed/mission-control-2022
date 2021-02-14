@@ -51,6 +51,12 @@ export default function ButtonContainer(props) {
   };
 
   const debug_buttons = {
+    loading: {
+      caption: "LOADING",
+      icon: faSpinner,
+      spin: true,
+      backgroundColor: "button-blue"
+    },
     compile: {
       caption: "COMPILE",
       icon: faCogs,
@@ -130,6 +136,7 @@ export default function ButtonContainer(props) {
   };
 
   const getDebugStatus = () => {
+    console.log(props.debugStatus);
     switch(props.debugStatus) {
       case "COMPILING":
         return debug_buttons.compiling;
@@ -138,7 +145,7 @@ export default function ButtonContainer(props) {
       case "RETRY":
         return debug_buttons.retry;
       default:
-        return debug_buttons.compile;
+        return debug_buttons.loading;
     }
   }
 
@@ -180,7 +187,7 @@ export default function ButtonContainer(props) {
 
   const getDebugButtons = (isCompiled = false, isSuccess = false) => {
     let button = getDebugStatus();
-    let isDisabled = button === debug_buttons.compiling ? true : false;
+    let isDisabled = (button === debug_buttons.compiling || button === debug_buttons.loading) ? true : false;
 
     if (!isSuccess){
       //Error handle state
