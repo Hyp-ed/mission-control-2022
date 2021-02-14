@@ -24,19 +24,12 @@
 }
 
 /* Colors */
-.button-green {
-  background: rgba(17, 114, 26, 1);
-}
 
+/* Green */
 .button-green-pulse {
   animation-name: green-color-pulse;
   animation-duration: 2s;
   animation-iteration-count: infinite;
-}
-
-.button-green-pulse:hover, .button-green-pulse.disabled {
-  animation: 0;
-  background: rgba(17, 114, 26, 1);
 }
 
 @keyframes green-color-pulse {
@@ -44,22 +37,27 @@
     background-color: #191919;
   }
   50% {
-    background-color: rgba(17, 114, 26, 1);
+    background-color: rgba(23, 154, 35);
   }
   100% {
     background-color: #191919;
   }
 }
 
+.button-green {
+  background: rgba(23, 154, 35);
+}
+
+.button-green-pulse:hover, .button-green-pulse.disabled, .button-green:hover, .button-green.disabled {
+  animation: 0;
+  background: rgba(17, 114, 26);
+}
+
+/* Blue */
 .button-blue-pulse {
   animation-name: blue-color-pulse;
   animation-duration: 2s;
   animation-iteration-count: infinite;
-}
-
-.button-blue-pulse:hover, .button-blue-pulse.disabled, .button-blue:hover, .button-blue.disabled {
-  animation: 0;
-  background: rgb(12,114,130);
 }
 
 @keyframes blue-color-pulse {
@@ -67,7 +65,7 @@
     background-color: #191919;
   }
   50% {
-    background-color: rgb(16,152,173);
+    background-color: rgb(16, 152, 173);
   }
   100% {
     background-color: #191919;
@@ -75,13 +73,19 @@
 }
 
 .button-blue {
-  background: rgb(16,152,173);
+  background: rgb(16, 152, 173);
 }
 
+.button-blue-pulse:hover, .button-blue-pulse.disabled, .button-blue:hover, .button-blue.disabled {
+  animation: 0;
+  background: rgb(12, 114, 130);
+}
+
+/* Red */
 .button-red {
-  background: rgba(175,17,27,1);
+  background: rgba(175, 17, 27);
 }
 
 .button-red:hover, .button-red.disabled {
-  background: rgba(131,13,20,1);
+  background: rgba(131, 13, 20);
 }
