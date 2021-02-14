@@ -48,7 +48,10 @@ pre {
 }
 
 input {
+    padding-left: 10px;
+    width: 350px;
     margin-right: 10px;
+    border-radius: 6px;
     background-color: #FFF;
     color: #000;
     font-size: 18px;
@@ -57,9 +60,23 @@ input {
 
 .footer button {
     border-radius: 6px;
-    margin-right:10px;
+    margin-right: 10px;
     color: #000;    
     background-color: #FFF;
+}
+
+.toEndWrapper button {
+    position: absolute;
+    left: 58.5%;
+    top: 77%;
+    border-radius: 30px;
+    font-size: 24px;
+    color: #000;
+    background-color: #FFF;
+}
+
+.toEndWrapper .button-icon {
+    margin-right: 0px;
 }
 
 a {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Terminal.css";
 import Button from "../Button/Button";
-import { faSkull, faArrowDown, faSortDown, faSearch} from "@fortawesome/free-solid-svg-icons";
+import { faSkull, faArrowDown, faSortDown} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
@@ -176,30 +176,30 @@ export default function Terminal(props) {
         <pre id="terminal_pre">{terminalOut}</pre>
       </SimpleBar>
       <div className="footer filtering">
-      <Button 
-        caption="Log Type"
-        icon={faSortDown}
-        handleClick={() => {
-          if (open === "log") {
-            setOpen("");
-          } else {
-            setOpen("log");
-          }
-        }}
-      ></Button>
-       <Button 
-        caption="Submodule"
-        icon={faSortDown}
-        handleClick={() => {
-          if (open === "sub") {
-            setOpen("");
-          } else {
-            setOpen("sub");
-          }
-        }}
-      ></Button>
-      {open === "log" && <DropdownMenu name={"dropdown-log"}>{logTypeOptionsNew}</DropdownMenu>}
-      {open === "sub" && <DropdownMenu name={"dropdown-sub"}>{submoduleOptionsNew}</DropdownMenu>}
+        <Button 
+          caption="Log Type"
+          icon={faSortDown}
+          handleClick={() => {
+            if (open === "log") {
+              setOpen("");
+            } else {
+              setOpen("log");
+            }
+          }}
+        ></Button>
+        <Button 
+          caption="Submodule"
+          icon={faSortDown}
+          handleClick={() => {
+            if (open === "sub") {
+              setOpen("");
+            } else {
+              setOpen("sub");
+            }
+          }}
+        ></Button>
+        {open === "log" && <DropdownMenu name={"dropdown-log"}>{logTypeOptionsNew}</DropdownMenu>}
+        {open === "sub" && <DropdownMenu name={"dropdown-sub"}>{submoduleOptionsNew}</DropdownMenu>}
       </div>
       <div className="footer other">
         <input
@@ -209,18 +209,20 @@ export default function Terminal(props) {
           onChange={handleSearch}
         ></input>
         <Button
-          caption="To End"
-          icon={faArrowDown}
-          width="38%"
-          handleClick={scrollToEnd}
-        ></Button>
-        <Button
           caption="KILL"
           icon={faSkull}
           width="38%"
           handleClick={handleKillClick}
         ></Button>
       </div>
+      {!isLive && <div className="toEndWrapper">
+        <Button
+          caption=""
+          icon={faArrowDown}
+          width="38%"
+          handleClick={scrollToEnd}
+        ></Button>
+      </div>}
     </div>
   );
 }
