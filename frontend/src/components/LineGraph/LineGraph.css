@@ -3,7 +3,7 @@
   grid-column: 1/8;
   margin: auto;
   height: 23%;
-  width: 98%;
+  width: 100%;
   display: flex;
   align-self: center;
   align-items: center;
@@ -44,5 +44,5 @@
 #graph-wrapper {
   position: relative;
   height: 100%;
-  width: 95%;
+  width: 100%;
 }
