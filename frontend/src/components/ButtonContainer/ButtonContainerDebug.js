@@ -61,6 +61,7 @@ export default function ButtonContainerDebug(props) {
       case "RECOMPILE":
       case "RETRY":
         props.stompClient.send("/app/send/debug/compile", {}, command);
+        props.setDebugStatus("COMPILING");
         break;
       default:
         break;

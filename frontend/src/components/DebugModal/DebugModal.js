@@ -12,6 +12,7 @@ export default React.memo(props => {
   const handleCompileClick = () => {
     props.setDebugModalOpen(false);
     props.stompClient.send("/app/send/debug/compile", {}, "COMPILE");
+    props.setDebugStatus("COMPILING");
   };
 
 
@@ -19,7 +20,7 @@ export default React.memo(props => {
     if (props.debugStatus === "RETRY") {
       props.setDebugModalOpen(true);
     }
-  }, [props]);
+  }, [props.debugStatus]);
   
   const closeModal = () => {
     props.setDebugModalOpen(false);
