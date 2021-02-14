@@ -246,12 +246,7 @@ public class Server implements Runnable {
 
     return debugStatus;
   }
-
-  public String setDebugStatus() {
-    debugStatus = COMPILING;
-    return debugStatus;
-  }
-
+  
   public boolean isHypedExist() {
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped"; // change this part for RELEASE
