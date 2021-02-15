@@ -103,7 +103,8 @@ export default function StatusContainer(props) {
                 {getDebugStatus()}
                 {getSTMStatus()}
             </div>
-            <div id="status-container" className="container">
+            { props.telemetryData !== null
+            ? <div id="status-container" className="container">
                 {/* TODO: connect to the backend */}
                 <div className="status-sensors-container">
                     <div className="status-sensors-row status-sensors-row-top">
@@ -119,6 +120,8 @@ export default function StatusContainer(props) {
                 </div>
                 {getModulesColumn()}
             </div>
+            : <div id="status-container" className="container"></div>
+            }
         </div>
     );
 }

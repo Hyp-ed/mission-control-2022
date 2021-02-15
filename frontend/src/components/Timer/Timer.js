@@ -32,7 +32,15 @@ export default function Timer(props){
     return  minutes + ":" + seconds + "." + milliseconds ;
   };
 
-  return <div id="timer" className="container">
-      <p className="timer" id="time">{formatTime(time)}</p>
-  </div>;
+  if (props.telemetryData !== null) {
+    return (
+      <div id="timer" className="container">
+        <p className="timer" id="time">{formatTime(time)}</p>
+      </div>
+    );
+  }
+  else {
+    return (<div id="timer" className="container"></div>);
+  }
+  
 }

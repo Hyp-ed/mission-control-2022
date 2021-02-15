@@ -84,28 +84,45 @@ public class Server implements Runnable {
     // closeServer(telemetryServer);
   }
 
-  private class StreamGobbler extends Thread {
+  private class StreamGobblerRun extends Thread {
     InputStream is;
 
-    private StreamGobbler(InputStream is) {
+    private StreamGobblerRun(InputStream is) {
       this.is = is;
     }
 
     @Override
     public void run() {
-      try(Scanner scan = new Scanner(is);) {
-        InputStreamReader isr = new InputStreamReader(is);
-        //BufferedReader br = new BufferedReader(isr);
-        
+      try (Scanner scan = new Scanner(is)) {
         String line = null;
-        while ((line = scan.nextLine()) != null) {
-          JSONObject output = parseDebugOutput(line);
+        while (scan.hasNextLine()) {
+          JSONObject output = parseDebugOutput(scan.nextLine());
           terminalOutput.put(output);
         }
       }
       catch (Exception e) {
         System.out.println(e);
-        System.out.println("StreamGobbler stream has closed");
+      }
+    }
+  }
+
+  private class StreamGobblerCompile extends Thread {
+    InputStream is;
+
+    private StreamGobblerCompile(InputStream is) {
+      this.is = is;
+    }
+
+    @Override
+    public void run() {
+      try (Scanner scan = new Scanner(is)) {
+        String line = null;
+        while (scan.hasNextLine()) {
+          debugOutput.put(scan.nextLine());
+        }
+      }
+      catch (Exception e) {
+        System.out.println(e);
       }
     }
   }
@@ -145,11 +162,13 @@ public class Server implements Runnable {
       debugOutput = new JSONArray();
       compileProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
 
-      BufferedReader in = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
-      String line;
-      while ((line = in.readLine()) != null) {
-        debugOutput.put(line);
-      }
+      StreamGobblerCompile errorGobbler = new StreamGobblerCompile(compileProcess.getErrorStream());
+      StreamGobblerCompile outputGobbler = new StreamGobblerCompile(compileProcess.getInputStream());
+          
+      // start gobblers
+      outputGobbler.start();
+      errorGobbler.start();
+
       compileProcess.waitFor();
 
       boolean isSuccess = compileProcess.exitValue() == 0;
@@ -185,9 +204,6 @@ public class Server implements Runnable {
       }
       isCompiling = false;
       System.out.println("Finish compiling");
-      
-      in.close();
-
     } catch (Throwable t) {
       t.printStackTrace();
     }
@@ -230,12 +246,7 @@ public class Server implements Runnable {
 
     return debugStatus;
   }
-
-  public String setDebugStatus() {
-    debugStatus = COMPILING;
-    return debugStatus;
-  }
-
+  
   public boolean isHypedExist() {
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped"; // change this part for RELEASE
@@ -285,8 +296,8 @@ public class Server implements Runnable {
       terminalOutput = new JSONArray();
       debugProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
 
-      StreamGobbler errorGobbler = new StreamGobbler(debugProcess.getErrorStream());
-      StreamGobbler outputGobbler = new StreamGobbler(debugProcess.getInputStream());
+      StreamGobblerRun errorGobbler = new StreamGobblerRun(debugProcess.getErrorStream());
+      StreamGobblerRun outputGobbler = new StreamGobblerRun(debugProcess.getInputStream());
           
       // start gobblers
       outputGobbler.start();

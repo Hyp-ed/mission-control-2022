@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Terminal.css";
 import Button from "../Button/Button";
-import { faSkull, faArrowDown, faSortDown} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowDown, faCaretUp, faCaretDown, faTimesCircle} from "@fortawesome/free-solid-svg-icons";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
 
@@ -13,17 +12,6 @@ function DropdownItem(props) {
     </a>
   )
 }
-
-function DropdownMenu(props) {
-  return (
-    <div 
-    className={props.name}
-    style={{top: 605 - 41.25 * React.Children.toArray(props.children).length}}
-    >
-      {props.children}
-    </div>
-  );
-};
 
 export default function Terminal(props) {
   const scrollableNodeRef = React.createRef();
@@ -170,61 +158,77 @@ export default function Terminal(props) {
       return <DropdownItem clickEffect={() => filterSubmodule(submoduleType)}>{submoduleType}</DropdownItem>
     })
 
-  return (
-    <div id="terminal-container" className="container">
-      <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
-        <pre id="terminal_pre">{terminalOut}</pre>
-      </SimpleBar>
-      <div className="footer filtering">
-        <Button 
-          caption="Log Type"
-          icon={faSortDown}
-          handleClick={() => {
-            if (open === "log") {
-              setOpen("");
-            } else {
-              setOpen("log");
+  if (props.terminalOutput !== "") {
+    return (
+      <div id="terminal-container" className="container">
+        <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
+          <pre id="terminal_pre">{terminalOut}</pre>
+        </SimpleBar>
+        <div className="footer filtering">
+          <Button
+            caption="Kill Process"
+            icon={faTimesCircle}
+            handleClick={handleKillClick}
+          ></Button>
+          <div className="dropdown-group">
+            <Button 
+            caption="Log Type"
+            icon={open === "log" ? faCaretUp : faCaretDown}
+            handleClick={() => {
+              if (open === "log") {
+                setOpen("");
+              } else {
+                setOpen("log");
+              }
+            }}
+            ></Button>
+            {open === "log" && 
+              <div className="dropdown">
+                {logTypeOptions}
+              </div>
             }
-          }}
-        ></Button>
-        <Button 
-          caption="Submodule"
-          icon={faSortDown}
-          handleClick={() => {
-            if (open === "sub") {
-              setOpen("");
-            } else {
-              setOpen("sub");
-            }
-          }}
-        ></Button>
-        {open === "log" && <DropdownMenu name={"dropdown-log"}>{logTypeOptions}</DropdownMenu>}
-        {open === "sub" && <DropdownMenu name={"dropdown-sub"}>{submoduleOptions}</DropdownMenu>}
+          </div>
+          <div className="dropdown-group">
+            <Button 
+              caption="Submodule"
+              icon={open === "sub" ? faCaretUp : faCaretDown}
+              handleClick={() => {
+                if (open === "sub") {
+                  setOpen("");
+                } else {
+                  setOpen("sub");
+                }
+              }}
+            ></Button>
+            {open === "sub" && 
+                <div className="dropdown">
+                  {submoduleOptions}
+                </div>
+              }
+          </div>
+        </div>
+        <div className="footer other">
+          <input
+            type="text"
+            placeholder="Search..." 
+            name="search"
+            onChange={handleSearch}
+          ></input>
+        </div>
+        {!isLive && <div className="toEndWrapper">
+          <Button
+            caption=""
+            icon={faArrowDown}
+            width="38%"
+            handleClick={scrollToEnd}
+          ></Button>
+        </div>}
       </div>
-      <div className="footer other">
-        <input
-          type="text"
-          placeholder="Search..." 
-          name="search"
-          onChange={handleSearch}
-        ></input>
-        <Button
-          caption="KILL"
-          icon={faSkull}
-          width="38%"
-          handleClick={handleKillClick}
-        ></Button>
-      </div>
-      {!isLive && <div className="toEndWrapper">
-        <Button
-          caption=""
-          icon={faArrowDown}
-          width="38%"
-          handleClick={scrollToEnd}
-        ></Button>
-      </div>}
-    </div>
-  );
+    );
+  }
+  else {
+    return (<div id="terminal-container" className="container"></div>);
+  }
 }
 
 Terminal.defaultProps = {
