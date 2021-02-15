@@ -83,24 +83,18 @@ a {
     text-decoration: none;
 }
 
-.dropdown-log {
-    position: absolute;
-    width: 210px;
-    background-color: #242526;
-    border: 1px solid #474a4d;
-    padding: 1rem;
-    overflow: hidden;
-    transform: translateX(0%);
+.dropdown-group {
+    position: relative;
+    display: flex;
+    flex: 1;
 }
 
-.dropdown-sub {
+.dropdown {
     position: absolute;
-    width: 210px;
     background-color: #242526;
     border: 1px solid #474a4d;
     padding: 1rem;
-    overflow: hidden;
-    transform: translateX(100%);
+    bottom: 100%;
 }
 
 .menu-item {

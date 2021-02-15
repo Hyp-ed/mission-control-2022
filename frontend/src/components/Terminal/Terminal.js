@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Terminal.css";
 import Button from "../Button/Button";
-import { faSkull, faArrowDown, faSortDown} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSkull, faArrowDown, faCaretUp, faCaretDown} from "@fortawesome/free-solid-svg-icons";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
 
@@ -13,17 +12,6 @@ function DropdownItem(props) {
     </a>
   )
 }
-
-function DropdownMenu(props) {
-  return (
-    <div 
-    className={props.name}
-    style={{top: 605 - 41.25 * React.Children.toArray(props.children).length}}
-    >
-      {props.children}
-    </div>
-  );
-};
 
 export default function Terminal(props) {
   const scrollableNodeRef = React.createRef();
@@ -177,9 +165,10 @@ export default function Terminal(props) {
           <pre id="terminal_pre">{terminalOut}</pre>
         </SimpleBar>
         <div className="footer filtering">
-          <Button 
+          <div className="dropdown-group">
+            <Button 
             caption="Log Type"
-            icon={faSortDown}
+            icon={open === "log" ? faCaretUp : faCaretDown}
             handleClick={() => {
               if (open === "log") {
                 setOpen("");
@@ -187,20 +176,31 @@ export default function Terminal(props) {
                 setOpen("log");
               }
             }}
-          ></Button>
-          <Button 
-            caption="Submodule"
-            icon={faSortDown}
-            handleClick={() => {
-              if (open === "sub") {
-                setOpen("");
-              } else {
-                setOpen("sub");
+            ></Button>
+            {open === "log" && 
+              <div className="dropdown">
+                {logTypeOptions}
+              </div>
+            }
+          </div>
+          <div className="dropdown-group">
+            <Button 
+              caption="Submodule"
+              icon={open === "sub" ? faCaretUp : faCaretDown}
+              handleClick={() => {
+                if (open === "sub") {
+                  setOpen("");
+                } else {
+                  setOpen("sub");
+                }
+              }}
+            ></Button>
+            {open === "sub" && 
+                <div className="dropdown">
+                  {submoduleOptions}
+                </div>
               }
-            }}
-          ></Button>
-          {open === "log" && <DropdownMenu name={"dropdown-log"}>{logTypeOptions}</DropdownMenu>}
-          {open === "sub" && <DropdownMenu name={"dropdown-sub"}>{submoduleOptions}</DropdownMenu>}
+          </div>
         </div>
         <div className="footer other">
           <input
@@ -210,7 +210,7 @@ export default function Terminal(props) {
             onChange={handleSearch}
           ></input>
           <Button
-            caption="KILL"
+            caption="Kill process"
             icon={faSkull}
             width="38%"
             handleClick={handleKillClick}
