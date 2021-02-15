@@ -122,6 +122,7 @@ export default function App() {
       <GraphsContainer telemetryData={telemetryData}/>
       <StatusContainer 
         telemetryConnection={telemetryConnection}
+        telemetryData={telemetryData}
         state={state}
       />
       <Terminal
@@ -147,6 +148,7 @@ export default function App() {
         setModalOpen={setModalOpen}
         debugData = {debugData}
         debugStatus={debugStatus}
+        setDebugStatus={setDebugStatus}
         setDebugErrorMessage={setDebugErrorMessage}
       />
       <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen} />
@@ -155,6 +157,7 @@ export default function App() {
         isDebugModalOpen={isDebugModalOpen} 
         setDebugModalOpen={setDebugModalOpen} 
         debugStatus={debugStatus}
+        setDebugStatus={setDebugStatus}
         debugErrorMessage={debugErrorMessage} 
       />
     </div>

@@ -24,45 +24,50 @@ export default function Gauge(props) {
     setProgress(395 - 197 * ((parsedData.value - parsedData.min) / (parsedData.max - parsedData.min)));
   }, [props.telemetryData, props.gaugeId]);
 
-  return(
-    <div id={"gauge-" + props.gaugeId} className="gauge container">
-      <div className="gauge-title">{props.title}</div>
-      <svg
-        className="progress-ring" width="150px" height="150px" transform={"scale(" + (size / 150) + ")"} style={position}>
-        <text className="progress-value" x="50%" y="50%" textAnchor="middle" fill="white" fontSize="37px">{data.value.toFixed(4 - Math.round(data.value).toString().length)}</text>
-        <text className="progress-unit" x="50%" y="65%" textAnchor="middle" fill="grey" fontSize="16px">{data.unit}</text>
-        <circle
-          className="progress-ring-progress"
-          stroke="grey"
-          strokeWidth="6"
-          strokeDasharray="395 395"
-          strokeDashoffset="197"
-          fill="transparent"
-          r="63"
-          cx="75"
-          cy="75"/>
-        <circle
-          className="progress-ring-progress"
-          stroke="white"
-          strokeWidth="6"
-          strokeDasharray="395 395"
-          strokeDashoffset={progress}
-          fill="transparent"
-          r="63"
-          cx="75"
-          cy="75"/>
-        <circle
-          className="progress-ring-stopper"
-          stroke="red"
-          strokeWidth="7"
-          strokeDasharray="395 395"
-          strokeDashoffset="351"
-          fill="transparent"
-          r="63"
-          cx="75"
-          cy="75"/>
-      </svg>
-    </div>
-  );
+  if (props.telemetryData !== null) {
+    return (
+      <div id={"gauge-" + props.gaugeId} className="gauge container">
+        <div className="gauge-title">{props.title}</div>
+        <svg
+          className="progress-ring" width="150px" height="150px" transform={"scale(" + (size / 150) + ")"} style={position}>
+          <text className="progress-value" x="50%" y="50%" textAnchor="middle" fill="white" fontSize="37px">{data.value.toFixed(4 - Math.round(data.value).toString().length)}</text>
+          <text className="progress-unit" x="50%" y="65%" textAnchor="middle" fill="grey" fontSize="16px">{data.unit}</text>
+          <circle
+            className="progress-ring-progress"
+            stroke="grey"
+            strokeWidth="6"
+            strokeDasharray="395 395"
+            strokeDashoffset="197"
+            fill="transparent"
+            r="63"
+            cx="75"
+            cy="75"/>
+          <circle
+            className="progress-ring-progress"
+            stroke="white"
+            strokeWidth="6"
+            strokeDasharray="395 395"
+            strokeDashoffset={progress}
+            fill="transparent"
+            r="63"
+            cx="75"
+            cy="75"/>
+          <circle
+            className="progress-ring-stopper"
+            stroke="red"
+            strokeWidth="7"
+            strokeDasharray="395 395"
+            strokeDashoffset="351"
+            fill="transparent"
+            r="63"
+            cx="75"
+            cy="75"/>
+        </svg>
+      </div>
+    );
+  }
+  else {
+    return (<div id={"gauge-" + props.gaugeId} className="gauge container"></div>);
+  }
 }
 

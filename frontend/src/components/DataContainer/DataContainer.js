@@ -52,6 +52,6 @@ export default function DataContainer(props) {
     );
   }
   else {
-    return (<SimpleBar className="data-container" forceVisible="y" autoHide={false}></SimpleBar>);
+    return (<div className="data-container container"></div>);
   }  
 };
