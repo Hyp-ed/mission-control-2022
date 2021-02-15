@@ -4,6 +4,8 @@ import {
   faSpinner,
   faForward,
   faPowerOff,
+  faLockOpen,
+  faLock,
 } from "@fortawesome/free-solid-svg-icons";
 import React, { useState, useEffect } from "react";
 import Button from "../Button/Button";
@@ -41,6 +43,18 @@ export default function ButtonContainerTelemetry(props) {
       icon: faExclamationTriangle,
       backgroundColor: "button-red",
       command: "STOP"
+    },
+    brakes_retract: {
+      caption: "RETRACT BRAKES",
+      icon: faLockOpen,
+      backgroundColor: "button-blue",
+      command: "NOMINAL_RETRACT"
+    },
+    brakes_engage: {
+      caption: "ENGAGE BRAKES",
+      icon: faLock,
+      backgroundColor: "button-blue",
+      command: "NOMINAL_BRAKING"
     }
   };
 
@@ -48,7 +62,9 @@ export default function ButtonContainerTelemetry(props) {
     if (disabled || !props.stompClient) {
       return;
     }
-    setMainDisabled(true);
+    if (command !== "NOMINAL_RETRACT" && command != "NOMINAL_BRAKING") {
+      setMainDisabled(true);
+    }
 
     props.stompClient.send("/app/send/telemetry/command", {}, command);
     console.log("Sent command: " + command);
@@ -110,9 +126,23 @@ export default function ButtonContainerTelemetry(props) {
     }
   };
 
+  const getBrakesButton = () => {
+    switch (props.state) {
+      case "IDLE":
+      case "FINISHED":
+        return ([
+            getButton(buttons.brakes_retract, isMainDisabled),
+            getButton(buttons.brakes_engage, isMainDisabled)]
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="button-container">
       {getAbortButton()}
+      {getBrakesButton()}
       {getMainButton()}
     </div>
   );
