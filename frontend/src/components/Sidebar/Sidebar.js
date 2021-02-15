@@ -42,12 +42,6 @@ export default function Sidebar(props) {
   return (
     <div id="sidebar-container">
       <Button
-        onClick={props.handleAddGraphClick}
-        tooltip="Add graph"
-        enabled={props.isAddEnabled}
-        icon={faPlus}
-      ></Button>
-      <Button
         onClick={props.handleUploadClick}
         tooltip="Upload config"
         input={true}
