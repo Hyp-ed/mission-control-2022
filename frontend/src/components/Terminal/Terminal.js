@@ -1,9 +1,29 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Terminal.css";
 import Button from "../Button/Button";
-import { faSkull, faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { faSkull, faArrowDown, faSortDown} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
+
+function DropdownItem(props) {
+  return (
+    <a href="#" className="menu-item" onClick={props.clickEffect}>
+      {props.children}
+    </a>
+  )
+}
+
+function DropdownMenu(props) {
+  return (
+    <div 
+    className={props.name}
+    style={{top: 605 - 41.25 * React.Children.toArray(props.children).length}}
+    >
+      {props.children}
+    </div>
+  );
+};
 
 export default function Terminal(props) {
   const scrollableNodeRef = React.createRef();
@@ -11,6 +31,7 @@ export default function Terminal(props) {
   const [loading, setLoading] = useState(false);
   const [isLive, setIsLive] = useState(true);
   const [scrollCnt, setScrollCnt] = useState(0);
+  const [open, setOpen] = useState("");
 
   const topObserver = useRef()
   const firstLineRef = useCallback(node => {
@@ -121,30 +142,32 @@ export default function Terminal(props) {
     scrollToEnd();
   }
 
-  const filterLogType = (event) => {
-    var myObj = {"logType": event.target.value};
+  const filterLogType = (value) => {
+    var myObj = {"logType": value};
     props.stompClient.send("/app/send/debug/logType", {}, JSON.stringify(myObj));
     scrollToEnd();
+    setOpen("");
   }
 
-  const filterSubmodule = (event) => {
-    var myObj = {"submodule": event.target.value};
+  const filterSubmodule = (value) => {
+    var myObj = {"submodule": value};
     props.stompClient.send("/app/send/debug/submodule", {}, JSON.stringify(myObj));
     scrollToEnd();
+    setOpen("");
   }
 
   let logTypeOptions = 
     props.logTypes &&
     props.logTypes.length > 0 &&
     props.logTypes.map((logType, index) => {
-      return <option key={logType}>{logType}</option>
+      return <DropdownItem clickEffect={() => filterLogType(logType)}>{logType}</DropdownItem>
     })
 
   let submoduleOptions = 
     props.submoduleTypes &&
     props.submoduleTypes.length > 0 &&
     props.submoduleTypes.map((submoduleType, index) => {
-      return <option key={submoduleType}>{submoduleType}</option>
+      return <DropdownItem clickEffect={() => filterSubmodule(submoduleType)}>{submoduleType}</DropdownItem>
     })
 
   return (
@@ -152,31 +175,39 @@ export default function Terminal(props) {
       <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
         <pre id="terminal_pre">{terminalOut}</pre>
       </SimpleBar>
-      <div className="footer">
-        <select 
-          name="log-type-dropdown"
-          onChange={filterLogType}
-        >
-          {logTypeOptions}
-        </select>
-        <select 
-          name="submodule-dropdown" 
-          onChange={filterSubmodule}
-        >
-          {submoduleOptions}
-        </select>
-        <input 
+      <div className="footer filtering">
+        <Button 
+          caption="Log Type"
+          icon={faSortDown}
+          handleClick={() => {
+            if (open === "log") {
+              setOpen("");
+            } else {
+              setOpen("log");
+            }
+          }}
+        ></Button>
+        <Button 
+          caption="Submodule"
+          icon={faSortDown}
+          handleClick={() => {
+            if (open === "sub") {
+              setOpen("");
+            } else {
+              setOpen("sub");
+            }
+          }}
+        ></Button>
+        {open === "log" && <DropdownMenu name={"dropdown-log"}>{logTypeOptions}</DropdownMenu>}
+        {open === "sub" && <DropdownMenu name={"dropdown-sub"}>{submoduleOptions}</DropdownMenu>}
+      </div>
+      <div className="footer other">
+        <input
           type="text"
           placeholder="Search..." 
           name="search"
           onChange={handleSearch}
         ></input>
-        <Button
-          caption="To End"
-          icon={faArrowDown}
-          width="38%"
-          handleClick={scrollToEnd}
-        ></Button>
         <Button
           caption="KILL"
           icon={faSkull}
@@ -184,6 +215,14 @@ export default function Terminal(props) {
           handleClick={handleKillClick}
         ></Button>
       </div>
+      {!isLive && <div className="toEndWrapper">
+        <Button
+          caption=""
+          icon={faArrowDown}
+          width="38%"
+          handleClick={scrollToEnd}
+        ></Button>
+      </div>}
     </div>
   );
 }
