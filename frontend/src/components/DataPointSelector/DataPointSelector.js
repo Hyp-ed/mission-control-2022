@@ -3,6 +3,8 @@ import "./DataPointSelector.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { getAllPaths } from "../../DataTools";
+import SimpleBar from "simplebar-react";
+import "simplebar/dist/simplebar.min.css";
 
 export default function DataPointSelector(props) {
   const [paths, setPaths] = useState();
@@ -30,6 +32,8 @@ export default function DataPointSelector(props) {
       ));
   };
 
+  //<div id="list">{getPathList()}</div>
+
   return props.visible ? (
     <div id="list-container">
       <FontAwesomeIcon
@@ -37,7 +41,10 @@ export default function DataPointSelector(props) {
         onClick={props.onCloseClicked}
         icon={faTimes}
       />
-      <div id="list">{getPathList()}</div>
+
+      <SimpleBar className="list-bar" forceVisible="x" autoHide={false} >
+        <div id="list">{getPathList()}</div>
+      </SimpleBar>
     </div>
   ) : (
     <div />

@@ -3,7 +3,7 @@
   grid-column: 1/8;
   margin: auto;
   height: 23%;
-  width: 98%;
+  width: 100%;
   display: flex;
   align-self: center;
   align-items: center;
@@ -18,8 +18,6 @@
 
 #button-container > *:hover {
   cursor: pointer;
-  background-color: #fff;
-  color: #191919;
 }
 
 #graph-close-button {
@@ -29,16 +27,22 @@
 }
 
 #select-button {
-  transform: rotate(-180deg);
-  writing-mode: vertical-rl;
-  font-size: 0.8em;
-  outline-width: 1px;
-  outline-style: solid;
-  outline-color: #fff;
+  display:block;
+  width: 25vw;
+  height: 21vh;
+  position: absolute;
+  margin-top: -11vh;
+  z-index:50;
+  border-radius: 5px;
+}
+
+#select-button:hover {
+  background-color: grey;
+  opacity: 0.3;
 }
 
 #graph-wrapper {
   position: relative;
   height: 100%;
-  width: 95%;
+  width: 100%;
 }

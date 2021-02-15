@@ -7,12 +7,12 @@ import LineGraph from "../LineGraph/LineGraph"
 import { defaults } from "react-chartjs-2";
 
 export default function GraphsContainer(props) {
-    const accentColor = "#8F8F8F";
+    const accentColor = "#FFFFFF";
 
     const setGraphDefaults = () => {
     defaults.global.animation = false;
     defaults.global.elements.point.radius = 0;
-    defaults.global.defaultFontFamily = "Roboto Mono";
+    defaults.global.defaultFontFamily = "Roboto";
     defaults.global.defaultFontColor = accentColor;
     defaults.global.tooltips.enabled = false;
     defaults.global.maintainAspectRatio = false;
@@ -48,13 +48,30 @@ export default function GraphsContainer(props) {
           key={graph.ID}
           ID={graph.ID}
           paths={graph.paths ? graph.paths : []}
-          removeGraph={path => ConfigManager.removeGraph(path, currentGraph)}
+          //removeGraph={path => ConfigManager.removeGraph(path, currentGraph)}
           telemetryData={props.telemetryData}
           onSelectClicked={setCurrentGraph}
         />
       ));
     };
+    
+    const handleToolClick =() => {
+      if (document.getElementById("toolButton").input == false){
+        document.getElementById("toolButton").input = true
+      }else{
+        document.getElementById("toolButton").input = false
+      }
 
+    };
+  
+    const isToolClicked = () => {
+        if (document.getElementById("toolButton").input == false){
+          return false
+        } 
+        else{
+          return true
+        }
+    }
   
     const handleUploadClick = () => {
       document.getElementById("fileButton").click();
@@ -96,16 +113,15 @@ export default function GraphsContainer(props) {
     }else{
           return (
         <div id="graphs-container" className="container">
-            <div id="graphs">
-              {getGraphs()}
-            </div>
+            
             <Sidebar
                 id="sidebar"
-                 handleAddGraphClick={ConfigManager.addGraph}
-                 isAddEnabled={ConfigManager.shouldEnableAdd()}
                  handleSaveClick={handleSaveClick}
                  handleUploadClick={handleUploadClick}
              ></Sidebar>
+             <div id="graphs">
+              {getGraphs()}
+            </div>
             <DataPointSelector
                 visible={currentGraph !== -1}
                 telemetryData={props.telemetryData}
