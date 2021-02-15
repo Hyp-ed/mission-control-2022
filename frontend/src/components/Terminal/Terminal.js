@@ -170,61 +170,66 @@ export default function Terminal(props) {
       return <DropdownItem clickEffect={() => filterSubmodule(submoduleType)}>{submoduleType}</DropdownItem>
     })
 
-  return (
-    <div id="terminal-container" className="container">
-      <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
-        <pre id="terminal_pre">{terminalOut}</pre>
-      </SimpleBar>
-      <div className="footer filtering">
-        <Button 
-          caption="Log Type"
-          icon={faSortDown}
-          handleClick={() => {
-            if (open === "log") {
-              setOpen("");
-            } else {
-              setOpen("log");
-            }
-          }}
-        ></Button>
-        <Button 
-          caption="Submodule"
-          icon={faSortDown}
-          handleClick={() => {
-            if (open === "sub") {
-              setOpen("");
-            } else {
-              setOpen("sub");
-            }
-          }}
-        ></Button>
-        {open === "log" && <DropdownMenu name={"dropdown-log"}>{logTypeOptions}</DropdownMenu>}
-        {open === "sub" && <DropdownMenu name={"dropdown-sub"}>{submoduleOptions}</DropdownMenu>}
+  if (props.terminalOutput !== "") {
+    return (
+      <div id="terminal-container" className="container">
+        <SimpleBar className="terminal-content" forceVisible="y" autoHide={false} scrollableNodeProps={{ ref: scrollableNodeRef }}>
+          <pre id="terminal_pre">{terminalOut}</pre>
+        </SimpleBar>
+        <div className="footer filtering">
+          <Button 
+            caption="Log Type"
+            icon={faSortDown}
+            handleClick={() => {
+              if (open === "log") {
+                setOpen("");
+              } else {
+                setOpen("log");
+              }
+            }}
+          ></Button>
+          <Button 
+            caption="Submodule"
+            icon={faSortDown}
+            handleClick={() => {
+              if (open === "sub") {
+                setOpen("");
+              } else {
+                setOpen("sub");
+              }
+            }}
+          ></Button>
+          {open === "log" && <DropdownMenu name={"dropdown-log"}>{logTypeOptions}</DropdownMenu>}
+          {open === "sub" && <DropdownMenu name={"dropdown-sub"}>{submoduleOptions}</DropdownMenu>}
+        </div>
+        <div className="footer other">
+          <input
+            type="text"
+            placeholder="Search..." 
+            name="search"
+            onChange={handleSearch}
+          ></input>
+          <Button
+            caption="KILL"
+            icon={faSkull}
+            width="38%"
+            handleClick={handleKillClick}
+          ></Button>
+        </div>
+        {!isLive && <div className="toEndWrapper">
+          <Button
+            caption=""
+            icon={faArrowDown}
+            width="38%"
+            handleClick={scrollToEnd}
+          ></Button>
+        </div>}
       </div>
-      <div className="footer other">
-        <input
-          type="text"
-          placeholder="Search..." 
-          name="search"
-          onChange={handleSearch}
-        ></input>
-        <Button
-          caption="KILL"
-          icon={faSkull}
-          width="38%"
-          handleClick={handleKillClick}
-        ></Button>
-      </div>
-      {!isLive && <div className="toEndWrapper">
-        <Button
-          caption=""
-          icon={faArrowDown}
-          width="38%"
-          handleClick={scrollToEnd}
-        ></Button>
-      </div>}
-    </div>
-  );
+    );
+  }
+  else {
+    return (<div id="terminal-container" className="container"></div>);
+  }
 }
 
 Terminal.defaultProps = {

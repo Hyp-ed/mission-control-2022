@@ -122,6 +122,7 @@ export default function App() {
       <GraphsContainer telemetryData={telemetryData}/>
       <StatusContainer 
         telemetryConnection={telemetryConnection}
+        telemetryData={telemetryData}
         state={state}
       />
       <Terminal
