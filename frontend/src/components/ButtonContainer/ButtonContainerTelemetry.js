@@ -45,13 +45,13 @@ export default function ButtonContainerTelemetry(props) {
       command: "STOP"
     },
     brakes_retract: {
-      caption: "RETRACT BRAKES",
+      caption: "RETRACT",
       icon: faLockOpen,
       backgroundColor: "button-blue",
       command: "NOMINAL_RETRACT"
     },
     brakes_engage: {
-      caption: "ENGAGE BRAKES",
+      caption: "ENGAGE",
       icon: faLock,
       backgroundColor: "button-blue",
       command: "NOMINAL_BRAKING"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./Terminal.css";
 import Button from "../Button/Button";
-import { faSkull, faArrowDown, faCaretUp, faCaretDown} from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faCaretUp, faCaretDown, faTimesCircle} from "@fortawesome/free-solid-svg-icons";
 import SimpleBar from "simplebar-react";
 import "simplebar/dist/simplebar.min.css";
 
@@ -165,6 +165,11 @@ export default function Terminal(props) {
           <pre id="terminal_pre">{terminalOut}</pre>
         </SimpleBar>
         <div className="footer filtering">
+          <Button
+            caption="Kill Process"
+            icon={faTimesCircle}
+            handleClick={handleKillClick}
+          ></Button>
           <div className="dropdown-group">
             <Button 
             caption="Log Type"
@@ -209,12 +214,6 @@ export default function Terminal(props) {
             name="search"
             onChange={handleSearch}
           ></input>
-          <Button
-            caption="Kill process"
-            icon={faSkull}
-            width="38%"
-            handleClick={handleKillClick}
-          ></Button>
         </div>
         {!isLive && <div className="toEndWrapper">
           <Button
