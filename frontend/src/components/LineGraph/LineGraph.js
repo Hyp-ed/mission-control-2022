@@ -3,7 +3,6 @@ import { Line } from "react-chartjs-2";
 import "chartjs-plugin-streaming";
 import "./LineGraph.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { isEqual } from "lodash";
 import { getDataPointValue } from "../../DataTools";
 import { capitalize } from "lodash";
@@ -91,9 +90,9 @@ export default function LineGraph(props) {
     };
   };
 
-  const onCloseClicked = () => {
-    props.removeGraph(props.ID);
-  };
+  // const onCloseClicked = () => {
+  //   props.removeGraph(props.ID);
+  // };
 
   const onSelectClicked = () => {
     props.onSelectClicked(props.ID);
