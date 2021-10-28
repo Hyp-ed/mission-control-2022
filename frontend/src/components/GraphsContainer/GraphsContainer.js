@@ -55,23 +55,21 @@ export default function GraphsContainer(props) {
       ));
     };
     
-    const handleToolClick =() => {
-      if (document.getElementById("toolButton").input == false){
-        document.getElementById("toolButton").input = true
-      }else{
-        document.getElementById("toolButton").input = false
-      }
-
-    };
+    // const handleToolClick =() => {
+    //   if (document.getElementById("toolButton").input == false){
+    //     document.getElementById("toolButton").input = true
+    //   } else{
+    //     document.getElementById("toolButton").input = false
+    //   }
+    // };
   
-    const isToolClicked = () => {
-        if (document.getElementById("toolButton").input == false){
-          return false
-        } 
-        else{
-          return true
-        }
-    }
+    // const isToolClicked = () => {
+    //     if (document.getElementById("toolButton").input == false){
+    //       return false
+    //     } else {
+    //       return true
+    //     }
+    // }
   
     const handleUploadClick = () => {
       document.getElementById("fileButton").click();

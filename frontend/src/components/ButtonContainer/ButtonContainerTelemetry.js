@@ -62,7 +62,7 @@ export default function ButtonContainerTelemetry(props) {
     if (disabled || !props.stompClient) {
       return;
     }
-    if (command !== "NOMINAL_RETRACT" && command != "NOMINAL_BRAKING") {
+    if (command !== "NOMINAL_RETRACT" && command !== "NOMINAL_BRAKING") {
       setMainDisabled(true);
     }
 

@@ -22,6 +22,7 @@ export default React.memo(props => {
     if (props.debugStatus === "RETRY") {
       props.setDebugModalOpen(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.debugStatus]);
   
   const closeModal = () => {

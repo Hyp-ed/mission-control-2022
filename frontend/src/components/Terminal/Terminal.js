@@ -7,6 +7,7 @@ import "simplebar/dist/simplebar.min.css";
 
 function DropdownItem(props) {
   return (
+    // eslint-disable-next-line jsx-a11y/anchor-is-valid
     <a href="#" className="menu-item" onClick={props.clickEffect}>
       {props.children}
     </a>

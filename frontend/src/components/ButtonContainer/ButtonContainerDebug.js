@@ -5,7 +5,7 @@ import {
   faRedo,
   faCheck
 } from "@fortawesome/free-solid-svg-icons";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Button from "../Button/Button";
 
 export default function ButtonContainerDebug(props) {

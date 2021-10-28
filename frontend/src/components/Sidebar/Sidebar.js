@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFileImport,
   faSave,
-  faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import ReactTooltip from "react-tooltip";
 

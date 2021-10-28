@@ -9,7 +9,6 @@ import DataContainer from "./components/DataContainer/DataContainer";
 import ButtonContainer from "./components/ButtonContainer/ButtonContainer";
 import SetupModal from "./components/SetupModal/SetupModal";
 import DebugModal from "./components/DebugModal/DebugModal";
-import testData from "./testData.json";
 
 export default function App() {
   const [stompClient, setStompClient] = useState(null);
