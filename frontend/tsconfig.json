@@ -1,21 +1,22 @@
 {
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js"
+    "./src"
   ],
   "exclude": [
     "node_modules"
   ],
   "compilerOptions": {
-    "jsx": "react",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react-jsx",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "baseUrl": ".",
     "outDir": "build",
     "target": "es5",
     "module": "esnext",
     "moduleResolution": "node",
-
     "checkJs": false,
     "strict": true,
     "esModuleInterop": true,
@@ -28,7 +29,12 @@
     "importHelpers": true,
     "incremental": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "noEmit": true
   },
   "$schema": "https://json.schemastore.org/tsconfig"
 }
