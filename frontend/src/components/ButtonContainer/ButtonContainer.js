@@ -1,13 +1,17 @@
 import "./ButtonContainer.css";
+
 import React from "react";
-import ButtonContainerTelemetry from "./ButtonContainerTelemetry";
+
 import ButtonContainerDebug from "./ButtonContainerDebug";
+import ButtonContainerTelemetry from "./ButtonContainerTelemetry";
 
 export default function ButtonContainer(props) {
+  // eslint-disable-next-line react/destructuring-assignment
   if (props.telemetryConnection) {
-    return (<ButtonContainerTelemetry {...props}></ButtonContainerTelemetry>);
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    return <ButtonContainerTelemetry {...props} />;
   }
-  else {
-    return (<ButtonContainerDebug {...props}></ButtonContainerDebug>);
-  }
-};
+
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <ButtonContainerDebug {...props} />;
+}

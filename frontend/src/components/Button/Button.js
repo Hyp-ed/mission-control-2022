@@ -1,30 +1,25 @@
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./Button.css";
 
-export default function Button(props) {
-  const getClassNames = backgroundColor => {
-    var classes = ["button"];
+import React from "react";
 
-    if (props.disabled) {
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+export default function Button({ backgroundColor, handleClick, icon, spin, caption, disabled }) {
+  const getClassNames = (bgColor) => {
+    const classes = ["button"];
+
+    if (disabled) {
       classes.push("disabled");
     }
-    classes.push(backgroundColor);
+    classes.push(bgColor);
 
     return classes.join(" ");
   };
 
   return (
-    <button
-      className={getClassNames(props.backgroundColor)}
-      onClick={props.handleClick}
-    >
-      <FontAwesomeIcon
-        className="button-icon"
-        icon={props.icon}
-        spin={props.spin}
-      />
-      {props.caption}
+    <button type="button" className={getClassNames(backgroundColor)} onClick={handleClick}>
+      <FontAwesomeIcon className="button-icon" icon={icon} spin={spin} />
+      {caption}
     </button>
   );
 }

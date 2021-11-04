@@ -1,4 +1,6 @@
+/* eslint-disable no-param-reassign */
 import { isObjectLike } from "lodash";
+
 const DELIMITER = " > ";
 
 /**
@@ -12,11 +14,11 @@ const getDataPoint = (data, path) => {
   if (Array.isArray(data)) {
     const key = path[0];
     path = path.slice(1);
-    data = data.find(o => o.name === key);
+    data = data.find((o) => o.name === key);
   } else if (data.hasOwnProperty("value") && Array.isArray(data.value)) {
     const key = path[0];
     path = path.slice(1);
-    data = data.value.find(o => o.name === key);
+    data = data.value.find((o) => o.name === key);
   } else if (isObjectLike(data)) {
     const isEnd = path.length === 0;
     if (isEnd) {
@@ -43,24 +45,21 @@ export const getDataPointValue = (data, path) => {
  * @returns array of data point objects containing path and caption
  */
 export const getAllPaths = (data, path = []) => {
-  if (
-    data.hasOwnProperty("crucial_data") &&
-    data.hasOwnProperty("additional_data")
-  ) {
+  if (data.hasOwnProperty("crucial_data") && data.hasOwnProperty("additional_data")) {
     return getAllPaths(data.crucial_data, ["crucial_data"]).concat(
-      getAllPaths(data.additional_data, ["additional_data"])
+      getAllPaths(data.additional_data, ["additional_data"]),
     );
   }
   return data
-    .map(nestedData => {
+    .map((nestedData) => {
       if (Array.isArray(nestedData.value)) {
         return getAllPaths(nestedData.value, [...path, nestedData.name]);
       }
-      if (!isNaN(nestedData.value)) {
+      if (!Number.isNaN(nestedData.value)) {
         const p = [...path, nestedData.name];
         return {
           caption: p.join(DELIMITER),
-          path: p
+          path: p,
         };
       }
       return undefined;

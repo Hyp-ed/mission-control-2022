@@ -1,11 +1,13 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Line } from "react-chartjs-2";
 import "chartjs-plugin-streaming";
 import "./LineGraph.css";
+
+import React, { useEffect, useRef, useState } from "react";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { isEqual } from "lodash";
+import { capitalize, isEqual } from "lodash";
+import { Line } from "react-chartjs-2";
+
 import { getDataPointValue } from "../../DataTools";
-import { capitalize } from "lodash";
 
 const COLORS = [
   "#BF000B", // dark red
@@ -18,7 +20,7 @@ const COLORS = [
   "#FF7F02", // orange
   "#6B3D9A", // purple
   "#B15928", // brown
-  "#4BBEBE" // green
+  "#4BBEBE", // green
 ];
 
 /**
@@ -29,9 +31,7 @@ const useDeepEffect = (fn, deps) => {
   const prevDeps = useRef(deps);
 
   useEffect(() => {
-    const isSame = prevDeps.current.every((obj, index) =>
-      isEqual(obj, deps[index])
-    );
+    const isSame = prevDeps.current.every((obj, index) => isEqual(obj, deps[index]));
 
     if (isFirst.current || !isSame) {
       fn();
@@ -49,11 +49,11 @@ export default function LineGraph(props) {
   const [pathData, setPathData] = useState({});
 
   useDeepEffect(() => {
-    setPathData(oldPathData => {
-      props.paths.forEach(path => {
+    setPathData((oldPathData) => {
+      props.paths.forEach((path) => {
         const dataPoint = {
           x: props.telemetryData.time,
-          y: getDataPointValue(props.telemetryData, path)
+          y: getDataPointValue(props.telemetryData, path),
         };
         if (oldPathData.hasOwnProperty(path)) {
           oldPathData[path] = [...oldPathData[path], dataPoint];
@@ -65,7 +65,7 @@ export default function LineGraph(props) {
     });
   }, [props.telemetryData]);
 
-  const getLabel = path => {
+  const getLabel = (path) => {
     if (path.length === 1) {
       return path[0];
     }
@@ -73,9 +73,8 @@ export default function LineGraph(props) {
     const key = path[path.length - 1];
     if (IGNORE_KEYS.includes(parentKey)) {
       return capitalize(key);
-    } else {
-      return [parentKey, key].join(DELIMITER);
     }
+    return [parentKey, key].join(DELIMITER);
   };
 
   const getFormattedData = () => {
@@ -84,9 +83,9 @@ export default function LineGraph(props) {
         return {
           label: getLabel(path),
           data: pathData[path],
-          borderColor: COLORS[(5 * props.ID + i) % COLORS.length] // shift and cycle colors
+          borderColor: COLORS[(5 * props.ID + i) % COLORS.length], // shift and cycle colors
         };
-      })
+      }),
     };
   };
 
@@ -97,14 +96,12 @@ export default function LineGraph(props) {
   const onSelectClicked = () => {
     props.onSelectClicked(props.ID);
   };
-          //Select data points
+  // Select data points
   return (
     <div id="graph-container">
       <div id="button-container">
-        <FontAwesomeIcon
-        />
-        <span id="select-button" onClick={onSelectClicked}>
-        </span>
+        <FontAwesomeIcon />
+        <span id="select-button" onClick={onSelectClicked} />
       </div>
       <div id="graph-wrapper">
         <Line data={getFormattedData} />

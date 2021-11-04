@@ -1,14 +1,23 @@
-import React, { useState } from "react";
-import Modal from 'react-modal';
 import "./SetupModal.css";
+
+import React, { useState } from "react";
+
+import { faPlay } from "@fortawesome/free-solid-svg-icons";
+import Modal from "react-modal";
+
 import Button from "../Button/Button";
-import {
-  faPlay,
-} from "@fortawesome/free-solid-svg-icons";
 
 export default function SetupModal(props) {
-  const [flags, setFlags] = useState(["--fake_imu", "--fake_batteries", "--fake_keyence", "--fake_temperature", "--fake_embrakes", "--fake_motors", "--fake_highpower"]);
-  Modal.setAppElement('#root');
+  const [flags, setFlags] = useState([
+    "--fake_imu",
+    "--fake_batteries",
+    "--fake_keyence",
+    "--fake_temperature",
+    "--fake_embrakes",
+    "--fake_motors",
+    "--fake_highpower",
+  ]);
+  Modal.setAppElement("#root");
 
   const fakeSystems = [
     { name: "IMU", value: "--fake_imu", defaultChecked: true },
@@ -22,11 +31,11 @@ export default function SetupModal(props) {
     { name: "Embrakes", value: "--fake_embrakes", defaultChecked: true },
     { name: "Motors", value: "--fake_motors", defaultChecked: true },
     { name: "Battery test", value: "--battery_test", defaultChecked: false },
-    { name: "High power", value: "--fake_highpower", defaultChecked: true }
+    { name: "High power", value: "--fake_highpower", defaultChecked: true },
   ];
 
-  const getChoiceList = choices => {
-    return choices.map(choice => (
+  const getChoiceList = (choices) => {
+    return choices.map((choice) => (
       <div className="input-group-switch" key={choice.value}>
         <input
           type="checkbox"
@@ -34,7 +43,7 @@ export default function SetupModal(props) {
           value={choice.value}
           onChange={handleFlagChange}
           defaultChecked={choice.defaultChecked}
-        ></input>
+        />
         <label>{choice.name}</label>
       </div>
     ));
@@ -46,8 +55,8 @@ export default function SetupModal(props) {
     props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
   };
 
-  const handleFlagChange = e => {
-    var newFlags = flags;
+  const handleFlagChange = (e) => {
+    const newFlags = flags;
     if (e.target.checked) {
       newFlags.push(e.target.value);
     } else {
@@ -58,7 +67,7 @@ export default function SetupModal(props) {
 
   const closeModal = () => {
     props.setModalOpen(false);
-  }
+  };
 
   // TODO: fittext
   return (
@@ -74,12 +83,7 @@ export default function SetupModal(props) {
           <div className="input-group-multiple">{getChoiceList(fakeSystems)}</div>
         </div>
         <div className="setup-wrapper-buttons">
-          <Button
-            caption="RUN"
-            handleClick={handleRunClick}
-            backgroundColor="button-blue"
-            icon={faPlay}
-          ></Button>
+          <Button caption="RUN" handleClick={handleRunClick} backgroundColor="button-blue" icon={faPlay} />
         </div>
       </div>
     </Modal>

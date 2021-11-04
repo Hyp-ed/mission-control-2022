@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 import { isEqual, omit } from "lodash";
 
 const MAX_GRAPHS = 4;
@@ -6,11 +7,12 @@ const DEFAULT_ID = 0;
 class ConfigManager {
   constructor() {
     this.graphID = DEFAULT_ID;
+    // eslint-disable-next-line global-require
     this.setConfig(require("./config.json"));
   }
 
   getGraphID = () => {
-    return this.graphID++;
+    return this.graphID + 1;
   };
 
   /**
@@ -23,12 +25,12 @@ class ConfigManager {
     }
     this.config.graphs.push({
       ID: this.getGraphID(),
-      paths: []
+      paths: [],
     });
   };
 
-  removeGraph = ID => {
-    this.config.graphs = this.config.graphs.filter(graph => graph.ID !== ID);
+  removeGraph = (ID) => {
+    this.config.graphs = this.config.graphs.filter((graph) => graph.ID !== ID);
   };
 
   /**
@@ -43,21 +45,20 @@ class ConfigManager {
   };
 
   addPath = (path, graphID) => {
-    this.config.graphs.find(graph => graph.ID === graphID).paths.push(path);
+    this.config.graphs.find((graph) => graph.ID === graphID).paths.push(path);
   };
 
   removePath = (path, graphID) => {
-    this.config.graphs.find(
-      graph => graph.ID === graphID
-    ).paths = this.config.graphs
-      .find(graph => graph.ID === graphID)
-      .paths.filter(p => !isEqual(p, path));
+    this.config.graphs.find((graph) => graph.ID === graphID).paths = this.config.graphs
+      .find((graph) => graph.ID === graphID)
+      .paths.filter((p) => !isEqual(p, path));
   };
 
   isPathSelected = (path, graphID) => {
     try {
-      const graph = this.config.graphs.find(graph => graph.ID === graphID);
-      return graph.paths.some(p => isEqual(p, path));
+      // eslint-disable-next-line no-shadow
+      const graph = this.config.graphs.find((graph) => graph.ID === graphID);
+      return graph.paths.some((p) => isEqual(p, path));
     } catch {
       return false;
     }
@@ -67,13 +68,13 @@ class ConfigManager {
    * CONFIG HANDLERS
    */
   getConfig = () => {
-    while(this.config.graphs.length<MAX_GRAPHS){
-      this.addGraph()
+    while (this.config.graphs.length < MAX_GRAPHS) {
+      this.addGraph();
     }
     return this.config;
   };
 
-  isProperlyFormatted = json => {
+  isProperlyFormatted = (json) => {
     if (!json) {
       console.error("JSON not initialized!");
       return false;
@@ -83,9 +84,7 @@ class ConfigManager {
       return false;
     }
     if (!Array.isArray(json.graphs)) {
-      console.error(
-        `Invalid field in config JSON: graphs should be array but got ${typeof json.graphs}`
-      );
+      console.error(`Invalid field in config JSON: graphs should be array but got ${typeof json.graphs}`);
       return false;
     }
 
@@ -95,20 +94,12 @@ class ConfigManager {
       if (!graph.hasOwnProperty("paths")) {
         problems.push(`Missing field in graph ${graphNum}: "paths"`);
       } else if (!Array.isArray(graph.paths)) {
-        problems.push(
-          `Invalid field in graph ${graphNum}: "paths" should be an array but got ${typeof graph.paths}`
-        );
+        problems.push(`Invalid field in graph ${graphNum}: "paths" should be an array but got ${typeof graph.paths}`);
       } else if (graph.paths.length !== 0) {
-        if (!graph.paths.every(path => Array.isArray(path))) {
-          problems.push(
-            `Invalid field in graph ${graphNum}: "paths" should be an array of arrays`
-          );
-        } else if (
-          !graph.paths.every(path => path.every(key => typeof key === "string"))
-        ) {
-          problems.push(
-            `Invalid field in graph ${graphNum}: "paths" should be an array of string arrays`
-          );
+        if (!graph.paths.every((path) => Array.isArray(path))) {
+          problems.push(`Invalid field in graph ${graphNum}: "paths" should be an array of arrays`);
+        } else if (!graph.paths.every((path) => path.every((key) => typeof key === "string"))) {
+          problems.push(`Invalid field in graph ${graphNum}: "paths" should be an array of string arrays`);
         }
       }
     });
@@ -122,7 +113,7 @@ class ConfigManager {
   /**
    * @param {Blob} - file retrieved using HTML input tag
    */
-  parseConfig = file => {
+  parseConfig = (file) => {
     if (!file.name.endsWith(".json")) {
       alert("Config must be a JSON file!");
       return;
@@ -133,22 +124,20 @@ class ConfigManager {
       try {
         const json = JSON.parse(reader.result);
         if (!this.isProperlyFormatted(json)) {
-          alert(
-            "Config not properly formatted!\nSee the console for a full log"
-          );
+          alert("Config not properly formatted!\nSee the console for a full log");
           return;
         }
         this.setConfig(json);
         console.log("Successfully set new config file.");
       } catch (err) {
         console.error(err);
-        return;
       }
     };
   };
 
-  setConfig = json => {
-    json.graphs.forEach(graph => {
+  setConfig = (json) => {
+    json.graphs.forEach((graph) => {
+      // eslint-disable-next-line no-param-reassign
       graph.ID = this.getGraphID();
     });
     this.config = json;
@@ -156,7 +145,7 @@ class ConfigManager {
 
   getConfigString = () => {
     const configNoIDs = {
-      graphs: this.config.graphs.map(graph => omit(graph, "ID"))
+      graphs: this.config.graphs.map((graph) => omit(graph, "ID")),
     };
     return JSON.stringify(configNoIDs);
   };
