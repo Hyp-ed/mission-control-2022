@@ -9,7 +9,7 @@ import DataPointSelector from "../DataPointSelector/DataPointSelector";
 import LineGraph from "../LineGraph/LineGraph";
 import Sidebar from "../Sidebar/Sidebar";
 
-export default function GraphsContainer(props) {
+export default function GraphsContainer({ telemetryData }) {
   const accentColor = "#FFFFFF";
 
   const setGraphDefaults = () => {
@@ -51,7 +51,7 @@ export default function GraphsContainer(props) {
         ID={graph.ID}
         paths={graph.paths ? graph.paths : []}
         // removeGraph={path => ConfigManager.removeGraph(path, currentGraph)}
-        telemetryData={props.telemetryData}
+        telemetryData={telemetryData}
         onSelectClicked={setCurrentGraph}
       />
     ));
@@ -78,6 +78,7 @@ export default function GraphsContainer(props) {
     document.getElementById("fileButton").onchange = (event) => {
       const file = event.target.files[0];
       ConfigManager.parseConfig(file);
+      // eslint-disable-next-line no-param-reassign
       event.target.value = null; // clear the input
     };
   };
@@ -108,7 +109,7 @@ export default function GraphsContainer(props) {
     return ConfigManager.isPathSelected(path, currentGraph);
   };
 
-  if (props.telemetryData === null) {
+  if (telemetryData === null) {
     return <div id="graphs-container" className="container" />;
   }
   return (
@@ -117,7 +118,7 @@ export default function GraphsContainer(props) {
       <div id="graphs">{getGraphs()}</div>
       <DataPointSelector
         visible={currentGraph !== -1}
-        telemetryData={props.telemetryData}
+        telemetryData={telemetryData}
         onCloseClicked={resetCurrentGraph}
         onDataPointClicked={handleDataPointClicked}
         isSelected={isSelected}

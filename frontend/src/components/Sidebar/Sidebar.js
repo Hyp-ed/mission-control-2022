@@ -11,12 +11,13 @@ const TOOLTIP_TEXT_COLOR = "#8f8f8f";
 
 const Input = () => <input id="fileButton" type="file" hidden />;
 
-const Button = ({enabled,input,onClick,tooltip,icon}) =>
-  props.enabled ? (
-    <div className="sidebar-icon" onClick={props.onClick} data-tip={props.tooltip}>
-      {props.input ? <Input /> : <div />}
+const Button = ({ enabled, input, onClick, tooltip, icon }) =>
+  enabled ? (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
+    <div className="sidebar-icon" onClick={onClick} data-tip={tooltip}>
+      {input ? <Input /> : <div />}
       <ReactTooltip effect="solid" delayShow={TOOLTIP_DELAY} textColor={TOOLTIP_TEXT_COLOR} place="left" />
-      <FontAwesomeIcon icon={props.icon} />
+      <FontAwesomeIcon icon={icon} />
     </div>
   ) : (
     <div />
@@ -24,14 +25,14 @@ const Button = ({enabled,input,onClick,tooltip,icon}) =>
 
 Button.defaultProps = { input: false, enabled: true };
 
-export default function Sidebar({isInactive,handleSaveClick,handleUploadClick}) {
-  if (props.isInactive) {
+export default function Sidebar({ isInactive, handleSaveClick, handleUploadClick }) {
+  if (isInactive) {
     return null;
   }
   return (
     <div id="sidebar-container">
-      <Button onClick={props.handleUploadClick} tooltip="Upload config" input icon={faFileImport} />
-      <Button onClick={props.handleSaveClick} tooltip="Save config" icon={faSave} />
+      <Button onClick={handleUploadClick} tooltip="Upload config" input icon={faFileImport} />
+      <Button onClick={handleSaveClick} tooltip="Save config" icon={faSave} />
     </div>
   );
 }

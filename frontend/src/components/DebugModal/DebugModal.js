@@ -22,7 +22,6 @@ export default React.memo((props) => {
     if (props.debugStatus === "RETRY") {
       props.setDebugModalOpen(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.debugStatus]);
 
   const closeModal = () => {
@@ -49,6 +48,7 @@ export default React.memo((props) => {
       <div className="modal-dialog">
         <SimpleBar className="debug-wrapper centered container" forceVisible="y" autoHide={false}>
           <div className="debug-group">
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label>Compilation failed</label>
             <div className="errormsgs">{getErrorMessage()}</div>
           </div>

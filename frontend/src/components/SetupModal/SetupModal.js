@@ -7,7 +7,7 @@ import Modal from "react-modal";
 
 import Button from "../Button/Button";
 
-export default function SetupModal(props) {
+export default function SetupModal({ isModalOpen, stompClient, setModalOpen }) {
   const [flags, setFlags] = useState([
     "--fake_imu",
     "--fake_batteries",
@@ -44,6 +44,7 @@ export default function SetupModal(props) {
           onChange={handleFlagChange}
           defaultChecked={choice.defaultChecked}
         />
+        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label>{choice.name}</label>
       </div>
     ));
@@ -51,8 +52,8 @@ export default function SetupModal(props) {
 
   const handleRunClick = () => {
     const data = flags;
-    props.setModalOpen(false);
-    props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
+    setModalOpen(false);
+    stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
   };
 
   const handleFlagChange = (e) => {
@@ -66,19 +67,15 @@ export default function SetupModal(props) {
   };
 
   const closeModal = () => {
-    props.setModalOpen(false);
+    setModalOpen(false);
   };
 
   // TODO: fittext
   return (
-    <Modal
-      isOpen={props.isModalOpen}
-      onRequestClose={closeModal}
-      className="modal-run"
-      overlayClassName="modal-run-overlay"
-    >
+    <Modal isOpen={isModalOpen} onRequestClose={closeModal} className="modal-run" overlayClassName="modal-run-overlay">
       <div className="setup-wrapper centered container">
         <div className="input-group">
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
           <label>Fake systems</label>
           <div className="input-group-multiple">{getChoiceList(fakeSystems)}</div>
         </div>

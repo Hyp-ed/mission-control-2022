@@ -9,7 +9,7 @@ import SimpleBar from "simplebar-react";
 
 import Button from "../Button/Button";
 
-function DropdownItem({clickEffect, children}) {
+function DropdownItem({ clickEffect, children }) {
   return (
     // eslint-disable-next-line jsx-a11y/anchor-is-valid
     <a href="#" className="menu-item" onClick={clickEffect}>
@@ -18,7 +18,7 @@ function DropdownItem({clickEffect, children}) {
   );
 }
 
-export default function Terminal({terminalOutput,curStart,stompClient,isInactive,logTypes,submoduleTypes}) {
+export default function Terminal({ terminalOutput, curStart, stompClient, isInactive, logTypes, submoduleTypes }) {
   const scrollableNodeRef = React.createRef();
   const previousOutput = usePrevious(terminalOutput);
   const [loading, setLoading] = useState(false);

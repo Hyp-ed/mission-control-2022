@@ -45,25 +45,27 @@ const useDeepEffect = (fn, deps) => {
 const IGNORE_KEYS = ["additional_data", "crucial_data"];
 const DELIMITER = " > ";
 
-export default function LineGraph(props) {
+export default function LineGraph({ telemetryData, paths, ID, onSelectClicked }) {
   const [pathData, setPathData] = useState({});
 
   useDeepEffect(() => {
     setPathData((oldPathData) => {
-      props.paths.forEach((path) => {
+      paths.forEach((path) => {
         const dataPoint = {
-          x: props.telemetryData.time,
-          y: getDataPointValue(props.telemetryData, path),
+          x: telemetryData.time,
+          y: getDataPointValue(telemetryData, path),
         };
         if (oldPathData.hasOwnProperty(path)) {
+          // eslint-disable-next-line no-param-reassign
           oldPathData[path] = [...oldPathData[path], dataPoint];
         } else {
+          // eslint-disable-next-line no-param-reassign
           oldPathData[path] = [dataPoint];
         }
       });
       return oldPathData;
     });
-  }, [props.telemetryData]);
+  }, [telemetryData]);
 
   const getLabel = (path) => {
     if (path.length === 1) {
@@ -79,11 +81,11 @@ export default function LineGraph(props) {
 
   const getFormattedData = () => {
     return {
-      datasets: Array.from(props.paths, (path, i) => {
+      datasets: Array.from(paths, (path, i) => {
         return {
           label: getLabel(path),
           data: pathData[path],
-          borderColor: COLORS[(5 * props.ID + i) % COLORS.length], // shift and cycle colors
+          borderColor: COLORS[(5 * ID + i) % COLORS.length], // shift and cycle colors
         };
       }),
     };
@@ -93,15 +95,16 @@ export default function LineGraph(props) {
   //   props.removeGraph(props.ID);
   // };
 
-  const onSelectClicked = () => {
-    props.onSelectClicked(props.ID);
+  const onSelectClickedWrapper = () => {
+    onSelectClicked(ID);
   };
   // Select data points
   return (
     <div id="graph-container">
       <div id="button-container">
         <FontAwesomeIcon />
-        <span id="select-button" onClick={onSelectClicked} />
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+        <span id="select-button" onClick={onSelectClickedWrapper} />
       </div>
       <div id="graph-wrapper">
         <Line data={getFormattedData} />

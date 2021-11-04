@@ -18,7 +18,7 @@ export default function Timer({ telemetryData, startTime, endTime }) {
   }, [startTime, endTime, telemetryData]); // sets interval once when timer state changes
 
   const formatTime = (duration) => {
-    let milliseconds = parseInt(duration % 1000);
+    let milliseconds = parseInt(duration % 1000, 10);
     let seconds = Math.floor((duration / 1000) % 60);
     let minutes = Math.floor((duration / (1000 * 60)) % 60);
 

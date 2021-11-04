@@ -3,7 +3,7 @@ import "./StatusContainer.css";
 
 import React from "react";
 
-export default function StatusContainer(props) {
+export default function StatusContainer({ telemetryData, state, telemetryConnection }) {
   const getModulesColumn = () => {
     return (
       <div className="status-modules">
@@ -63,8 +63,8 @@ export default function StatusContainer(props) {
   const getTelemetryConnectionStatus = () => {
     return (
       <div>
-        {getConnectionIndicator(props.telemetryConnection ? 1 : 0)}
-        {props.telemetryConnection ? "CONNECTED" : "DISCONNECTED"}
+        {getConnectionIndicator(telemetryConnection ? 1 : 0)}
+        {telemetryConnection ? "CONNECTED" : "DISCONNECTED"}
       </div>
     );
   };
@@ -75,11 +75,11 @@ export default function StatusContainer(props) {
   };
 
   const getSTMStatus = () => {
-    if (!props.telemetryConnection) {
+    if (!telemetryConnection) {
       return null;
     }
     let indicator = 0;
-    switch (props.state) {
+    switch (state) {
       case "EMERGENCY_BRAKING":
         indicator = 3;
         break;
@@ -102,7 +102,7 @@ export default function StatusContainer(props) {
     return (
       <div>
         {getConnectionIndicator(indicator)}
-        {props.state}
+        {state}
       </div>
     );
   };
@@ -114,7 +114,7 @@ export default function StatusContainer(props) {
         {getDebugStatus()}
         {getSTMStatus()}
       </div>
-      {props.telemetryData !== null ? (
+      {telemetryData !== null ? (
         <div id="status-container" className="container">
           {/* TODO: connect to the backend */}
           <div className="status-sensors-container">
