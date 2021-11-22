@@ -367,18 +367,19 @@ public class Server implements Runnable {
       }
       InputStreamReader isr = new InputStreamReader(is);
       BufferedReader br = new BufferedReader(isr);
-      FileWriter file = new FileWriter("TelemetryData.txt");
+      FileWriter file;
       while (true) {
         try {
           telemetryData = new JSONObject(br.readLine());
           try {
-            file.write(telemetryData.toJSONString());
+            file = new FileWriter("TelemetryData.txt");
+            file.write(telemetryData.toString());
+            file.flush();
+            file.close();
           } catch (IOException e) {
             System.out.println("IOException: " + e);
             System.out.println("Failed writing JSONObject to the file");
           }
-          file.flush();
-          file.close();
         } catch (IOException e) {
           System.out.println("IO Exception: " + e);
           throw new RuntimeException("Failed getting input stream");
