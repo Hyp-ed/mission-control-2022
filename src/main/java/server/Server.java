@@ -377,8 +377,8 @@ public class Server implements Runnable {
             System.out.println("IOException: " + e);
             System.out.println("Failed writing JSONObject to the file");
           }
-          file.flush()
-          file.close()
+          file.flush();
+          file.close();
         } catch (IOException e) {
           System.out.println("IO Exception: " + e);
           throw new RuntimeException("Failed getting input stream");
