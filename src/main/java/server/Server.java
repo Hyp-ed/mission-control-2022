@@ -21,6 +21,8 @@ public class Server implements Runnable {
   private static final int TELEMETRY_PORT = 9090;
   private static final int DEBUG_PORT = 7070;
 
+  private static final String BUILD_DIRECTORY = "gui-build";
+
   private Socket telemetryClient; // TCP socket to pod
   private Process debugProcess;
   private Process compileProcess;
@@ -46,12 +48,12 @@ public class Server implements Runnable {
   private static final String COMPILING = "COMPILING";
   private static final String COMPILED = "RECOMPILE";
   private static final String RETRY = "RETRY";
-  
+
   private static final String IS_COMPILED = "isCompiled";
   private static final String IS_SUCCESS = "isSuccess";
   private static final String ERROR_MESSAGE = "errorMessage";
- 
-  private boolean isCompiling = false;  // A boolean indicating if the pod code is still compiling, mainly for the UI
+
+  private boolean isCompiling = false; // A boolean indicating if the pod code is still compiling, mainly for the UI
   private String debugStatus = COMPILE;
 
   private JSONArray debugOutput = new JSONArray();
@@ -94,13 +96,11 @@ public class Server implements Runnable {
     @Override
     public void run() {
       try (Scanner scan = new Scanner(is)) {
-        String line = null;
         while (scan.hasNextLine()) {
           JSONObject output = parseDebugOutput(scan.nextLine());
           terminalOutput.put(output);
         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         System.out.println(e);
       }
     }
@@ -116,12 +116,10 @@ public class Server implements Runnable {
     @Override
     public void run() {
       try (Scanner scan = new Scanner(is)) {
-        String line = null;
         while (scan.hasNextLine()) {
           debugOutput.put(scan.nextLine());
         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         System.out.println(e);
       }
     }
@@ -129,7 +127,7 @@ public class Server implements Runnable {
 
   private JSONObject parseDebugOutput(String line) {
     JSONObject obj = new JSONObject();
-    //                                     h       m     s        ms     dbg    [submodule]   log
+    // h m s ms dbg [submodule] log
     Pattern pattern = Pattern.compile("(\\d{2}:\\d{2}:\\d{2}\\.\\d{3}) (\\w*)\\[([\\w-]*)\\]: (.*)");
     Matcher matcher = pattern.matcher(line);
 
@@ -139,85 +137,89 @@ public class Server implements Runnable {
       obj.put("submodule", matcher.group(3));
       obj.put("log", matcher.group(4));
     }
-    
+
     obj.put("line", line);
     return obj;
   }
 
-  //Compiles the pod code
+  // Compiles the pod code
   public void debugCompile() {
     initDebugData();
     debugStatus = COMPILING;
-    isCompiling = true; // The compiling process start
-
-    String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
-    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code";
-
-    ArrayList<String> command = new ArrayList<String>();
-    // Suppose to be make -j, but it's so buggy so leave it as make for now
-    command.add("make");
-
-    try {
-      System.out.println("Compiling from: " + HYPED_PATH);
-      debugOutput = new JSONArray();
-      compileProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
-
-      StreamGobblerCompile errorGobbler = new StreamGobblerCompile(compileProcess.getErrorStream());
-      StreamGobblerCompile outputGobbler = new StreamGobblerCompile(compileProcess.getInputStream());
-          
-      // start gobblers
-      outputGobbler.start();
-      errorGobbler.start();
-
-      compileProcess.waitFor();
-
-      boolean isSuccess = compileProcess.exitValue() == 0;
-
-      //Procedure to check wheter hyped code is successfully compiled
-      boolean isFileExisted = isHypedExist(); // For first time compilation
-
-      debugData.put(IS_COMPILED, true);
-
-      //Change the debugStatus
-      if (isFileExisted) {
-        debugStatus = COMPILED;
-        //Ends the compiling process
-      } else if (isCompiling){
-        debugStatus = COMPILING;
-      } else {
-        debugStatus = RETRY;
-      }
-
-      // Update the debugData
-      if (!isFileExisted) {
-        // Fail when compile for the first time
-        debugStatus = RETRY;
+    isCompiling = true;
+    final Path buildDirectoryPath = Paths.get(BUILD_DIRECTORY);
+    final String cmakeFlags = "-DPEDANTIC=ON -DRELEASE=ON -DCOVERAGE=ON -DCROSS=OFF -DCMAKE_CXX_COMPILER=/usr/bin/clang++";
+    if (!Files.isDirectory(buildDirectoryPath)) {
+      System.out.printf("Did not find build directory at %s\n", BUILD_DIRECTORY);
+      try {
+        System.out.printf("Creating build directory at %s\n", BUILD_DIRECTORY);
+        Files.createDirectories(buildDirectoryPath);
+      } catch (final IOException e) {
+        System.out.printf("Failed to create build directory at %s\n", BUILD_DIRECTORY);
+        e.printStackTrace();
+        isCompiling = false;
+        debugData.put(IS_COMPILED, false);
         debugData.put(IS_SUCCESS, false);
         convertDebugOutput();
-      } else if (!isSuccess){
-        // Normal fail
-        debugStatus = RETRY;
-        debugData.put(IS_SUCCESS, false);
-        convertDebugOutput();
-      } else {
-        debugData.put(IS_SUCCESS, true);
+        return;
       }
-      isCompiling = false;
-      System.out.println("Finish compiling");
-    } catch (Throwable t) {
-      t.printStackTrace();
     }
-
+    Runtime runtime = Runtime.getRuntime();
+    try {
+      String cmakeCommand = String.format("cmake -S . -B %s %s", BUILD_DIRECTORY, cmakeFlags);
+      System.out.printf("Running '%s'\n", cmakeCommand);
+      Process cmakeProcess = runtime.exec(cmakeCommand);
+      StreamGobblerCompile errorGobbler = new StreamGobblerCompile(cmakeProcess.getErrorStream());
+      StreamGobblerCompile outputGobbler = new StreamGobblerCompile(cmakeProcess.getInputStream());
+      errorGobbler.start();
+      outputGobbler.start();
+      cmakeProcess.waitFor();
+      if (cmakeProcess.exitValue() != 0) {
+        throw new Exception("CMake failed with non-zero exit value");
+      }
+    } catch (final Exception e) {
+      System.out.println("Failed to run CMake");
+      e.printStackTrace();
+      isCompiling = false;
+      debugData.put(IS_COMPILED, false);
+      debugData.put(IS_SUCCESS, false);
+      convertDebugOutput();
+      return;
+    }
+    try {
+      String makeCommand = String.format("make -j -C %s", BUILD_DIRECTORY);
+      System.out.printf("Running '%s'\n", makeCommand);
+      Process makeProcess = runtime.exec(makeCommand);
+      StreamGobblerCompile errorGobbler = new StreamGobblerCompile(makeProcess.getErrorStream());
+      StreamGobblerCompile outputGobbler = new StreamGobblerCompile(makeProcess.getInputStream());
+      errorGobbler.start();
+      outputGobbler.start();
+      makeProcess.waitFor();
+      if (makeProcess.exitValue() != 0) {
+        throw new Exception("GNU Make failed with non-zero exit value");
+      }
+    } catch (final Exception e) {
+      System.out.println("Failed to run GNU Make");
+      e.printStackTrace();
+      isCompiling = false;
+      debugData.put(IS_COMPILED, false);
+      debugData.put(IS_SUCCESS, false);
+      convertDebugOutput();
+      return;
+    }
+    System.out.println("Successfully compiled binary");
+    debugStatus = COMPILED;
+    isCompiling = false;
+    debugData.put(IS_SUCCESS, true);
+    debugData.put(IS_COMPILED, true);
   }
 
   public void convertDebugOutput() {
     StringBuffer errorMessage = new StringBuffer("");
-
-    for(int i=0; i < debugOutput.length(); i++) {
+    for (int i = 0; i < debugOutput.length(); i++) {
       errorMessage.append(debugOutput.getString(i));
       errorMessage.append("\n");
     }
-
     debugData.put(ERROR_MESSAGE, errorMessage.toString());
   }
 
@@ -225,48 +227,38 @@ public class Server implements Runnable {
     if (debugData == null) {
       return null;
     }
-
     if (isHypedExist()) {
       debugData.put(IS_COMPILED, true);
     } else {
       debugData.put(IS_COMPILED, false);
     }
-
-    //System.out.println(debugData.toString());
+    // System.out.println(debugData.toString());
     return debugData.toString();
   }
 
   public String getDebugStatus() {
     if (isCompiling) {
       debugStatus = COMPILING;
-    } else if (!isHypedExist() && Boolean.TRUE.equals(debugData.get(IS_SUCCESS))){
+    } else if (!isHypedExist() && Boolean.TRUE.equals(debugData.get(IS_SUCCESS))) {
       debugStatus = COMPILE;
       isCompiling = false;
     }
-
     return debugStatus;
   }
-  
-  public boolean isHypedExist() {
-    String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
-    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code/hyped"; // change this part for RELEASE
 
-    File HYPED_CODE = new File(HYPED_PATH);
-    return HYPED_CODE.exists();
+  public boolean isHypedExist() {
+    return Files.exists(Paths.get(BUILD_DIRECTORY, "hyped"));
   }
 
   public void initDebugData() {
     debugData = new JSONObject();
     debugData.put(IS_SUCCESS, true);
     debugData.remove(ERROR_MESSAGE);
-
     if (isHypedExist()) {
       debugStatus = COMPILED;
       debugData.put(IS_COMPILED, true);
-
     } else {
       debugStatus = COMPILE;
-
       debugData.put(IS_COMPILED, false);
     }
   }
@@ -274,15 +266,12 @@ public class Server implements Runnable {
   public void debugRun(JSONArray flags) {
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
     String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + "hyped-pod_code"; // change this part for RELEASE
-    String os = System.getProperty("os.name").substring(0,3);
-
+    String os = System.getProperty("os.name").substring(0, 3);
     ArrayList<String> command = new ArrayList<String>();
-
-    if(!os.equals("Mac")){
+    if (!os.equals("Mac")) {
       command.add("stdbuf");
       command.add("-oL");
     }
-
     command.add("./hyped");
     for (int i = 0, size = flags.length(); i < size; i++) {
       String flag = flags.getString(i);
@@ -298,7 +287,7 @@ public class Server implements Runnable {
 
       StreamGobblerRun errorGobbler = new StreamGobblerRun(debugProcess.getErrorStream());
       StreamGobblerRun outputGobbler = new StreamGobblerRun(debugProcess.getInputStream());
-          
+
       // start gobblers
       outputGobbler.start();
       errorGobbler.start();
@@ -443,22 +432,18 @@ public class Server implements Runnable {
     if (terminalOutput.isEmpty()) {
       return null;
     }
-    
+
     JSONArray newTerminalOutput = new JSONArray();
     for (int i = 0; i < terminalOutput.length(); i++) {
       JSONObject lineJson = terminalOutput.getJSONObject(i);
       String cur_line = lineJson.toString();
-      
       String log_type, submodule, debug_output;
       boolean check1 = true, check2 = true, check3 = true;
-
       try {
         log_type = lineJson.getString("log_type");
-        
         if (!logTypes.contains(log_type)) {
           logTypes.add(log_type);
         }
-
         check1 = (logTypeFilter == null || log_type.contains(logTypeFilter));
       } catch (Exception e) {
         // Don't want to flood stderr
@@ -466,11 +451,9 @@ public class Server implements Runnable {
       }
       try {
         submodule = lineJson.getString("submodule");
-        
         if (!submoduleTypes.contains(submodule)) {
           submoduleTypes.add(submodule);
         }
-
         check2 = (submoduleFilter == null || submodule.contains(submoduleFilter));
       } catch (Exception e) {
         // System.err.println("submodule field not found in terminal output line");
@@ -489,7 +472,7 @@ public class Server implements Runnable {
 
     JSONObject ret = new JSONObject();
     if (newTerminalOutput.isEmpty()) {
-      ret.put("terminalOutput", JSONObject.NULL);  
+      ret.put("terminalOutput", JSONObject.NULL);
     } else {
       JSONArray returnLines = new JSONArray();
 
@@ -512,7 +495,7 @@ public class Server implements Runnable {
     ret.put("logTypes", logTypes);
     ret.put("submoduleTypes", submoduleTypes);
     ret.put("curStart", curStart);
-    
+
     return ret.toString();
   }
 }
