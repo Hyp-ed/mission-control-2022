@@ -227,12 +227,7 @@ public class Server implements Runnable {
     if (debugData == null) {
       return null;
     }
-    if (isHypedExist()) {
-      debugData.put(IS_COMPILED, true);
-    } else {
-      debugData.put(IS_COMPILED, false);
-    }
-    // System.out.println(debugData.toString());
+    debugData.put(IS_COMPILED, isHypedExist());
     return debugData.toString();
   }
 
