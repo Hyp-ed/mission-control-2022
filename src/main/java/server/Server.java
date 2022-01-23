@@ -259,8 +259,8 @@ public class Server implements Runnable {
   }
 
   public void debugRun(JSONArray flags) {
-    String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
-    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + BUILD_DIRECTORY;
+    final Path buildDirectoryPath = Paths.get(BUILD_DIRECTORY);
+    System.out.println(buildDirectoryPath);
     String os = System.getProperty("os.name").substring(0, 3);
     ArrayList<String> command = new ArrayList<String>();
     if (!os.equals("Mac")) {
@@ -276,9 +276,9 @@ public class Server implements Runnable {
     command.add("--debug=3");
 
     try {
-      System.out.println("Running from: " + HYPED_PATH);
+      System.out.println("Running from: " + buildDirectoryPath);
       terminalOutput = new JSONArray();
-      debugProcess = new ProcessBuilder(command).directory(new File(HYPED_PATH)).start();
+      debugProcess = new ProcessBuilder(command).directory(new File(String.valueOf(buildDirectoryPath))).start();
 
       StreamGobblerRun errorGobbler = new StreamGobblerRun(debugProcess.getErrorStream());
       StreamGobblerRun outputGobbler = new StreamGobblerRun(debugProcess.getInputStream());
