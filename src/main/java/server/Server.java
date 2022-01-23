@@ -5,7 +5,6 @@ import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -88,15 +87,15 @@ public class Server implements Runnable {
   }
 
   private class StreamGobblerRun extends Thread {
-    InputStream is;
+    InputStream inputStream;
 
-    private StreamGobblerRun(InputStream is) {
-      this.is = is;
+    private StreamGobblerRun(InputStream inputStream) {
+      this.inputStream = inputStream;
     }
 
     @Override
     public void run() {
-      try (Scanner scan = new Scanner(is)) {
+      try (Scanner scan = new Scanner(inputStream)) {
         while (scan.hasNextLine()) {
           JSONObject output = parseDebugOutput(scan.nextLine());
           terminalOutput.put(output);
@@ -108,15 +107,15 @@ public class Server implements Runnable {
   }
 
   private class StreamGobblerCompile extends Thread {
-    InputStream is;
+    InputStream inputStream;
 
-    private StreamGobblerCompile(InputStream is) {
-      this.is = is;
+    private StreamGobblerCompile(InputStream inputStream) {
+      this.inputStream = inputStream;
     }
 
     @Override
     public void run() {
-      try (Scanner scan = new Scanner(is)) {
+      try (Scanner scan = new Scanner(inputStream)) {
         while (scan.hasNextLine()) {
           debugOutput.put(scan.nextLine());
         }
