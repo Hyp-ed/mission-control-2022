@@ -21,7 +21,6 @@ public class Server implements Runnable {
   private static final int DEBUG_PORT = 7070;
 
   private static final String BUILD_DIRECTORY = "gui-build";
-  private static final String BINARY_DIRECTORY = "build";
 
   private Socket telemetryClient; // TCP socket to pod
   private Process debugProcess;
@@ -174,6 +173,7 @@ public class Server implements Runnable {
       errorGobbler.start();
       outputGobbler.start();
       cmakeProcess.waitFor();
+      debugData.put(IS_COMPILED, true);
       if (cmakeProcess.exitValue() != 0) {
         throw new Exception("CMake failed with non-zero exit value");
       }
@@ -247,7 +247,7 @@ public class Server implements Runnable {
   }
 
   public boolean isHypedExist() {
-    return Files.exists(Paths.get(BINARY_DIRECTORY, "hyped"));
+    return Files.exists(Paths.get(BUILD_DIRECTORY, "hyped"));
   }
 
   public void initDebugData() {
@@ -265,7 +265,7 @@ public class Server implements Runnable {
 
   public void debugRun(JSONArray flags) {
     String DIR_PATH = FileSystems.getDefault().getPath("./").toAbsolutePath().toString();
-    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + BINARY_DIRECTORY;
+    String HYPED_PATH = DIR_PATH.substring(0, DIR_PATH.length() - 1) + BUILD_DIRECTORY;
     String os = System.getProperty("os.name").substring(0, 3);
     ArrayList<String> command = new ArrayList<String>();
     if (!os.equals("Mac")) {
