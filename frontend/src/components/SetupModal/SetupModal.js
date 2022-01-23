@@ -7,7 +7,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function SetupModal(props) {
-  const [flags, setFlags] = useState(["--fake_imu", "--fake_batteries", "--fake_keyence", "--fake_temperature", "--fake_embrakes", "--fake_motors", "--fake_highpower"]);
+  const [flags, setFlags] = useState(["--fake_imu", "--fake_batteries", "--fake_keyence", "--fake_temperature", "--fake_brakes", "--fake_motors", "--fake_highpower"]);
   Modal.setAppElement('#root');
 
   const fakeSystems = [
@@ -19,7 +19,7 @@ export default function SetupModal(props) {
     { name: "Keyence FAIL", value: "--fake_keyence_fail", defaultChecked: false },
     { name: "Temperature", value: "--fake_temperature", defaultChecked: true },
     { name: "Temperature FAIL", value: "--fake_temperature_fail", defaultChecked: false },
-    { name: "Embrakes", value: "--fake_embrakes", defaultChecked: true },
+    { name: "Brakes", value: "--fake_brakes", defaultChecked: true },
     { name: "Motors", value: "--fake_motors", defaultChecked: true },
     { name: "Battery test", value: "--battery_test", defaultChecked: false },
     { name: "High power", value: "--fake_highpower", defaultChecked: true }
