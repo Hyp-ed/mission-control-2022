@@ -260,7 +260,6 @@ public class Server implements Runnable {
 
   public void debugRun(JSONArray flags) {
     final Path buildDirectoryPath = Paths.get(BUILD_DIRECTORY);
-    System.out.println(buildDirectoryPath);
     String os = System.getProperty("os.name").substring(0, 3);
     ArrayList<String> command = new ArrayList<String>();
     if (!os.equals("Mac")) {
