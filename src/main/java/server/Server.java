@@ -2,17 +2,17 @@ package server;
 
 import java.io.*;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.FileSystems;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.json.*;
 import java.util.List;
+import java.util.stream.Stream;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +21,7 @@ public class Server implements Runnable {
   private static final int DEBUG_PORT = 7070;
 
   private static final String BUILD_DIRECTORY = "gui-build";
+  private static final String CONFIG_DIRECTORY = "configurations";
 
   private Socket telemetryClient; // TCP socket to pod
   private Process debugProcess;
@@ -207,11 +208,35 @@ public class Server implements Runnable {
       convertDebugOutput();
       return;
     }
+    copyFilesInDirectory();
     System.out.println("Successfully compiled binary");
     debugStatus = COMPILED;
     isCompiling = false;
     debugData.put(IS_SUCCESS, true);
     debugData.put(IS_COMPILED, true);
+  }
+
+  private void copyFilesInDirectory() {
+    try {
+      Path sourceDirectory = Paths.get(CONFIG_DIRECTORY);
+      Path targetDirectory = Paths.get(BUILD_DIRECTORY + "/" + CONFIG_DIRECTORY);
+      // Files.copy(sourceDirectory, targetDirectory);
+      // Create stream for src
+      Stream<Path> files = Files.walk(sourceDirectory);
+      // Copy all files and folders from src to dest
+      files.forEach(file -> {
+        try {
+          Files.copy(file, targetDirectory.resolve(sourceDirectory.relativize(file)),
+                  StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      });
+      files.close();
+    } catch (final Exception e) {
+      System.out.println("Failed to copy configurations folder to gui-build");
+      e.printStackTrace();
+    }
   }
 
   public void convertDebugOutput() {
