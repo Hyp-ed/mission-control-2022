@@ -385,7 +385,7 @@ public class Server implements Runnable {
         try {
           telemetryData = new JSONObject(br.readLine());
           try {
-            file.write(telemetryData.toString());
+            file.write(telemetryData + "\n");
             file.flush();
           } catch (IOException e) {
             System.out.println("IOException: " + e);
