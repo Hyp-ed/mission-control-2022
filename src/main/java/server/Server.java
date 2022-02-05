@@ -227,6 +227,7 @@ public class Server implements Runnable {
         try {
           Files.copy(file, targetDirectory.resolve(sourceDirectory.relativize(file)),
                   StandardCopyOption.REPLACE_EXISTING);
+        } catch (DirectoryNotEmptyException ignored) {
         } catch (IOException e) {
           e.printStackTrace();
         }
