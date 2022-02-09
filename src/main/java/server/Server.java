@@ -219,7 +219,6 @@ public class Server implements Runnable {
     try {
       Path sourceDirectory = Paths.get(CONFIG_DIRECTORY);
       Path targetDirectory = Paths.get(BUILD_DIRECTORY + "/" + CONFIG_DIRECTORY);
-      // Files.copy(sourceDirectory, targetDirectory);
       // Create stream for src
       Stream<Path> files = Files.walk(sourceDirectory);
       // Copy all files and folders from src to dest
@@ -227,6 +226,7 @@ public class Server implements Runnable {
         try {
           Files.copy(file, targetDirectory.resolve(sourceDirectory.relativize(file)),
                   StandardCopyOption.REPLACE_EXISTING);
+        } catch (DirectoryNotEmptyException ignored) {
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -385,7 +385,7 @@ public class Server implements Runnable {
         try {
           telemetryData = new JSONObject(br.readLine());
           try {
-            file.write(telemetryData.toString());
+            file.write(telemetryData + "\n");
             file.flush();
           } catch (IOException e) {
             System.out.println("IOException: " + e);
