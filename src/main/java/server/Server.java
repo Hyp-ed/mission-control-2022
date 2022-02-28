@@ -21,14 +21,22 @@ public class Server implements Runnable {
 
   private static final String BUILD_DIRECTORY = "gui-build";
   private static final String CONFIG_DIRECTORY = "configurations";
+  private static final String DEFAULT_CONFIG_FILE = "config.json";
+  private static final String SERVER_CONFIG_FILE = "config.server.json";
 
   private Socket telemetryClient; // TCP socket to pod
   private Process debugProcess;
-  private Process compileProcess;
 
   // Telemetry
   private JSONObject telemetryData;
   private boolean telemetryConnected = false;
+
+  // Fake systems
+  private static final String[] FAKE_SYSTEM_FLAGS = {
+      "use_fake_trajectory", "use_fake_batteries", "use_fake_batteries_fail",
+      "use_fake_temperature", "use_fake_temperature_fail", "use_fake_brakes",
+      "use_fake_controller", "use_fake_high_power"
+  };
 
   // Debug
   private String searchPhrase;
@@ -225,7 +233,7 @@ public class Server implements Runnable {
       files.forEach(file -> {
         try {
           Files.copy(file, targetDirectory.resolve(sourceDirectory.relativize(file)),
-                  StandardCopyOption.REPLACE_EXISTING);
+              StandardCopyOption.REPLACE_EXISTING);
         } catch (DirectoryNotEmptyException ignored) {
         } catch (IOException e) {
           e.printStackTrace();
@@ -285,18 +293,21 @@ public class Server implements Runnable {
   public void debugRun(JSONArray flags) {
     final Path buildDirectoryPath = Paths.get(BUILD_DIRECTORY);
     String os = System.getProperty("os.name").substring(0, 3);
+
     ArrayList<String> command = new ArrayList<String>();
     if (!os.equals("Mac")) {
       command.add("stdbuf");
       command.add("-oL");
     }
+
+    createServerConfigFromFlags(flags);
+    copyFilesInDirectory();
+
     command.add("./hyped");
-    for (int i = 0, size = flags.length(); i < size; i++) {
-      String flag = flags.getString(i);
-      command.add(flag);
-    }
-    command.add("-v");
-    command.add("--debug=3");
+    command.add("./" + CONFIG_DIRECTORY + "/" + SERVER_CONFIG_FILE);
+
+    // command.add("-v");
+    // command.add("--debug=3");
 
     try {
       System.out.println("Running from: " + buildDirectoryPath);
@@ -313,6 +324,44 @@ public class Server implements Runnable {
     } catch (Throwable t) {
       t.printStackTrace();
     }
+  }
+
+  private void createServerConfigFromFlags(JSONArray flags) {
+    try {
+      JSONObject defaultConfig = new JSONObject(
+          new JSONTokener(new FileReader(CONFIG_DIRECTORY + "/" + DEFAULT_CONFIG_FILE)));
+      JSONObject systemConfig = defaultConfig.getJSONObject("system");
+
+      for (String fakeFlag : FAKE_SYSTEM_FLAGS) {
+        if (hasValue(flags, fakeFlag)) {
+          systemConfig.put(fakeFlag, true);
+        } else {
+          systemConfig.put(fakeFlag, false);
+        }
+      }
+
+      defaultConfig.put("system", systemConfig);
+
+      FileWriter serverConfigFile = new FileWriter(CONFIG_DIRECTORY + "/" + SERVER_CONFIG_FILE);
+      serverConfigFile.write(defaultConfig.toString());
+      serverConfigFile.close();
+      return;
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      throw new RuntimeException("Unable to find default config");
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new RuntimeException("Unable to write server config");
+    }
+  }
+
+  public boolean hasValue(JSONArray array, String value) {
+    for (int i = 0; i < array.length(); i++) {
+      if (array.get(i).toString().equals(value)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public void debugKill() {

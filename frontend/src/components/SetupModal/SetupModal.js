@@ -1,32 +1,33 @@
 import React, { useState } from "react";
-import Modal from 'react-modal';
+import Modal from "react-modal";
 import "./SetupModal.css";
 import Button from "../Button/Button";
-import {
-  faPlay,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPlay } from "@fortawesome/free-solid-svg-icons";
 
 export default function SetupModal(props) {
-  const [flags, setFlags] = useState(["--fake_imu", "--fake_batteries", "--fake_keyence", "--fake_temperature", "--fake_brakes", "--fake_motors", "--fake_highpower"]);
-  Modal.setAppElement('#root');
+  const [systemConfig, setSystemConfig] = useState([
+    "use_fake_trajectory",
+    "use_fake_batteries",
+    "use_fake_temperature",
+    "use_fake_brakes",
+    "use_fake_controller",
+    "use_fake_high_power",
+  ]);
+  Modal.setAppElement("#root");
 
   const fakeSystems = [
-    { name: "IMU", value: "--fake_imu", defaultChecked: true },
-    { name: "IMU FAIL", value: "--fake_imu_fail", defaultChecked: false },
-    { name: "Batteries", value: "--fake_batteries", defaultChecked: true },
-    { name: "Batteries FAIL", value: "--fake_batteries_fail", defaultChecked: false },
-    { name: "Keyence", value: "--fake_keyence", defaultChecked: true },
-    { name: "Keyence FAIL", value: "--fake_keyence_fail", defaultChecked: false },
-    { name: "Temperature", value: "--fake_temperature", defaultChecked: true },
-    { name: "Temperature FAIL", value: "--fake_temperature_fail", defaultChecked: false },
-    { name: "Brakes", value: "--fake_brakes", defaultChecked: true },
-    { name: "Motors", value: "--fake_motors", defaultChecked: true },
-    { name: "Battery test", value: "--battery_test", defaultChecked: false },
-    { name: "High power", value: "--fake_highpower", defaultChecked: true }
+    { name: "Trajectory", value: "use_fake_trajectory", defaultChecked: true },
+    { name: "Batteries", value: "use_fake_batteries", defaultChecked: true },
+    { name: "Batteries FAIL", value: "use_fake_batteries_fail", defaultChecked: false },
+    { name: "Temperature", value: "use_fake_temperature", defaultChecked: true },
+    { name: "Temperature FAIL", value: "use_fake_temperature_fail", defaultChecked: false },
+    { name: "Brakes", value: "use_fake_brakes", defaultChecked: true },
+    { name: "Motor Controllers", value: "use_fake_controller", defaultChecked: true },
+    { name: "High Power", value: "use_fake_high_power", defaultChecked: true },
   ];
 
-  const getChoiceList = choices => {
-    return choices.map(choice => (
+  const getChoiceList = (choices) => {
+    return choices.map((choice) => (
       <div className="input-group-switch" key={choice.value}>
         <input
           type="checkbox"
@@ -41,24 +42,24 @@ export default function SetupModal(props) {
   };
 
   const handleRunClick = () => {
-    const data = flags;
+    const data = systemConfig;
     props.setModalOpen(false);
     props.stompClient.send("/app/send/debug/run", {}, JSON.stringify(data));
   };
 
-  const handleFlagChange = e => {
-    var newFlags = flags;
+  const handleFlagChange = (e) => {
+    var newFlags = systemConfig;
     if (e.target.checked) {
       newFlags.push(e.target.value);
     } else {
       newFlags.splice(newFlags.indexOf(e.target.value), 1);
     }
-    setFlags(newFlags);
+    setSystemConfig(newFlags);
   };
 
   const closeModal = () => {
     props.setModalOpen(false);
-  }
+  };
 
   // TODO: fittext
   return (
@@ -74,12 +75,7 @@ export default function SetupModal(props) {
           <div className="input-group-multiple">{getChoiceList(fakeSystems)}</div>
         </div>
         <div className="setup-wrapper-buttons">
-          <Button
-            caption="RUN"
-            handleClick={handleRunClick}
-            backgroundColor="button-blue"
-            icon={faPlay}
-          ></Button>
+          <Button caption="RUN" handleClick={handleRunClick} backgroundColor="button-blue" icon={faPlay}></Button>
         </div>
       </div>
     </Modal>
