@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +22,8 @@ public class Server implements Runnable {
 
   private static final String BUILD_DIRECTORY = "gui-build";
   private static final String CONFIG_DIRECTORY = "configurations";
-  private static final String DEFAULT_CONFIG_FILE = "config.json";
+  private static final String BASE_CONFIG_FILE = "config.json";
+  private static final String FAKE_DATA_CONFIG_FILE = "fake_config.json";
   private static final String SERVER_CONFIG_FILE = "config.server.json";
 
   private Socket telemetryClient; // TCP socket to pod
@@ -328,9 +330,11 @@ public class Server implements Runnable {
 
   private void createServerConfigFromFlags(JSONArray flags) {
     try {
-      JSONObject defaultConfig = new JSONObject(
-          new JSONTokener(new FileReader(CONFIG_DIRECTORY + "/" + DEFAULT_CONFIG_FILE)));
-      JSONObject systemConfig = defaultConfig.getJSONObject("system");
+      JSONObject baseConfig = new JSONObject(
+          new JSONTokener(new FileReader(CONFIG_DIRECTORY + "/" + BASE_CONFIG_FILE)));
+      JSONObject fakeData = new JSONObject(
+          new JSONTokener(new FileReader(CONFIG_DIRECTORY + "/" + FAKE_DATA_CONFIG_FILE)));
+      JSONObject systemConfig = baseConfig.getJSONObject("system");
 
       for (String fakeFlag : FAKE_SYSTEM_FLAGS) {
         if (hasValue(flags, fakeFlag)) {
@@ -340,10 +344,16 @@ public class Server implements Runnable {
         }
       }
 
-      defaultConfig.put("system", systemConfig);
+      baseConfig.put("system", systemConfig);
+
+      Iterator<String> fakeDataKeys = fakeData.keys();
+      while (fakeDataKeys.hasNext()) {
+          String key = fakeDataKeys.next();
+          baseConfig.put(key, fakeData.get(key));
+      }
 
       FileWriter serverConfigFile = new FileWriter(CONFIG_DIRECTORY + "/" + SERVER_CONFIG_FILE);
-      serverConfigFile.write(defaultConfig.toString());
+      serverConfigFile.write(baseConfig.toString());
       serverConfigFile.close();
       return;
     } catch (FileNotFoundException e) {
