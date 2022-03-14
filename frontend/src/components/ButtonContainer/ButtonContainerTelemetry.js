@@ -94,6 +94,8 @@ export default function ButtonContainerTelemetry(props) {
     switch (props.state) {
       case "IDLE":
         return getButton(buttons.calibrate, isMainDisabled);
+      case "PRE_CALIBRATING":
+          return getButton(buttons.calibrate, isMainDisabled);
       case "CALIBRATING":
         return getButton(buttons.calibrating, true);
       case "READY":
