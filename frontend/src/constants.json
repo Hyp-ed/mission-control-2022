@@ -1,0 +1,19 @@
+{
+  "data_point_constants": {
+    "displacement": {
+      "min": 0,
+      "max": 1250,
+      "units": "m"
+    },
+    "velocity": {
+      "min": 0,
+      "max": 250,
+      "units": "m/s"
+    },
+    "acceleration": {
+      "min": -50,
+      "max": 50,
+      "units": "m/s^2"
+    }
+  }
+}

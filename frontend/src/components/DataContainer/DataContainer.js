@@ -12,46 +12,39 @@ export default function DataContainer(props) {
     for (var list of Object.values(data)) {
       if (Array.isArray(list.value)) {
         combine(title.concat([list.name]), list.value);
-      }
-      else {
+      } else {
         if (title.join(" > ") in dataList === false) {
           dataList[title.join(" > ")] = [];
         }
         dataList[title.join(" > ")].push(list);
       }
-    };
-  }
+    }
+  };
 
   const getListItems = (list) => {
     return list.map((data, i) => {
       return <DataRow data={data} key={data.name}></DataRow>;
     });
-  }
+  };
 
   const getFormattedLists = () => {
-    var response = []
+    var response = [];
     for (var title in dataList) {
-      response.push(
-        <DataList
-          title={title}
-          value={getListItems(dataList[title])}
-          key={title}
-        ></DataList>
-      )
+      response.push(<DataList title={title} value={getListItems(dataList[title])} key={title}></DataList>);
     }
     return response;
-  }
+  };
 
   if (props.telemetryData !== null) {
-    combine([], props.telemetryData.additional_data);
-    
+    // combine([], props.telemetryData.additional_data);
+    combine([], {});
+
     return (
       <SimpleBar className="data-container" forceVisible="y" autoHide={false}>
         {getFormattedLists()}
       </SimpleBar>
     );
+  } else {
+    return <div className="data-container container"></div>;
   }
-  else {
-    return (<div className="data-container container"></div>);
-  }  
-};
+}

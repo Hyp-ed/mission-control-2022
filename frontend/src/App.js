@@ -15,7 +15,7 @@ export default function App() {
   const [telemetryConnection, setTelemetryConnection] = useState(false);
   const [telemetryData, setTelemetryData] = useState(null); // change to testData for testing
   const [debugStatus, setDebugStatus] = useState(false);
-  const [debugData, setDebugData] = useState({"isCompiled": false, "isSuccess": true});
+  const [debugData, setDebugData] = useState({ isCompiled: false, isSuccess: true });
   const [terminalOutput, setTerminalOutput] = useState("");
   const [logTypes, setLogTypes] = useState([""]);
   const [submoduleTypes, setSubmoduleTypes] = useState([""]);
@@ -30,62 +30,50 @@ export default function App() {
     setStompClient(sc);
     sc.connect(
       {},
-      frame => {
-        sc.subscribe("/topic/telemetry/data", message =>
-          telemetryDataHandler(message)
-        );
-        sc.subscribe("/topic/telemetry/connection", message =>
-          telemetryConnectionHandler(message)
-        );
-        sc.subscribe("/topic/debug/output", message =>
-          terminalOutputHandler(message)
-        );
-        sc.subscribe("/topic/debug/status", message =>
-          debugStatusHandler(message)
-        );
-        sc.subscribe("/topic/debug/data", message =>
-          debugDataHandler(message)
-        );
-        sc.subscribe("/topic/errors", message =>
-          console.error(`ERROR FROM BACKEND: ${message}`)
-        );
+      (frame) => {
+        sc.subscribe("/topic/telemetry/data", (message) => telemetryDataHandler(message));
+        sc.subscribe("/topic/telemetry/connection", (message) => telemetryConnectionHandler(message));
+        sc.subscribe("/topic/debug/output", (message) => terminalOutputHandler(message));
+        sc.subscribe("/topic/debug/status", (message) => debugStatusHandler(message));
+        sc.subscribe("/topic/debug/data", (message) => debugDataHandler(message));
+        sc.subscribe("/topic/errors", (message) => console.error(`ERROR FROM BACKEND: ${message}`));
       },
-      error => disconnectHandler(error)
+      (error) => disconnectHandler(error)
     );
   }, []); // Only run once
-  
-  const debugDataHandler = message => {
+
+  const debugDataHandler = (message) => {
     var parsedMessage = JSON.parse(message.body);
     if (!parsedMessage.isSuccess) {
       setDebugErrorMessage(parsedMessage.errorMessage);
     }
     setDebugData(parsedMessage);
-  }
+  };
 
-  const telemetryConnectionHandler = message => {
+  const telemetryConnectionHandler = (message) => {
     setTelemetryConnection(message.body === "CONNECTED" ? true : false);
   };
 
-  const telemetryDataHandler = message => {
+  const telemetryDataHandler = (message) => {
     setTelemetryData(JSON.parse(message.body));
   };
 
-  const terminalOutputHandler = message => {
-    var jsonObj = JSON.parse(message.body)
+  const terminalOutputHandler = (message) => {
+    var jsonObj = JSON.parse(message.body);
     setTerminalOutput(JSON.parse(jsonObj.terminalOutput));
     setLogTypes(jsonObj.logTypes);
     setSubmoduleTypes(jsonObj.submoduleTypes);
     setCurStart(jsonObj.curStart);
   };
 
-  const debugStatusHandler = message => {
+  const debugStatusHandler = (message) => {
     if (message.body === "COMPILING") {
       setDebugModalOpen(false);
     }
     setDebugStatus(message.body);
   };
 
-  const disconnectHandler = error => {
+  const disconnectHandler = (error) => {
     if (error.startsWith("Whoops! Lost connection")) {
       setTelemetryConnection(false);
       console.error("DISCONNECTED FROM BACKEND");
@@ -94,10 +82,7 @@ export default function App() {
     }
   };
 
-  var state = "";
-  if (telemetryData !== null) {
-    state = telemetryData.crucial_data.find(o => o.name === "status").value;
-  }
+  var state = telemetryData !== null ? telemetryData.state_machine.current_state : "";
 
   // temporary solution to the timer, it should actually come from the pod side
   const [startTime, setStartTime] = useState(0);
@@ -108,22 +93,15 @@ export default function App() {
       setEndTime(0);
     } else if (state === "ACCELERATING" && startTime === 0) {
       setStartTime(telemetryData.time);
-    } else if (
-      (state === "RUN_COMPLETE" || state === "FAILURE_STOPPED") &&
-      endTime === 0
-    ) {
+    } else if ((state === "RUN_COMPLETE" || state === "FAILURE_STOPPED") && endTime === 0) {
       setEndTime(telemetryData.time);
     }
   }, [state, startTime, endTime, telemetryData]);
 
   return (
     <div className="gui-wrapper">
-      <GraphsContainer telemetryData={telemetryData}/>
-      <StatusContainer 
-        telemetryConnection={telemetryConnection}
-        telemetryData={telemetryData}
-        state={state}
-      />
+      <GraphsContainer telemetryData={telemetryData} />
+      <StatusContainer telemetryConnection={telemetryConnection} telemetryData={telemetryData} state={state} />
       <Terminal
         terminalOutput={terminalOutput}
         logTypes={logTypes}
@@ -131,33 +109,29 @@ export default function App() {
         curStart={curStart}
         stompClient={stompClient}
       />
-      <Timer 
-        startTime={startTime}
-        endTime={endTime}
-        telemetryData={telemetryData}
-      />
-      <Gauge title="Distance" gaugeId="distance" telemetryData={telemetryData}/>
-      <Gauge title="Velocity" gaugeId="velocity" telemetryData={telemetryData}/>
-      <Gauge title="Acceleration" gaugeId="acceleration" telemetryData={telemetryData}/>
-      <DataContainer telemetryData={telemetryData}/>
-      <ButtonContainer 
+      <Timer startTime={startTime} endTime={endTime} telemetryData={telemetryData} />
+      <Gauge title="Displacement" gaugeId="displacement" telemetryData={telemetryData} />
+      <Gauge title="Velocity" gaugeId="velocity" telemetryData={telemetryData} />
+      <Gauge title="Acceleration" gaugeId="acceleration" telemetryData={telemetryData} />
+      <DataContainer telemetryData={telemetryData} />
+      <ButtonContainer
         stompClient={stompClient}
         telemetryConnection={telemetryConnection}
         state={state}
         setModalOpen={setModalOpen}
-        debugData = {debugData}
+        debugData={debugData}
         debugStatus={debugStatus}
         setDebugStatus={setDebugStatus}
         setDebugErrorMessage={setDebugErrorMessage}
       />
       <SetupModal stompClient={stompClient} isModalOpen={isModalOpen} setModalOpen={setModalOpen} />
-      <DebugModal 
-        stompClient={stompClient} 
-        isDebugModalOpen={isDebugModalOpen} 
-        setDebugModalOpen={setDebugModalOpen} 
+      <DebugModal
+        stompClient={stompClient}
+        isDebugModalOpen={isDebugModalOpen}
+        setDebugModalOpen={setDebugModalOpen}
         debugStatus={debugStatus}
         setDebugStatus={setDebugStatus}
-        debugErrorMessage={debugErrorMessage} 
+        debugErrorMessage={debugErrorMessage}
       />
     </div>
   );
