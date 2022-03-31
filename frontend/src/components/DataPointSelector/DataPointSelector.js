@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import "./DataPointSelector.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import { getAllPaths } from "../../DataTools";
 import SimpleBar from "simplebar-react";
 import CONSTANTS from "../../constants.json";
 import "simplebar/dist/simplebar.min.css";
