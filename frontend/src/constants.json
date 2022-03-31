@@ -15,5 +15,55 @@
       "max": 50,
       "units": "m/s^2"
     }
-  }
+  },
+  "graphable_paths": [
+    {
+      "path": "navigation.acceleration",
+      "caption": "Acceleration"
+    },
+    {
+      "path": "navigation.velocity",
+      "caption": "Velocity"
+    },
+    {
+      "path": "navigation.displacement",
+      "caption": "Displacement"
+    },
+    {
+      "path": "navigation.emergency_braking_distance",
+      "caption": "Emergency Braking Distance"
+    },
+    {
+      "path": "sensors.hp_batteries.voltage",
+      "caption": "HP Voltage"
+    },
+    {
+      "path": "sensors.hp_batteries.current",
+      "caption": "HP Current"
+    },
+    {
+      "path": "sensors.hp_batteries.average_temp",
+      "caption": "HP Average Temperature"
+    },
+    {
+      "path": "sensors.hp_batteries.charge",
+      "caption": "HP Charge"
+    },
+    {
+      "path": "sensors.lp_batteries.voltage",
+      "caption": "LP Voltage"
+    },
+    {
+      "path": "sensors.lp_batteries.current",
+      "caption": "LP Current"
+    },
+    {
+      "path": "sensors.lp_batteries.average_temp",
+      "caption": "LP Average Temperature"
+    },
+    {
+      "path": "sensors.lp_batteries.charge",
+      "caption": "LP Charge"
+    }
+  ]
 }

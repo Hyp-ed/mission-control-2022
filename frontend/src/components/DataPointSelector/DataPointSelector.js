@@ -4,18 +4,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { getAllPaths } from "../../DataTools";
 import SimpleBar from "simplebar-react";
+import CONSTANTS from "../../constants.json";
 import "simplebar/dist/simplebar.min.css";
 
 export default function DataPointSelector(props) {
-  const [paths, setPaths] = useState([]);
-
-  useEffect(() => {
-    // setPaths(getAllPaths(props.telemetryData));
-  }, [props.telemetryData]);
-
   const getPathList = () => {
     // const paths = ;
-    return paths
+    return CONSTANTS.graphable_paths
       .filter((path) => path !== undefined)
       .map((path, i) => (
         <div
