@@ -4,8 +4,7 @@ import "chartjs-plugin-streaming";
 import "./LineGraph.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { isEqual } from "lodash";
-import { getDataPointValue } from "../../DataTools";
-import { capitalize } from "lodash";
+import CONSTANTS from "../../constants.json";
 
 const COLORS = [
   "#BF000B", // dark red
@@ -18,7 +17,7 @@ const COLORS = [
   "#FF7F02", // orange
   "#6B3D9A", // purple
   "#B15928", // brown
-  "#4BBEBE" // green
+  "#4BBEBE", // green
 ];
 
 /**
@@ -29,9 +28,7 @@ const useDeepEffect = (fn, deps) => {
   const prevDeps = useRef(deps);
 
   useEffect(() => {
-    const isSame = prevDeps.current.every((obj, index) =>
-      isEqual(obj, deps[index])
-    );
+    const isSame = prevDeps.current.every((obj, index) => isEqual(obj, deps[index]));
 
     if (isFirst.current || !isSame) {
       fn();
@@ -42,18 +39,17 @@ const useDeepEffect = (fn, deps) => {
   }, [fn, deps]);
 };
 
-const IGNORE_KEYS = ["additional_data", "crucial_data"];
-const DELIMITER = " > ";
+const getValueFromPath = (telemetryData, path) => path.split(".").reduce((a, v) => a[v], telemetryData);
 
 export default function LineGraph(props) {
   const [pathData, setPathData] = useState({});
 
   useDeepEffect(() => {
-    setPathData(oldPathData => {
-      props.paths.forEach(path => {
+    setPathData((oldPathData) => {
+      props.paths.forEach((path) => {
         const dataPoint = {
           x: props.telemetryData.time,
-          y: getDataPointValue(props.telemetryData, path)
+          y: getValueFromPath(props.telemetryData, path),
         };
         if (oldPathData.hasOwnProperty(path)) {
           oldPathData[path] = [...oldPathData[path], dataPoint];
@@ -65,28 +61,15 @@ export default function LineGraph(props) {
     });
   }, [props.telemetryData]);
 
-  const getLabel = path => {
-    if (path.length === 1) {
-      return path[0];
-    }
-    const parentKey = path[path.length - 2];
-    const key = path[path.length - 1];
-    if (IGNORE_KEYS.includes(parentKey)) {
-      return capitalize(key);
-    } else {
-      return [parentKey, key].join(DELIMITER);
-    }
-  };
-
   const getFormattedData = () => {
     return {
       datasets: Array.from(props.paths, (path, i) => {
         return {
-          label: getLabel(path),
+          label: CONSTANTS.graphable_paths.find((p) => p.path === path).caption,
           data: pathData[path],
-          borderColor: COLORS[(5 * props.ID + i) % COLORS.length] // shift and cycle colors
+          borderColor: COLORS[(5 * props.ID + i) % COLORS.length], // shift and cycle colors
         };
-      })
+      }),
     };
   };
 
@@ -97,14 +80,12 @@ export default function LineGraph(props) {
   const onSelectClicked = () => {
     props.onSelectClicked(props.ID);
   };
-          //Select data points
+  //Select data points
   return (
     <div id="graph-container">
       <div id="button-container">
-        <FontAwesomeIcon
-        />
-        <span id="select-button" onClick={onSelectClicked}>
-        </span>
+        <FontAwesomeIcon />
+        <span id="select-button" onClick={onSelectClicked}></span>
       </div>
       <div id="graph-wrapper">
         <Line data={getFormattedData} />

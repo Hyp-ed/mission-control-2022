@@ -23,7 +23,7 @@ public class Server implements Runnable {
   private static final String BUILD_DIRECTORY = "gui-build";
   private static final String CONFIG_DIRECTORY = "configurations";
   private static final String BASE_CONFIG_FILE = "config.json";
-  private static final String FAKE_DATA_CONFIG_FILE = "fake_config.json";
+  private static final String FAKE_DATA_CONFIG_FILE = "fake_data.json";
   private static final String SERVER_CONFIG_FILE = "config.server.json";
 
   private Socket telemetryClient; // TCP socket to pod
