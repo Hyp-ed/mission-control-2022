@@ -78,7 +78,13 @@ export default function SetupModal(props) {
           <div className="input-group-multiple">{getChoiceList(fakeSystems)}</div>
         </div>
         <div className="setup-wrapper-buttons">
-          <Button caption="RUN" handleClick={handleRunClick} backgroundColor="button-blue" icon={faPlay}></Button>
+          <Button
+            caption="RUN"
+            handleClick={handleRunClick}
+            backgroundColor="button-blue"
+            icon={faPlay}
+            testId="setup-run-button"
+          ></Button>
         </div>
       </div>
     </Modal>

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./Button.css";
 
 export default function Button(props) {
-  const getClassNames = backgroundColor => {
+  const getClassNames = (backgroundColor) => {
     var classes = ["button"];
 
     if (props.disabled) {
@@ -15,15 +15,8 @@ export default function Button(props) {
   };
 
   return (
-    <button
-      className={getClassNames(props.backgroundColor)}
-      onClick={props.handleClick}
-    >
-      <FontAwesomeIcon
-        className="button-icon"
-        icon={props.icon}
-        spin={props.spin}
-      />
+    <button className={getClassNames(props.backgroundColor)} onClick={props.handleClick} data-test={props.testId}>
+      <FontAwesomeIcon className="button-icon" icon={props.icon} spin={props.spin} />
       {props.caption}
     </button>
   );
