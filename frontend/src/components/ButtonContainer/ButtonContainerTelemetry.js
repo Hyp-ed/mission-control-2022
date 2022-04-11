@@ -12,50 +12,50 @@ import Button from "../Button/Button";
 
 export default function ButtonContainerTelemetry(props) {
   const [isMainDisabled, setMainDisabled] = useState(false);
-  
+
   const buttons = {
     calibrate: {
       caption: "CALIBRATE",
       icon: faRuler,
       backgroundColor: "button-blue-pulse",
-      command: "CALIBRATE"
+      command: "CALIBRATE",
     },
     calibrating: {
       caption: "CALIBRATING",
       icon: faSpinner,
       spin: true,
-      backgroundColor: "button-blue"
+      backgroundColor: "button-blue",
     },
     launch: {
       caption: "LAUNCH",
       icon: faForward,
       backgroundColor: "button-green-pulse",
-      command: "LAUNCH"
+      command: "LAUNCH",
     },
     shutdown: {
       caption: "SHUTDOWN",
       icon: faPowerOff,
       backgroundColor: "button-red",
-      command: "SHUTDOWN"
+      command: "SHUTDOWN",
     },
     abort: {
       caption: "ABORT",
       icon: faExclamationTriangle,
       backgroundColor: "button-red",
-      command: "STOP"
+      command: "STOP",
     },
     brakes_retract: {
       caption: "RETRACT",
       icon: faLockOpen,
       backgroundColor: "button-blue",
-      command: "NOMINAL_RETRACT"
+      command: "NOMINAL_RETRACT",
     },
     brakes_engage: {
       caption: "ENGAGE",
       icon: faLock,
       backgroundColor: "button-blue",
-      command: "NOMINAL_BRAKING"
-    }
+      command: "NOMINAL_BRAKING",
+    },
   };
 
   const handleClick = (command, disabled) => {
@@ -86,6 +86,7 @@ export default function ButtonContainerTelemetry(props) {
         backgroundColor={button.backgroundColor}
         disabled={disabled}
         key={button.caption}
+        testId={`${button.caption.toLowerCase()}-button`}
       ></Button>
     );
   };
@@ -95,7 +96,7 @@ export default function ButtonContainerTelemetry(props) {
       case "IDLE":
         return getButton(buttons.calibrate, isMainDisabled);
       case "PRE_CALIBRATING":
-          return getButton(buttons.calibrate, isMainDisabled);
+        return getButton(buttons.calibrate, isMainDisabled);
       case "CALIBRATING":
         return getButton(buttons.calibrating, true);
       case "READY":
@@ -132,10 +133,7 @@ export default function ButtonContainerTelemetry(props) {
     switch (props.state) {
       case "IDLE":
       case "FINISHED":
-        return ([
-            getButton(buttons.brakes_retract, isMainDisabled),
-            getButton(buttons.brakes_engage, isMainDisabled)]
-        );
+        return [getButton(buttons.brakes_retract, isMainDisabled), getButton(buttons.brakes_engage, isMainDisabled)];
       default:
         return null;
     }
@@ -148,4 +146,4 @@ export default function ButtonContainerTelemetry(props) {
       {getMainButton()}
     </div>
   );
-};
+}
